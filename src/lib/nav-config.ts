@@ -58,16 +58,6 @@ export const mainNavItems: NavItem[] = [
     ],
   },
   {
-    id: "gezi-takvimi",
-    label: "Gezi Takvimi",
-    href: "/gezi-takvimi",
-  },
-  {
-    id: "galeri",
-    label: "Galeri",
-    href: "/galeri",
-  },
-  {
     id: "yurt-ici",
     label: "Yurt İçi",
     href: "/turlar?bolge=yurt-ici",
@@ -90,13 +80,23 @@ export const mainNavItems: NavItem[] = [
     ],
   },
   {
+    id: "gezi-takvimi",
+    label: "Gezi Takvimi",
+    href: "/gezi-takvimi",
+  },
+  {
+    id: "galeri",
+    label: "Galeri",
+    href: "/galeri",
+  },
+  {
     id: "iletisim",
     label: "İletişim",
     href: "/iletisim",
   },
 ];
 
-const STATIC_NAV_IDS = new Set(["gezi-takvimi", "galeri", "iletisim"]);
+const TAIL_NAV_IDS = ["gezi-takvimi", "galeri", "iletisim"] as const;
 
 export function buildNavItemsFromRegions(regions: NavRegion[]): NavItem[] {
   const byId = new Map(regions.map((region) => [region.id, region]));
@@ -130,10 +130,6 @@ export function buildNavItemsFromRegions(regions: NavRegion[]): NavItem[] {
     });
   }
 
-  const staticItems = mainNavItems.filter((item) => STATIC_NAV_IDS.has(item.id));
-  const galeriIndex = staticItems.findIndex((item) => item.id === "galeri");
-  dynamicItems.push(...staticItems.slice(0, galeriIndex + 1));
-
   const yurtIci = byId.get("yurt-ici");
   if (yurtIci) {
     const staticYurtIci = mainNavItems.find((item) => item.id === "yurt-ici");
@@ -145,7 +141,10 @@ export function buildNavItemsFromRegions(regions: NavRegion[]): NavItem[] {
     });
   }
 
-  dynamicItems.push(...staticItems.slice(galeriIndex + 1));
+  for (const id of TAIL_NAV_IDS) {
+    const item = mainNavItems.find((navItem) => navItem.id === id);
+    if (item) dynamicItems.push(item);
+  }
 
   return dynamicItems;
 }
