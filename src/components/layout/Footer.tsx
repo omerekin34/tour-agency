@@ -114,6 +114,8 @@ export default function Footer() {
                   strokeWidth={1.5}
                 />
                 <span className="text-sm leading-relaxed text-white/70">
+                  {contactInfo.companyName}
+                  <br />
                   {contactInfo.address}
                 </span>
               </li>

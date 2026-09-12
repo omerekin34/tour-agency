@@ -34,9 +34,9 @@ const contactCards = [
   {
     icon: MapPin,
     label: "Adres",
-    value: contactInfo.address,
+    value: contactInfo.companyName,
     href: contactInfo.mapHref,
-    hint: "Haritada görüntüle",
+    hint: contactInfo.address,
   },
   {
     icon: MessageCircle,
