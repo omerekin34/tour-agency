@@ -23,6 +23,7 @@ import {
   formatTourPrice,
 } from "@/lib/data";
 import type { ManagedTour } from "@/lib/tours-shared";
+import type { ItineraryDay } from "@/lib/tour-details";
 import {
   buildItineraryTemplate,
   CATEGORY_OPTIONS,
@@ -30,19 +31,16 @@ import {
   CURRENCY_OPTIONS,
   linesToList,
   listToLines,
-  parseItineraryJson,
   slugifyTourId,
 } from "@/lib/tours-shared";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+
+const nativeSelectClassName = cn(
+  "min-h-11 w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 text-sm text-navy-900",
+  "outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
+);
 
 type EditorMode = "create" | "edit";
 
@@ -66,7 +64,7 @@ type TourFormState = {
   excludesText: string;
   galleryText: string;
   videoUrl: string;
-  itineraryJson: string;
+  itinerary: ItineraryDay[];
 };
 
 function tourToForm(tour: ManagedTour): TourFormState {
@@ -90,7 +88,10 @@ function tourToForm(tour: ManagedTour): TourFormState {
     excludesText: listToLines(tour.excludes),
     galleryText: listToLines(tour.gallery),
     videoUrl: tour.videoUrl,
-    itineraryJson: JSON.stringify(tour.itinerary, null, 2),
+    itinerary:
+      tour.itinerary.length > 0
+        ? tour.itinerary
+        : buildItineraryTemplate(tour.days),
   };
 }
 
@@ -115,7 +116,11 @@ function formToPayload(form: TourFormState): Partial<ManagedTour> {
     excludes: linesToList(form.excludesText),
     gallery: linesToList(form.galleryText),
     videoUrl: form.videoUrl.trim(),
-    itinerary: parseItineraryJson(form.itineraryJson),
+    itinerary: form.itinerary.map((day, index) => ({
+      day: index + 1,
+      title: day.title.trim() || `${index + 1}. Gün`,
+      description: day.description.trim() || "Program detayını buraya yazın.",
+    })),
   };
 }
 
@@ -229,7 +234,58 @@ export default function ToursPanel() {
       const days = Number(prev.days) || 1;
       return {
         ...prev,
-        itineraryJson: JSON.stringify(buildItineraryTemplate(days), null, 2),
+        itinerary: buildItineraryTemplate(days),
+      };
+    });
+  };
+
+  const updateItineraryDay = (
+    index: number,
+    field: keyof ItineraryDay,
+    value: string | number,
+  ) => {
+    setForm((prev) => {
+      if (!prev) return prev;
+      const itinerary = prev.itinerary.map((day, dayIndex) =>
+        dayIndex === index ? { ...day, [field]: value } : day,
+      );
+      return { ...prev, itinerary };
+    });
+  };
+
+  const addItineraryDay = () => {
+    setForm((prev) => {
+      if (!prev) return prev;
+      const nextDay = prev.itinerary.length + 1;
+      return {
+        ...prev,
+        days: String(nextDay),
+        itinerary: [
+          ...prev.itinerary,
+          {
+            day: nextDay,
+            title: `${nextDay}. Gün`,
+            description: "Program detayını buraya yazın.",
+          },
+        ],
+      };
+    });
+  };
+
+  const removeItineraryDay = (index: number) => {
+    setForm((prev) => {
+      if (!prev || prev.itinerary.length <= 1) return prev;
+      const itinerary = prev.itinerary
+        .filter((_, dayIndex) => dayIndex !== index)
+        .map((day, dayIndex) => ({
+          ...day,
+          day: dayIndex + 1,
+          title: day.title || `${dayIndex + 1}. Gün`,
+        }));
+      return {
+        ...prev,
+        days: String(itinerary.length),
+        itinerary,
       };
     });
   };
@@ -243,6 +299,10 @@ export default function ToursPanel() {
     setSuccessMessage("");
 
     try {
+      if (!form.image.trim()) {
+        throw new Error("Kapak görseli URL alanı zorunludur.");
+      }
+
       let tourPayload: ManagedTour;
       try {
         tourPayload = formToManagedTour(form);
@@ -451,8 +511,14 @@ export default function ToursPanel() {
       </div>
 
       {selected && form && (
-        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-brand-navy-950/50 p-0 sm:items-center sm:p-4">
-          <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+        <div
+          className="fixed inset-0 z-[80] flex items-end justify-center bg-brand-navy-950/50 p-0 sm:items-center sm:p-4"
+          onClick={closeEditor}
+        >
+          <div
+            className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-navy-900/8 px-5 py-4">
               <div>
                 <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
@@ -518,30 +584,27 @@ export default function ToursPanel() {
                 </Field>
 
                 <Field label="Bölge">
-                  <Select
+                  <select
                     value={form.category}
-                    onValueChange={(value) => {
-                      if (!value) return;
+                    onChange={(e) => {
+                      const category = e.target.value as ManagedTour["category"];
                       setForm(
                         (prev) =>
                           prev && {
                             ...prev,
-                            category: value as ManagedTour["category"],
+                            category,
+                            currency: category === "yurt-ici" ? "TRY" : prev.currency,
                           },
                       );
                     }}
+                    className={nativeSelectClassName}
                   >
-                    <SelectTrigger className="min-h-11 w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORY_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
 
                 <Field label="Tur Tarihi">
@@ -570,30 +633,25 @@ export default function ToursPanel() {
                 </Field>
 
                 <Field label="Para Birimi">
-                  <Select
+                  <select
                     value={form.currency}
-                    onValueChange={(value) => {
-                      if (!value) return;
+                    onChange={(e) =>
                       setForm(
                         (prev) =>
                           prev && {
                             ...prev,
-                            currency: value as ManagedTour["currency"],
+                            currency: e.target.value as ManagedTour["currency"],
                           },
-                      );
-                    }}
+                      )
+                    }
+                    className={nativeSelectClassName}
                   >
-                    <SelectTrigger className="min-h-11 w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CURRENCY_OPTIONS.map((currency) => (
-                        <SelectItem key={currency.value} value={currency.value}>
-                          {currency.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {CURRENCY_OPTIONS.map((currency) => (
+                      <option key={currency.value} value={currency.value}>
+                        {currency.label}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
 
                 <Field label="Gün Sayısı">
@@ -650,7 +708,7 @@ export default function ToursPanel() {
                     onChange={(e) =>
                       setForm((prev) => prev && { ...prev, image: e.target.value })
                     }
-                    required
+                    placeholder="https://... veya /images/tours/..."
                     className="min-h-11"
                   />
                 </Field>
@@ -709,30 +767,13 @@ export default function ToursPanel() {
                   }
                 />
 
-                <Field label="Gün Programı" className="md:col-span-2">
-                  <div className="mb-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={generateItinerary}
-                      className="min-h-9"
-                    >
-                      <Wand2 className="size-4" />
-                      Gün sayısına göre program oluştur
-                    </Button>
-                  </div>
-                  <textarea
-                    value={form.itineraryJson}
-                    onChange={(e) =>
-                      setForm((prev) => prev && { ...prev, itineraryJson: e.target.value })
-                    }
-                    rows={8}
-                    className="w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 py-3 font-mono text-xs outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20"
-                  />
-                  <p className="mt-1 text-xs text-navy-600/60">
-                    Her gün için başlık ve açıklama yazın. Üstteki buton otomatik şablon oluşturur.
-                  </p>
-                </Field>
+                <ItineraryEditor
+                  itinerary={form.itinerary}
+                  onGenerate={generateItinerary}
+                  onAddDay={addItineraryDay}
+                  onRemoveDay={removeItineraryDay}
+                  onUpdateDay={updateItineraryDay}
+                />
 
                 <label className="flex items-center gap-2 text-sm text-navy-800">
                   <input
@@ -839,6 +880,82 @@ function TextAreaField({
           "focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
         )}
       />
+    </Field>
+  );
+}
+
+function ItineraryEditor({
+  itinerary,
+  onGenerate,
+  onAddDay,
+  onRemoveDay,
+  onUpdateDay,
+}: {
+  itinerary: ItineraryDay[];
+  onGenerate: () => void;
+  onAddDay: () => void;
+  onRemoveDay: (index: number) => void;
+  onUpdateDay: (
+    index: number,
+    field: keyof ItineraryDay,
+    value: string | number,
+  ) => void;
+}) {
+  return (
+    <Field label="Gün Programı" className="md:col-span-2">
+      <div className="mb-3 flex flex-wrap gap-2">
+        <Button type="button" variant="outline" onClick={onGenerate} className="min-h-9">
+          <Wand2 className="size-4" />
+          Gün sayısına göre oluştur
+        </Button>
+        <Button type="button" variant="outline" onClick={onAddDay} className="min-h-9">
+          <Plus className="size-4" />
+          Gün ekle
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        {itinerary.map((day, index) => (
+          <div
+            key={`${day.day}-${index}`}
+            className="rounded-2xl border border-navy-900/8 bg-zinc-50/70 p-4"
+          >
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-medium text-navy-900">{index + 1}. Gün</p>
+              {itinerary.length > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onRemoveDay(index)}
+                  className="min-h-8 text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="size-3.5" />
+                  Günü sil
+                </Button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <Input
+                value={day.title}
+                onChange={(e) => onUpdateDay(index, "title", e.target.value)}
+                placeholder="Gün başlığı"
+                className="min-h-10"
+              />
+              <textarea
+                value={day.description}
+                onChange={(e) => onUpdateDay(index, "description", e.target.value)}
+                rows={3}
+                placeholder="O günün program detayı"
+                className={cn(
+                  "w-full rounded-xl border border-navy-900/10 bg-white px-3 py-3 text-sm outline-none",
+                  "focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
+                )}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
     </Field>
   );
 }
