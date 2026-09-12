@@ -3,11 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
+  Copy,
   Pencil,
+  Plus,
   RefreshCw,
   Save,
   Search,
+  Trash2,
   Users,
+  Wand2,
   X,
 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
@@ -20,11 +24,14 @@ import {
 } from "@/lib/data";
 import type { ManagedTour } from "@/lib/tours-shared";
 import {
+  buildItineraryTemplate,
   CATEGORY_OPTIONS,
+  createDefaultManagedTour,
   CURRENCY_OPTIONS,
   linesToList,
   listToLines,
   parseItineraryJson,
+  slugifyTourId,
 } from "@/lib/tours-shared";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,7 +44,10 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
+type EditorMode = "create" | "edit";
+
 type TourFormState = {
+  id: string;
   title: string;
   category: ManagedTour["category"];
   date: string;
@@ -61,6 +71,7 @@ type TourFormState = {
 
 function tourToForm(tour: ManagedTour): TourFormState {
   return {
+    id: tour.id,
     title: tour.title,
     category: tour.category,
     date: tour.date,
@@ -108,13 +119,23 @@ function formToPayload(form: TourFormState): Partial<ManagedTour> {
   };
 }
 
+function formToManagedTour(form: TourFormState): ManagedTour {
+  return {
+    id: form.id.trim(),
+    ...(formToPayload(form) as Omit<ManagedTour, "id">),
+  };
+}
+
 export default function ToursPanel() {
   const session = useAdminSession();
   const [tours, setTours] = useState<ManagedTour[]>([]);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<ManagedTour | null>(null);
   const [form, setForm] = useState<TourFormState | null>(null);
+  const [editorMode, setEditorMode] = useState<EditorMode>("edit");
+  const [idTouched, setIdTouched] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
@@ -156,17 +177,61 @@ export default function ToursPanel() {
     );
   }, [tours, search]);
 
-  const openEditor = (tour: ManagedTour) => {
+  const openEditor = (tour: ManagedTour, mode: EditorMode = "edit") => {
     setSelected(tour);
     setForm(tourToForm(tour));
+    setEditorMode(mode);
+    setIdTouched(mode === "edit");
     setError("");
     setSuccessMessage("");
+  };
+
+  const openCreateEditor = () => {
+    openEditor(createDefaultManagedTour(), "create");
+  };
+
+  const openDuplicateEditor = (tour: ManagedTour) => {
+    const copyTitle = `${tour.title} (Kopya)`;
+    openEditor(
+      {
+        ...tour,
+        id: slugifyTourId(copyTitle),
+        title: copyTitle,
+        published: false,
+        featured: false,
+      },
+      "create",
+    );
   };
 
   const closeEditor = () => {
     setSelected(null);
     setForm(null);
+    setEditorMode("edit");
+    setIdTouched(false);
     setSuccessMessage("");
+  };
+
+  const updateTitle = (title: string) => {
+    setForm((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, title };
+      if (editorMode === "create" && !idTouched) {
+        next.id = slugifyTourId(title);
+      }
+      return next;
+    });
+  };
+
+  const generateItinerary = () => {
+    setForm((prev) => {
+      if (!prev) return prev;
+      const days = Number(prev.days) || 1;
+      return {
+        ...prev,
+        itineraryJson: JSON.stringify(buildItineraryTemplate(days), null, 2),
+      };
+    });
   };
 
   const saveTour = async (e: React.FormEvent) => {
@@ -178,22 +243,23 @@ export default function ToursPanel() {
     setSuccessMessage("");
 
     try {
-      let payload: Partial<ManagedTour>;
+      let tourPayload: ManagedTour;
       try {
-        payload = formToPayload(form);
+        tourPayload = formToManagedTour(form);
       } catch (err) {
         throw new Error(
           err instanceof Error ? err.message : "Form verileri geçersiz.",
         );
       }
 
-      const res = await fetch(`/api/turlar/${selected.id}`, {
-        method: "PATCH",
+      const isCreate = editorMode === "create";
+      const res = await fetch(isCreate ? "/api/turlar" : `/api/turlar/${selected.id}`, {
+        method: isCreate ? "POST" : "PATCH",
         headers: {
           "Content-Type": "application/json",
           "x-admin-key": adminKey,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(isCreate ? tourPayload : formToPayload(form)),
       });
 
       const data = (await res.json()) as {
@@ -201,23 +267,57 @@ export default function ToursPanel() {
         message?: string;
         tour?: ManagedTour;
       };
-      if (!res.ok) throw new Error(data.error ?? "Tur güncellenemedi.");
+      if (!res.ok) {
+        throw new Error(data.error ?? (isCreate ? "Tur eklenemedi." : "Tur güncellenemedi."));
+      }
 
       if (data.tour) {
         setTours((prev) =>
-          prev.map((item) => (item.id === data.tour!.id ? data.tour! : item)),
+          isCreate
+            ? [...prev, data.tour!].sort((a, b) => a.date.localeCompare(b.date))
+            : prev.map((item) => (item.id === data.tour!.id ? data.tour! : item)),
         );
         setSelected(data.tour);
         setForm(tourToForm(data.tour));
+        setEditorMode("edit");
+        setIdTouched(true);
       }
 
       setSuccessMessage(
         data.message ?? "Tur başarılı bir şekilde kaydedildi.",
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Tur güncellenemedi.");
+      setError(err instanceof Error ? err.message : "Tur kaydedilemedi.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteTour = async () => {
+    if (!adminKey || !selected || editorMode === "create") return;
+    if (!window.confirm(`"${selected.title}" turunu silmek istediğinize emin misiniz?`)) {
+      return;
+    }
+
+    setDeleting(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      const res = await fetch(`/api/turlar/${selected.id}`, {
+        method: "DELETE",
+        headers: { "x-admin-key": adminKey },
+      });
+      const data = (await res.json()) as { error?: string; message?: string };
+      if (!res.ok) throw new Error(data.error ?? "Tur silinemedi.");
+
+      setTours((prev) => prev.filter((item) => item.id !== selected.id));
+      setSuccessMessage(data.message ?? "Tur başarılı bir şekilde silindi.");
+      closeEditor();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Tur silinemedi.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -240,19 +340,29 @@ export default function ToursPanel() {
           <div>
             <h1 className="text-2xl font-light text-navy-900">Tur Yönetimi</h1>
             <p className="mt-1 max-w-2xl text-sm text-navy-700/70">
-              Kartlarda ve tur detay sayfalarında görünen tüm bilgileri buradan
-              düzenleyin. Değişiklikler Supabase üzerinden canlı siteye yansır.
+              Tur ekleyin, kopyalayın, düzenleyin veya silin. Form alanları
+              hazır şablonlarla dolar; sadece bilgileri değiştirmeniz yeterli.
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => adminKey && fetchTours(adminKey)}
-            className="min-h-10"
-          >
-            <RefreshCw className="size-4" />
-            Yenile
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              onClick={openCreateEditor}
+              className="min-h-10 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
+            >
+              <Plus className="size-4" />
+              Yeni Tur Ekle
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => adminKey && fetchTours(adminKey)}
+              className="min-h-10"
+            >
+              <RefreshCw className="size-4" />
+              Yenile
+            </Button>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm sm:p-5">
@@ -314,15 +424,26 @@ export default function ToursPanel() {
                   </p>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => openEditor(tour)}
-                  className="min-h-10 w-full"
-                >
-                  <Pencil className="size-4" />
-                  Düzenle
-                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => openEditor(tour)}
+                    className="min-h-10"
+                  >
+                    <Pencil className="size-4" />
+                    Düzenle
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => openDuplicateEditor(tour)}
+                    className="min-h-10"
+                  >
+                    <Copy className="size-4" />
+                    Kopyala
+                  </Button>
+                </div>
               </article>
             ))}
           </div>
@@ -335,9 +456,11 @@ export default function ToursPanel() {
             <div className="flex items-center justify-between border-b border-navy-900/8 px-5 py-4">
               <div>
                 <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
-                  Tur Düzenle
+                  {editorMode === "create" ? "Yeni Tur" : "Tur Düzenle"}
                 </p>
-                <h2 className="text-lg font-medium text-navy-900">{selected.title}</h2>
+                <h2 className="text-lg font-medium text-navy-900">
+                  {editorMode === "create" ? "Tur bilgilerini doldurun" : selected.title}
+                </h2>
               </div>
               <button
                 type="button"
@@ -363,12 +486,32 @@ export default function ToursPanel() {
               )}
 
               <div className="grid gap-4 md:grid-cols-2">
+                <Field
+                  label={editorMode === "create" ? "Tur Kodu (benzersiz)" : "Tur Kodu"}
+                  className="md:col-span-2"
+                >
+                  <Input
+                    value={form.id}
+                    onChange={(e) => {
+                      setIdTouched(true);
+                      setForm((prev) => prev && { ...prev, id: e.target.value });
+                    }}
+                    readOnly={editorMode === "edit"}
+                    required
+                    placeholder="tour-ornek-tur"
+                    className="min-h-11"
+                  />
+                  {editorMode === "create" && (
+                    <p className="mt-1 text-xs text-navy-600/60">
+                      Tur adını yazdıkça otomatik oluşur. İsterseniz elle değiştirebilirsiniz.
+                    </p>
+                  )}
+                </Field>
+
                 <Field label="Tur Adı" className="md:col-span-2">
                   <Input
                     value={form.title}
-                    onChange={(e) =>
-                      setForm((prev) => prev && { ...prev, title: e.target.value })
-                    }
+                    onChange={(e) => updateTitle(e.target.value)}
                     required
                     className="min-h-11"
                   />
@@ -566,7 +709,18 @@ export default function ToursPanel() {
                   }
                 />
 
-                <Field label="Gün Programı (JSON)" className="md:col-span-2">
+                <Field label="Gün Programı" className="md:col-span-2">
+                  <div className="mb-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={generateItinerary}
+                      className="min-h-9"
+                    >
+                      <Wand2 className="size-4" />
+                      Gün sayısına göre program oluştur
+                    </Button>
+                  </div>
                   <textarea
                     value={form.itineraryJson}
                     onChange={(e) =>
@@ -576,7 +730,7 @@ export default function ToursPanel() {
                     className="w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 py-3 font-mono text-xs outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20"
                   />
                   <p className="mt-1 text-xs text-navy-600/60">
-                    Örnek: {`[{"day":1,"title":"Gün 1","description":"..."}]`}
+                    Her gün için başlık ve açıklama yazın. Üstteki buton otomatik şablon oluşturur.
                   </p>
                 </Field>
 
@@ -606,13 +760,35 @@ export default function ToursPanel() {
               <div className="mt-6 flex flex-wrap gap-3 border-t border-navy-900/8 pt-5">
                 <Button
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || deleting}
                   className="min-h-11 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
                 >
                   <Save className="size-4" />
-                  {saving ? "Kaydediliyor..." : "Kaydet"}
+                  {saving
+                    ? "Kaydediliyor..."
+                    : editorMode === "create"
+                      ? "Tur Ekle"
+                      : "Kaydet"}
                 </Button>
-                <Button type="button" variant="outline" onClick={closeEditor} className="min-h-11">
+                {editorMode === "edit" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={saving || deleting}
+                    onClick={() => void deleteTour()}
+                    className="min-h-11 text-red-700 hover:bg-red-50 hover:text-red-800"
+                  >
+                    <Trash2 className="size-4" />
+                    {deleting ? "Siliniyor..." : "Sil"}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeEditor}
+                  disabled={saving || deleting}
+                  className="min-h-11"
+                >
                   Vazgeç
                 </Button>
               </div>

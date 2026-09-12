@@ -220,3 +220,41 @@ export async function updateManagedTour(
 
   return next;
 }
+
+async function deleteTourFromSupabase(id: string) {
+  if (!isSupabaseConfigured()) return;
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("tours").delete().eq("id", id);
+
+  if (error && !isMissingToursTable(error)) {
+    throw error;
+  }
+}
+
+export async function createManagedTour(tour: ManagedTour): Promise<ManagedTour> {
+  const tours = await ensureToursLoaded();
+
+  if (tours.some((item) => item.id === tour.id)) {
+    throw new Error("Bu tur kodu zaten kullanılıyor. Farklı bir kod seçin.");
+  }
+
+  const list = [...tours, tour].sort((a, b) => a.date.localeCompare(b.date));
+
+  await syncTourToSupabase(tour);
+  await persistToursLocally(list);
+
+  return tour;
+}
+
+export async function deleteManagedTour(id: string): Promise<boolean> {
+  const tours = await ensureToursLoaded();
+  const next = tours.filter((tour) => tour.id !== id);
+
+  if (next.length === tours.length) return false;
+
+  await deleteTourFromSupabase(id);
+  await persistToursLocally(next);
+
+  return true;
+}

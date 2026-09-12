@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isValidAdminKey } from "@/lib/applications";
 import {
+  deleteManagedTour,
   ensureToursLoaded,
   getManagedTourById,
   updateManagedTour,
@@ -56,6 +57,31 @@ export async function PATCH(request: Request, context: RouteContext) {
   } catch (err) {
     console.error("[PATCH /api/turlar/[id]]", err);
     const detail = err instanceof Error ? err.message : "Tur güncellenemedi.";
+    return NextResponse.json({ error: detail }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request, context: RouteContext) {
+  const adminKey = request.headers.get("x-admin-key");
+  if (!isValidAdminKey(adminKey)) {
+    return NextResponse.json({ error: "Yetkisiz erişim." }, { status: 401 });
+  }
+
+  try {
+    const { id } = await context.params;
+    const deleted = await deleteManagedTour(id);
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Tur bulunamadı." }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      ok: true,
+      message: "Tur başarılı bir şekilde silindi.",
+    });
+  } catch (err) {
+    console.error("[DELETE /api/turlar/[id]]", err);
+    const detail = err instanceof Error ? err.message : "Tur silinemedi.";
     return NextResponse.json({ error: detail }, { status: 500 });
   }
 }
