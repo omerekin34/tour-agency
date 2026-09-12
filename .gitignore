@@ -24,6 +24,7 @@
 /data/applications.json
 /data/messages.json
 /data/gallery.json
+/data/tours.json
 .DS_Store
 *.pem
 

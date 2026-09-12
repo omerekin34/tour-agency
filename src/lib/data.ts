@@ -19,6 +19,8 @@
  */
 
 import type { TourCardProps } from "@/components/tours/TourCard";
+import { getCachedManagedTours } from "@/lib/tours-cache";
+import { managedToTour } from "@/lib/tours-shared";
 import { filterToursAdvanced, parseTourSearchParams } from "@/lib/tour-filters";
 
 export type CategoryKey =
@@ -298,12 +300,20 @@ export const tours: Tour[] = [
   },
 ];
 
-export function getAllTours(): Tour[] {
+function getManagedToursFromCache(): Tour[] {
+  const cached = getCachedManagedTours();
+  if (cached.length > 0) {
+    return cached.filter((tour) => tour.published).map(managedToTour);
+  }
   return tours;
 }
 
+export function getAllTours(): Tour[] {
+  return getManagedToursFromCache();
+}
+
 export function getTourById(id: string): Tour | undefined {
-  return tours.find((tour) => tour.id === id);
+  return getAllTours().find((tour) => tour.id === id);
 }
 
 export function getCalendarTours(): Tour[] {
@@ -311,11 +321,11 @@ export function getCalendarTours(): Tour[] {
 }
 
 export function getFeaturedTours(): Tour[] {
-  return tours.filter((tour) => tour.featured);
+  return getAllTours().filter((tour) => tour.featured);
 }
 
 export function getToursByCategory(categoryKey: CategoryKey): Tour[] {
-  return tours.filter(
+  return getAllTours().filter(
     (tour) => tour.destination === categoryKey || tour.category === categoryKey,
   );
 }
@@ -376,19 +386,11 @@ function formatDuration(days: number): string {
   return formatTourDuration(days);
 }
 
-function formatStatus(capacity: number): string | undefined {
-  if (capacity <= 4) {
-    return `Son ${capacity} Koltuk`;
-  }
-  return undefined;
-}
-
 export function toTourCardProps(tour: Tour): TourCardProps {
   return {
     title: tour.title,
     image: tour.image,
     category: categoryLabels[tour.category],
-    status: formatStatus(tour.capacity),
     duration: formatDuration(tour.days),
     transport: tour.transport,
     accommodation: tour.accommodation,

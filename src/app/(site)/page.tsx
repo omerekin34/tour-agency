@@ -2,8 +2,12 @@ import WorldAccordionHero from "@/components/home/WorldAccordionHero";
 import SearchBar from "@/components/home/SearchBar";
 import TourCategoryRow from "@/components/home/TourCategoryRow";
 import TrustHighlights from "@/components/home/TrustHighlights";
+import { ensureToursLoaded } from "@/lib/tours-store";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  await ensureToursLoaded();
   return (
     <main className="min-h-screen bg-zinc-50">
       <WorldAccordionHero />

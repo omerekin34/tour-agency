@@ -8,6 +8,10 @@ import {
   hasActiveFilters,
   parseTourSearchParams,
 } from "@/lib/tour-filters";
+import { ensureToursLoaded } from "@/lib/tours-store";
+import { getAllTours } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 type TurlarPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -27,9 +31,11 @@ function FiltersSkeleton() {
 }
 
 export default async function TurlarPage({ searchParams }: TurlarPageProps) {
+  await ensureToursLoaded();
   const params = await searchParams;
+  const allTours = getAllTours();
   const filters = parseTourSearchParams(params);
-  const tours = filterToursAdvanced(filters);
+  const tours = filterToursAdvanced(filters, allTours);
   const bolgeLabel = getDestinationLabel(filters.bolge);
   const filtersActive = hasActiveFilters(filters);
 

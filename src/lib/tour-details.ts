@@ -1,4 +1,6 @@
 import type { CategoryKey, Tour } from "@/lib/data";
+import { getCachedManagedTourById } from "@/lib/tours-cache";
+import { managedToDetail } from "@/lib/tours-shared";
 
 export type ItineraryDay = {
   day: number;
@@ -271,6 +273,9 @@ function getCategoryIncludes(category: CategoryKey): string[] {
 }
 
 export function getTourDetailContent(tour: Tour): TourDetailContent {
+  const managed = getCachedManagedTourById(tour.id);
+  if (managed) return managedToDetail(managed);
+
   const override = TOUR_OVERRIDES[tour.id];
   const gallery = [
     tour.image,

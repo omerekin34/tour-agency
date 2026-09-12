@@ -1,7 +1,11 @@
 import TourCalendarTable from "@/components/tours/TourCalendarTable";
 import { getCalendarTours } from "@/lib/data";
+import { ensureToursLoaded } from "@/lib/tours-store";
 
-export default function GeziTakvimiPage() {
+export const dynamic = "force-dynamic";
+
+export default async function GeziTakvimiPage() {
+  await ensureToursLoaded();
   const tourCount = getCalendarTours().length;
 
   return (

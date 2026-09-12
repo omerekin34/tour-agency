@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  Map,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,11 @@ type AdminShellProps = {
 };
 
 const navItems = [
+  {
+    href: "/admin/turlar",
+    label: "Turlar",
+    icon: Map,
+  },
   {
     href: "/admin/basvurular",
     label: "Başvurular",

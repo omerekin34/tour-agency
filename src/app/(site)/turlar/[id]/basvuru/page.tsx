@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import TourApplicationForm from "@/components/tours/TourApplicationForm";
-import { getAllTours, getTourById } from "@/lib/data";
+import { getTourById } from "@/lib/data";
+import { ensureToursLoaded } from "@/lib/tours-store";
+
+export const dynamic = "force-dynamic";
 
 type BasvuruPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateStaticParams() {
-  return getAllTours().map((tour) => ({ id: tour.id }));
-}
-
 export async function generateMetadata({
   params,
 }: BasvuruPageProps): Promise<Metadata> {
+  await ensureToursLoaded();
   const { id } = await params;
   const tour = getTourById(id);
   if (!tour) return { title: "Başvuru Bulunamadı" };
@@ -25,6 +25,7 @@ export async function generateMetadata({
 }
 
 export default async function BasvuruPage({ params }: BasvuruPageProps) {
+  await ensureToursLoaded();
   const { id } = await params;
   const tour = getTourById(id);
 

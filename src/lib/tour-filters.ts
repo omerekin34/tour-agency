@@ -117,8 +117,8 @@ export function getTourVisaTypes(tour: Tour): VisaType[] {
   return ["vizeli"];
 }
 
-export function getPriceRange(): { min: number; max: number } {
-  const prices = getAllTours().map(getTourPriceTry);
+export function getPriceRange(source?: Tour[]): { min: number; max: number } {
+  const prices = (source ?? getAllTours()).map(getTourPriceTry);
   const max = Math.max(...prices, 24000);
   return { min: 0, max: Math.ceil(max / 1000) * 1000 };
 }
@@ -174,8 +174,11 @@ export function buildTourSearchParams(
   return params;
 }
 
-export function filterToursAdvanced(filters: TourFilterState): Tour[] {
-  let result = getAllTours();
+export function filterToursAdvanced(
+  filters: TourFilterState,
+  source?: Tour[],
+): Tour[] {
+  let result = source ?? getAllTours();
 
   if (filters.bolge) {
     result = result.filter(
