@@ -3,7 +3,6 @@ import { isValidAdminKey } from "@/lib/applications";
 import {
   ensureToursLoaded,
   getManagedTourById,
-  invalidateTourCache,
   updateManagedTour,
 } from "@/lib/tours-store";
 import type { ManagedTour } from "@/lib/tours-shared";
@@ -43,14 +42,17 @@ export async function PATCH(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const body = (await request.json()) as Partial<ManagedTour>;
 
-    invalidateTourCache();
     const tour = await updateManagedTour(id, body);
 
     if (!tour) {
       return NextResponse.json({ error: "Tur bulunamadı." }, { status: 404 });
     }
 
-    return NextResponse.json({ ok: true, tour });
+    return NextResponse.json({
+      ok: true,
+      message: "Tur başarılı bir şekilde kaydedildi.",
+      tour,
+    });
   } catch (err) {
     console.error("[PATCH /api/turlar/[id]]", err);
     const detail = err instanceof Error ? err.message : "Tur güncellenemedi.";

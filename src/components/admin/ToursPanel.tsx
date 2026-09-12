@@ -115,6 +115,7 @@ export default function ToursPanel() {
   const [selected, setSelected] = useState<ManagedTour | null>(null);
   const [form, setForm] = useState<TourFormState | null>(null);
   const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
     session;
@@ -159,11 +160,13 @@ export default function ToursPanel() {
     setSelected(tour);
     setForm(tourToForm(tour));
     setError("");
+    setSuccessMessage("");
   };
 
   const closeEditor = () => {
     setSelected(null);
     setForm(null);
+    setSuccessMessage("");
   };
 
   const saveTour = async (e: React.FormEvent) => {
@@ -172,9 +175,18 @@ export default function ToursPanel() {
 
     setSaving(true);
     setError("");
+    setSuccessMessage("");
 
     try {
-      const payload = formToPayload(form);
+      let payload: Partial<ManagedTour>;
+      try {
+        payload = formToPayload(form);
+      } catch (err) {
+        throw new Error(
+          err instanceof Error ? err.message : "Form verileri geçersiz.",
+        );
+      }
+
       const res = await fetch(`/api/turlar/${selected.id}`, {
         method: "PATCH",
         headers: {
@@ -184,7 +196,11 @@ export default function ToursPanel() {
         body: JSON.stringify(payload),
       });
 
-      const data = (await res.json()) as { error?: string; tour?: ManagedTour };
+      const data = (await res.json()) as {
+        error?: string;
+        message?: string;
+        tour?: ManagedTour;
+      };
       if (!res.ok) throw new Error(data.error ?? "Tur güncellenemedi.");
 
       if (data.tour) {
@@ -194,6 +210,10 @@ export default function ToursPanel() {
         setSelected(data.tour);
         setForm(tourToForm(data.tour));
       }
+
+      setSuccessMessage(
+        data.message ?? "Tur başarılı bir şekilde kaydedildi.",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Tur güncellenemedi.");
     } finally {
@@ -245,6 +265,12 @@ export default function ToursPanel() {
               className="min-h-11 pl-10"
             />
           </div>
+
+          {successMessage && (
+            <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {successMessage}
+            </p>
+          )}
 
           {error && (
             <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -324,6 +350,18 @@ export default function ToursPanel() {
             </div>
 
             <form onSubmit={saveTour} className="overflow-y-auto px-5 py-5">
+              {successMessage && (
+                <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  {successMessage}
+                </p>
+              )}
+
+              {error && (
+                <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </p>
+              )}
+
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Tur Adı" className="md:col-span-2">
                   <Input
@@ -407,8 +445,8 @@ export default function ToursPanel() {
                     </SelectTrigger>
                     <SelectContent>
                       {CURRENCY_OPTIONS.map((currency) => (
-                        <SelectItem key={currency} value={currency}>
-                          {currency}
+                        <SelectItem key={currency.value} value={currency.value}>
+                          {currency.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

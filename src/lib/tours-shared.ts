@@ -63,4 +63,14 @@ export const CATEGORY_OPTIONS: { value: CategoryKey; label: string }[] = [
   { value: "yurt-ici", label: "Yurt İçi" },
 ];
 
-export const CURRENCY_OPTIONS = ["USD", "EUR", "TRY"] as const;
+export const CURRENCY_OPTIONS = [
+  { value: "USD", label: "Dolar" },
+  { value: "EUR", label: "Euro" },
+  { value: "TRY", label: "TL" },
+] as const;
+
+export type TourCurrency = (typeof CURRENCY_OPTIONS)[number]["value"];
+
+export function getCurrencyLabel(currency: TourCurrency): string {
+  return CURRENCY_OPTIONS.find((option) => option.value === currency)?.label ?? currency;
+}

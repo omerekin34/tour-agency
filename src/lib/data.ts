@@ -359,11 +359,10 @@ export function filterTours(filters: {
 }
 
 export function formatTourPrice(price: number, currency: Tour["currency"]): string {
-  if (currency === "TRY") {
-    return `₺${price.toLocaleString("tr-TR")}`;
-  }
-  const symbol = currency === "USD" ? "$" : "€";
-  return `${price.toLocaleString("tr-TR")} ${symbol}`;
+  const formatted = price.toLocaleString("tr-TR");
+  if (currency === "TRY") return `${formatted} TL`;
+  if (currency === "USD") return `${formatted} Dolar`;
+  return `${formatted} Euro`;
 }
 
 export function formatTourDate(date: string): string {

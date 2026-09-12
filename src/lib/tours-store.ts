@@ -141,20 +141,18 @@ async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
 
   const seed = buildToursSeed();
 
+  await writeJsonTours(seed);
+
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase.from("tours").insert(seed.map(managedToRow));
-    if (error) {
-      if (isMissingToursTable(error)) {
-        await writeJsonTours(seed);
-        return seed;
-      }
+    const { error } = await supabase
+      .from("tours")
+      .upsert(seed.map(managedToRow), { onConflict: "id" });
+    if (error && !isMissingToursTable(error)) {
       throw error;
     }
-    return seed;
   }
 
-  await writeJsonTours(seed);
   return seed;
 }
 
@@ -180,6 +178,24 @@ export async function getManagedTourById(id: string): Promise<ManagedTour | unde
   return tours.find((tour) => tour.id === id);
 }
 
+async function persistToursLocally(list: ManagedTour[]) {
+  await writeJsonTours(list);
+  setTourCache(list);
+}
+
+async function syncTourToSupabase(tour: ManagedTour) {
+  if (!isSupabaseConfigured()) return;
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("tours")
+    .upsert(managedToRow(tour), { onConflict: "id" });
+
+  if (error && !isMissingToursTable(error)) {
+    throw error;
+  }
+}
+
 export async function updateManagedTour(
   id: string,
   data: Partial<ManagedTour>,
@@ -196,34 +212,11 @@ export async function updateManagedTour(
     category: (data.category ?? data.destination ?? tours[index].category) as ManagedTour["category"],
   };
 
-  if (isSupabaseConfigured()) {
-    const supabase = getSupabaseAdmin();
-    const { error } = await supabase
-      .from("tours")
-      .update(managedToRow(next))
-      .eq("id", id);
+  const list = [...tours];
+  list[index] = next;
 
-    if (error) {
-      if (isMissingToursTable(error)) {
-        const list = await readJsonTours();
-        const jsonIndex = list.findIndex((tour) => tour.id === id);
-        if (jsonIndex === -1) return null;
-        list[jsonIndex] = next;
-        await writeJsonTours(list);
-        setTourCache(list);
-        return next;
-      }
-      throw error;
-    }
-  } else {
-    const list = [...tours];
-    list[index] = next;
-    await writeJsonTours(list);
-    setTourCache(list);
-    return next;
-  }
+  await syncTourToSupabase(next);
+  await persistToursLocally(list);
 
-  tours[index] = next;
-  setTourCache([...tours]);
   return next;
 }
