@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   ExternalLink,
+  Images,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -26,6 +27,11 @@ const navItems = [
     href: "/admin/mesajlar",
     label: "İletişim Mesajları",
     icon: Mail,
+  },
+  {
+    href: "/admin/galeri",
+    label: "Galeri",
+    icon: Images,
   },
 ];
 

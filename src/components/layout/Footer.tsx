@@ -34,6 +34,7 @@ const quickLinks = [
   { href: "/turlar?bolge=umre", label: "Umre Turları" },
   { href: "/turlar?bolge=yurt-ici", label: "Yurt İçi Turları" },
   { href: "/gezi-takvimi", label: "Gezi Takvimi" },
+  { href: "/galeri", label: "Galeri" },
   { href: "/iletisim", label: "İletişim" },
 ] as const;
 

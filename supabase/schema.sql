@@ -35,7 +35,25 @@ create index if not exists tour_applications_created_at_idx
 create index if not exists contact_messages_created_at_idx
   on contact_messages (created_at desc);
 
+create table if not exists gallery_items (
+  id text primary key,
+  created_at timestamptz not null default now(),
+  tour_id text not null,
+  tour_title text not null,
+  category text not null,
+  type text not null check (type in ('photo', 'video')),
+  url text not null,
+  title text not null
+);
+
+create index if not exists gallery_items_created_at_idx
+  on gallery_items (created_at desc);
+
+create index if not exists gallery_items_tour_id_idx
+  on gallery_items (tour_id);
+
 alter table tour_applications enable row level security;
 alter table contact_messages enable row level security;
+alter table gallery_items enable row level security;
 
 -- API service role key ile erişir; public erişim kapalı.

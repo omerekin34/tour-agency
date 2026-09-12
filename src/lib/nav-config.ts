@@ -79,6 +79,11 @@ export const mainNavItems: NavItem[] = [
     ],
   },
   {
+    id: "galeri",
+    label: "Galeri",
+    href: "/galeri",
+  },
+  {
     id: "iletisim",
     label: "İletişim",
     href: "/iletisim",
