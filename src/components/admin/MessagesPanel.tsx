@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import {
   Download,
   Mail,
@@ -13,14 +12,15 @@ import {
   X,
 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
+import AdminLogin from "@/components/admin/AdminLogin";
+import { useAdminSession } from "@/components/admin/useAdminSession";
 import {
-  APPLICATION_STATUS_LABELS,
-  formatRoomType,
-  formatWhatsAppPhone,
-  getApplicationStats,
-  type ApplicationStatus,
-  type TourApplication,
-} from "@/lib/applications-shared";
+  MESSAGE_STATUS_LABELS,
+  getMessageStats,
+  type ContactMessage,
+  type MessageStatus,
+} from "@/lib/messages-shared";
+import { formatWhatsAppPhone } from "@/lib/applications-shared";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,80 +40,61 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "onda-admin-key";
+type StatusFilter = "all" | MessageStatus;
 
-type StatusFilter = "all" | ApplicationStatus;
-
-const STATUS_STYLES: Record<ApplicationStatus, string> = {
+const STATUS_STYLES: Record<MessageStatus, string> = {
   yeni: "bg-amber-100 text-amber-800 ring-amber-200",
-  incelendi: "bg-sky-100 text-sky-800 ring-sky-200",
-  tamamlandi: "bg-emerald-100 text-emerald-800 ring-emerald-200",
+  okundu: "bg-sky-100 text-sky-800 ring-sky-200",
+  yanitlandi: "bg-emerald-100 text-emerald-800 ring-emerald-200",
 };
 
-export default function ApplicationsPanel() {
-  const [adminKey, setAdminKey] = useState("");
-  const [inputKey, setInputKey] = useState("");
-  const [applications, setApplications] = useState<TourApplication[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [authed, setAuthed] = useState(false);
+export default function MessagesPanel() {
+  const session = useAdminSession();
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [selected, setSelected] = useState<TourApplication | null>(null);
+  const [selected, setSelected] = useState<ContactMessage | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setAdminKey(saved);
-      setAuthed(true);
-    }
-  }, []);
+  const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
+    session;
 
-  const fetchApplications = useCallback(async (key: string) => {
-    setLoading(true);
+  const fetchMessages = useCallback(async (key: string) => {
     setError("");
     try {
-      const res = await fetch("/api/basvuru", {
+      const res = await fetch("/api/iletisim", {
         headers: { "x-admin-key": key },
       });
       if (!res.ok) throw new Error("unauthorized");
-      const data = (await res.json()) as { applications: TourApplication[] };
-      setApplications(data.applications);
-      setAuthed(true);
+      const data = (await res.json()) as { messages: ContactMessage[] };
+      setMessages(data.messages);
     } catch {
-      setError("Giriş başarısız. Şifrenizi kontrol edin.");
-      setAuthed(false);
-      sessionStorage.removeItem(STORAGE_KEY);
-    } finally {
-      setLoading(false);
+      setError("Mesajlar yüklenemedi.");
     }
-  }, []);
+  }, [setError]);
 
   useEffect(() => {
-    if (adminKey) void fetchApplications(adminKey);
-  }, [adminKey, fetchApplications]);
+    if (authed && adminKey) {
+      void fetchMessages(adminKey);
+    }
+  }, [authed, adminKey, fetchMessages]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    sessionStorage.setItem(STORAGE_KEY, inputKey);
-    setAdminKey(inputKey);
-    void fetchApplications(inputKey);
+  const handleLogin = async (e: React.FormEvent) => {
+    const ok = await login(e, "/api/iletisim");
+    if (ok) await fetchMessages(inputKey);
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem(STORAGE_KEY);
-    setAdminKey("");
-    setAuthed(false);
-    setApplications([]);
-    setSelected(null);
+  const refresh = async () => {
+    if (!adminKey) return;
+    setError("");
+    await fetchMessages(adminKey);
   };
 
-  const updateStatus = async (id: string, status: ApplicationStatus) => {
+  const updateStatus = async (id: string, status: MessageStatus) => {
     if (!adminKey) return;
     setUpdatingId(id);
     try {
-      const res = await fetch(`/api/basvuru/${id}`, {
+      const res = await fetch(`/api/iletisim/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -122,11 +103,11 @@ export default function ApplicationsPanel() {
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error("update failed");
-      const data = (await res.json()) as { application: TourApplication };
-      setApplications((prev) =>
-        prev.map((app) => (app.id === id ? data.application : app)),
+      const data = (await res.json()) as { message: ContactMessage };
+      setMessages((prev) =>
+        prev.map((item) => (item.id === id ? data.message : item)),
       );
-      setSelected((prev) => (prev?.id === id ? data.application : prev));
+      setSelected((prev) => (prev?.id === id ? data.message : prev));
     } catch {
       setError("Durum güncellenemedi.");
     } finally {
@@ -134,63 +115,50 @@ export default function ApplicationsPanel() {
     }
   };
 
-  const deleteApplication = async (id: string) => {
+  const deleteMessage = async (id: string) => {
     if (!adminKey) return;
-    if (!window.confirm("Bu başvuruyu silmek istediğinize emin misiniz?")) return;
+    if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
 
     try {
-      const res = await fetch(`/api/basvuru/${id}`, {
+      const res = await fetch(`/api/iletisim/${id}`, {
         method: "DELETE",
         headers: { "x-admin-key": adminKey },
       });
       if (!res.ok) throw new Error("delete failed");
-      setApplications((prev) => prev.filter((app) => app.id !== id));
+      setMessages((prev) => prev.filter((item) => item.id !== id));
       setSelected((prev) => (prev?.id === id ? null : prev));
     } catch {
-      setError("Başvuru silinemedi.");
+      setError("Mesaj silinemedi.");
     }
   };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return applications.filter((app) => {
-      if (statusFilter !== "all" && app.status !== statusFilter) return false;
+    return messages.filter((item) => {
+      if (statusFilter !== "all" && item.status !== statusFilter) return false;
       if (!q) return true;
       return (
-        app.name.toLowerCase().includes(q) ||
-        app.email.toLowerCase().includes(q) ||
-        app.phone.includes(q) ||
-        app.tourTitle.toLowerCase().includes(q)
+        item.name.toLowerCase().includes(q) ||
+        item.email.toLowerCase().includes(q) ||
+        item.phone.includes(q) ||
+        item.subject.toLowerCase().includes(q) ||
+        item.message.toLowerCase().includes(q)
       );
     });
-  }, [applications, search, statusFilter]);
+  }, [messages, search, statusFilter]);
 
-  const stats = useMemo(() => getApplicationStats(applications), [applications]);
+  const stats = useMemo(() => getMessageStats(messages), [messages]);
 
   const exportCsv = () => {
-    const headers = [
-      "Tarih",
-      "Tur",
-      "Ad Soyad",
-      "Telefon",
-      "E-posta",
-      "Kişi",
-      "Oda",
-      "Fiyat",
-      "Durum",
-      "Not",
-    ];
-    const rows = filtered.map((app) => [
-      new Date(app.createdAt).toLocaleString("tr-TR"),
-      app.tourTitle,
-      app.name,
-      app.phone,
-      app.email,
-      app.travelers,
-      formatRoomType(app.roomType),
-      app.tourPrice,
-      APPLICATION_STATUS_LABELS[app.status],
-      app.notes,
+    const headers = ["Tarih", "Ad Soyad", "E-posta", "Telefon", "Konu", "Mesaj", "Durum"];
+    const rows = filtered.map((item) => [
+      new Date(item.createdAt).toLocaleString("tr-TR"),
+      item.name,
+      item.email,
+      item.phone,
+      item.subject,
+      item.message,
+      MESSAGE_STATUS_LABELS[item.status],
     ]);
     const csv = [headers, ...rows]
       .map((row) =>
@@ -201,55 +169,33 @@ export default function ApplicationsPanel() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `basvurular-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `iletisim-mesajlari-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
   if (!authed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-navy-900/10 bg-white p-6 shadow-lg">
-          <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-            On&apos;da 10 Yönetim
-          </p>
-          <h1 className="mb-2 text-2xl font-light text-navy-900">Giriş Yap</h1>
-          <p className="mb-6 text-sm text-navy-700/70">
-            Tur başvurularını görüntülemek ve yönetmek için şifrenizi girin.
-          </p>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="password"
-              value={inputKey}
-              onChange={(e) => setInputKey(e.target.value)}
-              placeholder="Yönetici şifresi"
-              className="min-h-12"
-              autoComplete="current-password"
-              required
-            />
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <Button
-              type="submit"
-              className="min-h-12 w-full rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
-            >
-              Panele Gir
-            </Button>
-          </form>
-        </div>
-      </div>
+      <AdminLogin
+        inputKey={inputKey}
+        setInputKey={setInputKey}
+        onSubmit={handleLogin}
+        error={error}
+        loading={loading}
+      />
     );
   }
 
   return (
-    <AdminShell onLogout={handleLogout}>
+    <AdminShell onLogout={logout}>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-              Başvuru Yönetimi
+              İletişim Yönetimi
             </p>
             <h1 className="text-2xl font-light text-navy-900 md:text-3xl">
-              Tur Başvuruları
+              İletişim Mesajları
             </h1>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -266,11 +212,10 @@ export default function ApplicationsPanel() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => adminKey && void fetchApplications(adminKey)}
-              disabled={loading}
+              onClick={() => void refresh()}
               className="min-h-10 gap-2 rounded-full"
             >
-              <RefreshCw className={cn("size-4", loading && "animate-spin")} />
+              <RefreshCw className="size-4" />
               Yenile
             </Button>
           </div>
@@ -279,12 +224,8 @@ export default function ApplicationsPanel() {
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard label="Toplam" value={stats.total} />
           <StatCard label="Yeni" value={stats.yeni} accent="text-amber-600" />
-          <StatCard label="İncelenen" value={stats.incelendi} accent="text-sky-600" />
-          <StatCard
-            label="Tamamlanan"
-            value={stats.tamamlandi}
-            accent="text-emerald-600"
-          />
+          <StatCard label="Okundu" value={stats.okundu} accent="text-sky-600" />
+          <StatCard label="Yanıtlandı" value={stats.yanitlandi} accent="text-emerald-600" />
         </div>
 
         <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm md:p-5">
@@ -294,7 +235,7 @@ export default function ApplicationsPanel() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="İsim, telefon, e-posta veya tur ara..."
+                placeholder="İsim, konu veya mesaj ara..."
                 className="min-h-11 pl-10"
               />
             </div>
@@ -303,8 +244,8 @@ export default function ApplicationsPanel() {
                 [
                   ["all", "Tümü"],
                   ["yeni", "Yeni"],
-                  ["incelendi", "İncelenen"],
-                  ["tamamlandi", "Tamamlanan"],
+                  ["okundu", "Okundu"],
+                  ["yanitlandi", "Yanıtlandı"],
                 ] as const
               ).map(([value, label]) => (
                 <button
@@ -333,9 +274,9 @@ export default function ApplicationsPanel() {
           {filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">
               <p className="text-navy-800">
-                {applications.length === 0
-                  ? "Henüz başvuru yok."
-                  : "Arama kriterlerine uygun başvuru bulunamadı."}
+                {messages.length === 0
+                  ? "Henüz iletişim mesajı yok."
+                  : "Arama kriterlerine uygun mesaj bulunamadı."}
               </p>
             </div>
           ) : (
@@ -345,23 +286,22 @@ export default function ApplicationsPanel() {
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead>Tarih</TableHead>
-                      <TableHead>Tur</TableHead>
-                      <TableHead>Müşteri</TableHead>
-                      <TableHead>İletişim</TableHead>
-                      <TableHead>Kişi</TableHead>
+                      <TableHead>Gönderen</TableHead>
+                      <TableHead>Konu</TableHead>
+                      <TableHead>Mesaj</TableHead>
                       <TableHead>Durum</TableHead>
                       <TableHead className="text-right">İşlem</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((app) => (
+                    {filtered.map((item) => (
                       <TableRow
-                        key={app.id}
+                        key={item.id}
                         className="cursor-pointer"
-                        onClick={() => setSelected(app)}
+                        onClick={() => setSelected(item)}
                       >
                         <TableCell className="text-xs text-navy-600/70">
-                          {new Date(app.createdAt).toLocaleString("tr-TR", {
+                          {new Date(item.createdAt).toLocaleString("tr-TR", {
                             day: "2-digit",
                             month: "2-digit",
                             year: "numeric",
@@ -369,35 +309,25 @@ export default function ApplicationsPanel() {
                             minute: "2-digit",
                           })}
                         </TableCell>
-                        <TableCell className="max-w-[180px]">
-                          <p className="truncate font-medium text-navy-900">
-                            {app.tourTitle}
-                          </p>
-                          <p className="text-xs text-navy-600/60">{app.tourPrice}</p>
-                        </TableCell>
-                        <TableCell className="font-medium text-navy-900">
-                          {app.name}
-                        </TableCell>
                         <TableCell>
-                          <p className="text-sm">{app.phone}</p>
-                          <p className="truncate text-xs text-navy-600/60">
-                            {app.email}
-                          </p>
+                          <p className="font-medium text-navy-900">{item.name}</p>
+                          <p className="text-xs text-navy-600/60">{item.email}</p>
                         </TableCell>
-                        <TableCell>
-                          {app.travelers} · {formatRoomType(app.roomType)}
+                        <TableCell className="max-w-[160px] truncate">{item.subject}</TableCell>
+                        <TableCell className="max-w-[220px] truncate text-sm text-navy-700">
+                          {item.message}
                         </TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <StatusSelect
-                            value={app.status}
-                            disabled={updatingId === app.id}
-                            onChange={(status) => void updateStatus(app.id, status)}
+                            value={item.status}
+                            disabled={updatingId === item.id}
+                            onChange={(status) => void updateStatus(item.id, status)}
                           />
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <QuickActions
-                            app={app}
-                            onDelete={() => void deleteApplication(app.id)}
+                            item={item}
+                            onDelete={() => void deleteMessage(item.id)}
                           />
                         </TableCell>
                       </TableRow>
@@ -407,41 +337,35 @@ export default function ApplicationsPanel() {
               </div>
 
               <div className="space-y-3 md:hidden">
-                {filtered.map((app) => (
+                {filtered.map((item) => (
                   <article
-                    key={app.id}
+                    key={item.id}
                     className="rounded-xl border border-navy-900/8 p-4"
-                    onClick={() => setSelected(app)}
+                    onClick={() => setSelected(item)}
                   >
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
-                        <StatusBadge status={app.status} />
-                        <h2 className="mt-2 font-medium text-navy-900">{app.name}</h2>
-                        <p className="text-sm text-navy-700/70">{app.tourTitle}</p>
+                        <StatusBadge status={item.status} />
+                        <h2 className="mt-2 font-medium text-navy-900">{item.name}</h2>
+                        <p className="text-sm text-navy-700/70">{item.subject}</p>
                       </div>
                       <p className="text-xs text-navy-600/60">
-                        {new Date(app.createdAt).toLocaleDateString("tr-TR")}
+                        {new Date(item.createdAt).toLocaleDateString("tr-TR")}
                       </p>
                     </div>
-                    <div className="mb-3 space-y-1 text-sm text-navy-700">
-                      <p>{app.phone}</p>
-                      <p className="truncate">{app.email}</p>
-                      <p>
-                        {app.travelers} kişi · {formatRoomType(app.roomType)}
-                      </p>
-                    </div>
+                    <p className="mb-3 line-clamp-2 text-sm text-navy-700">{item.message}</p>
                     <div
                       className="flex items-center justify-between gap-2"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <StatusSelect
-                        value={app.status}
-                        disabled={updatingId === app.id}
-                        onChange={(status) => void updateStatus(app.id, status)}
+                        value={item.status}
+                        disabled={updatingId === item.id}
+                        onChange={(status) => void updateStatus(item.id, status)}
                       />
                       <QuickActions
-                        app={app}
-                        onDelete={() => void deleteApplication(app.id)}
+                        item={item}
+                        onDelete={() => void deleteMessage(item.id)}
                       />
                     </div>
                   </article>
@@ -454,10 +378,10 @@ export default function ApplicationsPanel() {
 
       {selected && (
         <DetailDrawer
-          app={selected}
+          item={selected}
           onClose={() => setSelected(null)}
           onStatusChange={(status) => void updateStatus(selected.id, status)}
-          onDelete={() => void deleteApplication(selected.id)}
+          onDelete={() => void deleteMessage(selected.id)}
           updating={updatingId === selected.id}
         />
       )}
@@ -477,14 +401,12 @@ function StatCard({
   return (
     <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm">
       <p className="text-xs uppercase tracking-wider text-navy-600/60">{label}</p>
-      <p className={cn("mt-1 text-2xl font-semibold text-navy-900", accent)}>
-        {value}
-      </p>
+      <p className={cn("mt-1 text-2xl font-semibold text-navy-900", accent)}>{value}</p>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: ApplicationStatus }) {
+function StatusBadge({ status }: { status: MessageStatus }) {
   return (
     <span
       className={cn(
@@ -492,7 +414,7 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
         STATUS_STYLES[status],
       )}
     >
-      {APPLICATION_STATUS_LABELS[status]}
+      {MESSAGE_STATUS_LABELS[status]}
     </span>
   );
 }
@@ -502,8 +424,8 @@ function StatusSelect({
   onChange,
   disabled,
 }: {
-  value: ApplicationStatus;
-  onChange: (status: ApplicationStatus) => void;
+  value: MessageStatus;
+  onChange: (status: MessageStatus) => void;
   disabled?: boolean;
 }) {
   return (
@@ -511,7 +433,7 @@ function StatusSelect({
       value={value}
       disabled={disabled}
       onValueChange={(next) => {
-        if (next) onChange(next as ApplicationStatus);
+        if (next) onChange(next as MessageStatus);
       }}
     >
       <SelectTrigger className="h-9 min-w-[130px] rounded-full border-navy-900/10 text-xs">
@@ -519,45 +441,49 @@ function StatusSelect({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="yeni">Yeni</SelectItem>
-        <SelectItem value="incelendi">İncelendi</SelectItem>
-        <SelectItem value="tamamlandi">Tamamlandı</SelectItem>
+        <SelectItem value="okundu">Okundu</SelectItem>
+        <SelectItem value="yanitlandi">Yanıtlandı</SelectItem>
       </SelectContent>
     </Select>
   );
 }
 
 function QuickActions({
-  app,
+  item,
   onDelete,
 }: {
-  app: TourApplication;
+  item: ContactMessage;
   onDelete: () => void;
 }) {
-  const waPhone = formatWhatsAppPhone(app.phone);
+  const waPhone = item.phone ? formatWhatsAppPhone(item.phone) : null;
   const waText = encodeURIComponent(
-    `Merhaba ${app.name}, On'da 10 Turizm — ${app.tourTitle} başvurunuz hakkında yazıyorum.`,
+    `Merhaba ${item.name}, On'da 10 Turizm — iletişim mesajınız hakkında dönüş yapıyorum.`,
   );
 
   return (
     <div className="flex items-center gap-1">
+      {waPhone && (
+        <a
+          href={`https://wa.me/${waPhone}?text=${waText}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex size-9 items-center justify-center rounded-full text-emerald-600 transition-colors hover:bg-emerald-50"
+          title="WhatsApp"
+        >
+          <MessageCircle className="size-4" />
+        </a>
+      )}
+      {item.phone && (
+        <a
+          href={`tel:${item.phone}`}
+          className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
+          title="Ara"
+        >
+          <Phone className="size-4" />
+        </a>
+      )}
       <a
-        href={`https://wa.me/${waPhone}?text=${waText}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex size-9 items-center justify-center rounded-full text-emerald-600 transition-colors hover:bg-emerald-50"
-        title="WhatsApp"
-      >
-        <MessageCircle className="size-4" />
-      </a>
-      <a
-        href={`tel:${app.phone}`}
-        className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
-        title="Ara"
-      >
-        <Phone className="size-4" />
-      </a>
-      <a
-        href={`mailto:${app.email}`}
+        href={`mailto:${item.email}?subject=${encodeURIComponent(`Re: ${item.subject}`)}`}
         className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
         title="E-posta"
       >
@@ -576,35 +502,30 @@ function QuickActions({
 }
 
 function DetailDrawer({
-  app,
+  item,
   onClose,
   onStatusChange,
   onDelete,
   updating,
 }: {
-  app: TourApplication;
+  item: ContactMessage;
   onClose: () => void;
-  onStatusChange: (status: ApplicationStatus) => void;
+  onStatusChange: (status: MessageStatus) => void;
   onDelete: () => void;
   updating: boolean;
 }) {
-  const waPhone = formatWhatsAppPhone(app.phone);
+  const waPhone = item.phone ? formatWhatsAppPhone(item.phone) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-navy-950/40 p-0 sm:p-4">
-      <button
-        type="button"
-        aria-label="Kapat"
-        className="absolute inset-0"
-        onClick={onClose}
-      />
+      <button type="button" aria-label="Kapat" className="absolute inset-0" onClick={onClose} />
       <aside className="relative z-10 flex h-full w-full max-w-md flex-col bg-white shadow-2xl sm:rounded-2xl">
         <div className="flex items-start justify-between border-b border-navy-900/8 p-5">
           <div>
-            <StatusBadge status={app.status} />
-            <h2 className="mt-2 text-xl font-medium text-navy-900">{app.name}</h2>
+            <StatusBadge status={item.status} />
+            <h2 className="mt-2 text-xl font-medium text-navy-900">{item.name}</h2>
             <p className="mt-1 text-sm text-navy-600/70">
-              {new Date(app.createdAt).toLocaleString("tr-TR")}
+              {new Date(item.createdAt).toLocaleString("tr-TR")}
             </p>
           </div>
           <button
@@ -617,61 +538,44 @@ function DetailDrawer({
         </div>
 
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
-          <DetailBlock label="Tur" value={app.tourTitle} />
-          <DetailBlock label="Tur Tarihi" value={app.tourDate} />
-          <DetailBlock label="Fiyat" value={app.tourPrice} />
-          <DetailBlock label="Telefon" value={app.phone} />
-          <DetailBlock label="E-posta" value={app.email} />
-          <DetailBlock
-            label="Kişi / Oda"
-            value={`${app.travelers} kişi · ${formatRoomType(app.roomType)}`}
-          />
-          {app.notes && <DetailBlock label="Not" value={app.notes} multiline />}
-
+          <DetailBlock label="Konu" value={item.subject} />
+          <DetailBlock label="E-posta" value={item.email} />
+          {item.phone && <DetailBlock label="Telefon" value={item.phone} />}
+          <DetailBlock label="Mesaj" value={item.message} multiline />
           <div>
-            <p className="mb-2 text-xs uppercase tracking-wider text-navy-600/60">
-              Durum
-            </p>
-            <StatusSelect
-              value={app.status}
-              disabled={updating}
-              onChange={onStatusChange}
-            />
+            <p className="mb-2 text-xs uppercase tracking-wider text-navy-600/60">Durum</p>
+            <StatusSelect value={item.status} disabled={updating} onChange={onStatusChange} />
           </div>
         </div>
 
         <div className="space-y-2 border-t border-navy-900/8 p-5">
           <div className="grid grid-cols-2 gap-2">
+            {waPhone && (
+              <a
+                href={`https://wa.me/${waPhone}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-emerald-600 text-sm font-medium text-white hover:bg-emerald-500"
+              >
+                <MessageCircle className="size-4" />
+                WhatsApp
+              </a>
+            )}
             <a
-              href={`https://wa.me/${waPhone}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-emerald-600 text-sm font-medium text-white hover:bg-emerald-500"
-            >
-              <MessageCircle className="size-4" />
-              WhatsApp
-            </a>
-            <a
-              href={`tel:${app.phone}`}
+              href={`mailto:${item.email}?subject=${encodeURIComponent(`Re: ${item.subject}`)}&body=${encodeURIComponent(`Merhaba ${item.name},\n\n`)}`}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-navy-900/15 text-sm font-medium text-navy-900 hover:border-gold-400/40"
             >
-              <Phone className="size-4" />
-              Ara
+              <Mail className="size-4" />
+              Yanıtla
             </a>
           </div>
-          <Link
-            href={`/turlar/${app.tourId}`}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy-900/15 text-sm font-medium text-navy-900 hover:border-gold-400/40"
-          >
-            Turu Görüntüle
-          </Link>
           <button
             type="button"
             onClick={onDelete}
             className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
           >
             <Trash2 className="size-4" />
-            Başvuruyu Sil
+            Mesajı Sil
           </button>
         </div>
       </aside>

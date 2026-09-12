@@ -22,6 +22,7 @@
 
 # misc
 /data/applications.json
+/data/messages.json
 .DS_Store
 *.pem
 
