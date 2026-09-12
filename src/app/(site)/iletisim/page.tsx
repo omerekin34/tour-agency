@@ -144,7 +144,7 @@ export default function IletisimPage() {
             <div className="rounded-2xl border border-navy-900/8 bg-white p-2 shadow-sm">
               <iframe
                 title="On'da 10 Turizm konum"
-                src="https://maps.google.com/maps?q=Pendik+Istanbul&z=12&output=embed"
+                src={contactInfo.mapEmbedHref}
                 className="h-48 w-full rounded-xl border-0 sm:h-56"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
