@@ -1,7 +1,7 @@
 import WorldAccordionHero from "@/components/home/WorldAccordionHero";
 import SearchBar from "@/components/home/SearchBar";
 import TourCategoryRow from "@/components/home/TourCategoryRow";
-import TourMomentsShowcase from "@/components/home/TourMomentsShowcase";
+import TrustHighlights from "@/components/home/TrustHighlights";
 
 export default function Home() {
   return (
@@ -17,11 +17,11 @@ export default function Home() {
         title="Huzura Yolculuk: Umre Programları"
         variant="light"
       />
+      <TrustHighlights />
       <TourCategoryRow
         categoryKey="misir"
         title="Tarihin Gizemi: Mısır Turları"
         variant="dark"
-        fadeFrom="light"
       />
       <TourCategoryRow
         categoryKey="balkanlar"
@@ -30,12 +30,17 @@ export default function Home() {
         fadeFrom="dark"
       />
       <TourCategoryRow
-        categoryKey="yurt-ici"
-        title="Vatanın Kalbi: Edirne & Trakya"
+        categoryKey="dubai"
+        title="Lüks & Macera: Dubai Turları"
         variant="dark"
         fadeFrom="light"
       />
-      <TourMomentsShowcase />
+      <TourCategoryRow
+        categoryKey="yurt-ici"
+        title="Vatanın Kalbi: Edirne & Trakya"
+        variant="light"
+        fadeFrom="dark"
+      />
     </main>
   );
 }

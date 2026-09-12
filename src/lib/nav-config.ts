@@ -18,11 +18,6 @@ export const mainNavItems: NavItem[] = [
     href: "/turlar?bolge=umre",
     children: [
       {
-        href: "/turlar/tour-ramazan-umresi",
-        label: "Ramazan Umresi",
-        hint: "Mart 2027",
-      },
-      {
         href: "/turlar/tour-yaz-umresi",
         label: "Yaz Umresi",
         hint: "Temmuz 2027",

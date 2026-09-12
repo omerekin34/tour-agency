@@ -44,8 +44,7 @@ const destinations = [
     price: "€699",
     period: "6 gece",
     icon: MountainSnow,
-    image:
-      "https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=1200&q=80&auto=format&fit=crop",
+    image: "/images/tours/balkanlar-mostar.png",
   },
   {
     id: "yurt-ici",

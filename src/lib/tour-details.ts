@@ -31,29 +31,34 @@ const CATEGORY_VIDEOS: Record<CategoryKey, string> = {
 
 const CATEGORY_GALLERY: Record<CategoryKey, string[]> = {
   umre: [
+    "/images/tours/umre-kaaba-kiswa.png",
     "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1200&q=85&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=1200&q=85&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1586724237569-f3a0a1b4b887?w=1200&q=85&auto=format&fit=crop",
   ],
   misir: [
     "https://images.unsplash.com/photo-1539768942893-daf53e448371?w=1200&q=85&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1572252009286-268ace2785fd?w=1200&q=85&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1568323563741-6a4453a499b4?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1632940266173-4bd1afb7a3b9?w=1200&q=85&auto=format&fit=crop",
   ],
   dubai: [
     "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=85&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1513581166391-887a96ddeafd?w=1200&q=85&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1582672060014-1c0247a6c6c8?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1580103046930-cf022e98f370?w=1200&q=85&auto=format&fit=crop",
   ],
   balkanlar: [
     "https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=1200&q=85&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200&q=85&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1609138205359-115021a11715?w=1200&q=85&auto=format&fit=crop",
   ],
   "yurt-ici": [
     "https://images.unsplash.com/photo-1662555025766-2bb053a30e9c?w=1200&q=85&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541439128807-732387805946?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1599790919008-cabb56c32a72?w=1200&q=85&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1506377247373-d793443294fb?w=1200&q=85&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=85&auto=format&fit=crop",
   ],
 };
 
@@ -67,17 +72,6 @@ const COMMON_EXCLUDES = [
 const TOUR_OVERRIDES: Partial<
   Record<string, Partial<TourDetailContent> & { description: string }>
 > = {
-  "tour-ramazan-umresi": {
-    description:
-      "Ramazan Umresi — Özel Program, manevi atmosferi en yoğun yaşayacağınız özel bir rota. Kutsal topraklarda rehber eşliğinde ibadet, ziyaret ve dinî sohbet programlarıyla planlanmış; konforlu konaklama ve THY direkt uçuşu ile sorunsuz bir seyahat sunar.",
-    highlights: [
-      "Ramazan ayına özel ibadet ve ziyaret programı",
-      "Deneyimli dinî rehber eşliğinde Mekke & Medine",
-      "Harem yakını konforlu otel konaklaması",
-      "THY ile direkt İstanbul — Cidde uçuşu",
-      "Sınırlı kontenjan — kişiye özel ilgi",
-    ],
-  },
   "tour-misir-piramitleri": {
     description:
       "Mısır Piramitleri & Nil Turu, antik dünyanın en ikonik yapılarından Giza Piramitleri'ne uzanan, Nil Nehri boyunca kültür ve tarih dolu bir keşif. Kahire müzeleri, tapınaklar ve cruise konforu bir arada.",
@@ -98,6 +92,64 @@ const TOUR_OVERRIDES: Partial<
       "5 yıldızlı resort konaklaması",
       "Çöl safari ve akşam yemeği deneyimi",
       "Marina ve Palm Jumeirah gezisi",
+    ],
+  },
+  "tour-balkanlar-gurcistan": {
+    description:
+      "Gürcistan — Tiflis & Kafkasya turu, Narikala Kalesi'nden Barış Köprüsü'ne, Kafkas mutfağından şarap bölgelerine uzanan büyüleyici bir rota. Tiflis'in tarihi sokakları, doğal manzaralar ve sıcak Gürcü misafirperverliğiyle dolu 9 günlük program.",
+    highlights: [
+      "Tiflis eski şehir, Narikala ve Barış Köprüsü",
+      "Mtskheta — UNESCO mirası manastırlar",
+      "Kazbegi & Gergeti manzara rotası",
+      "Gürcü mutfağı ve şarap tadımı",
+      "Uçak & otobüs ile konforlu ulaşım",
+    ],
+    itinerary: [
+      {
+        day: 1,
+        title: "İstanbul — Tiflis",
+        description: "Uçuş sonrası otel transferi ve akşam Tiflis'e giriş turu.",
+      },
+      {
+        day: 2,
+        title: "Tiflis Eski Şehir",
+        description: "Narikala Kalesi, sülfür hamamları ve Rustaveli Caddesi gezisi.",
+      },
+      {
+        day: 3,
+        title: "Mtskheta & Dinî Miras",
+        description: "Svetitskhoveli Katedrali ve Jvari Manastırı ziyareti.",
+      },
+      {
+        day: 4,
+        title: "Kazbegi Rotası",
+        description: "Askeri Yol üzerinden dağ manzaraları ve Gergeti Kilisesi.",
+      },
+      {
+        day: 5,
+        title: "Kakheti Şarap Bölgesi",
+        description: "Şarap evleri, bağlar ve yerel lezzet durakları.",
+      },
+      {
+        day: 6,
+        title: "Tiflis Serbest Gün",
+        description: "Dry Bridge pazarı, cafeler ve kişisel keşif zamanı.",
+      },
+      {
+        day: 7,
+        title: "Borjomi & Doğa",
+        description: "Borjomi vadisi ve termal kaynaklar rotası.",
+      },
+      {
+        day: 8,
+        title: "Son Keşifler",
+        description: "Programdaki son duraklar ve veda yemeği.",
+      },
+      {
+        day: 9,
+        title: "Dönüş",
+        description: "Tiflis'ten İstanbul'a dönüş uçuşu.",
+      },
     ],
   },
   "tour-balkanlar-klasik": {
@@ -167,7 +219,7 @@ function buildItinerary(tour: Tour): ItineraryDay[] {
       "Belgrad ve Novi Sad",
       "Sırbistan kültür ve gastronomi",
       "Üsküp ve Ohri gölü",
-      "Tiran ve Arnavutluk sahili",
+      "Tiflis ve Kafkasya manzaraları",
       "Dönüş yolculuğu — İstanbul",
       "Ek durak — serbest keşif",
     ],
