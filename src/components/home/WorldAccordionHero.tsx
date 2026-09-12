@@ -70,10 +70,23 @@ const destinations = [
   },
 ] as const;
 
+function HeroHeading({ className }: { className?: string }) {
+  return (
+    <h1 className={cn("max-w-xl font-light tracking-tight text-white", className)}>
+      <span className="block text-[1.65rem] leading-tight sm:text-3xl md:text-4xl lg:text-5xl">
+        Dünyayı Keşfedin
+      </span>
+      <span className="mt-2 block text-sm leading-snug text-gold-400/90 sm:mt-1 sm:text-lg md:text-xl">
+        Lüks seyahatin yeni adresi
+      </span>
+    </h1>
+  );
+}
+
 function MobileHeroSlider() {
   return (
-    <div className="relative flex h-full flex-col md:hidden">
-      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-8 pt-36 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:pt-40">
+    <div className="relative flex flex-col md:hidden">
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-8 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {destinations.map((dest) => {
           const Icon = dest.icon;
 
@@ -300,17 +313,15 @@ export default function WorldAccordionHero() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   return (
-    <section className="relative flex min-h-[calc(100dvh-var(--site-header-offset))] w-full flex-col overflow-hidden bg-navy-950 md:h-screen md:min-h-0">
-      {/* Header overlay */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-navy-950/90 via-navy-950/40 to-transparent px-4 pb-6 pt-28 sm:px-8 sm:pt-32 md:px-12 md:pb-8 md:pt-36">
-        <h1 className="max-w-xl font-light tracking-tight text-white">
-          <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
-            Dünyayı Keşfedin
-          </span>
-          <span className="mt-1 block text-base text-gold-400/90 sm:text-lg md:text-xl">
-            Lüks seyahatin yeni adresi
-          </span>
-        </h1>
+    <section className="relative flex w-full flex-col overflow-hidden bg-navy-950 md:h-screen md:min-h-[calc(100dvh-var(--site-header-offset))]">
+      {/* Mobile — başlık slider'ın üstünde, üst üste binmez */}
+      <div className="relative z-20 shrink-0 bg-navy-950 px-4 pb-4 pt-[calc(var(--site-header-offset)+0.75rem)] sm:px-8 md:hidden">
+        <HeroHeading />
+      </div>
+
+      {/* Desktop — overlay başlık */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 hidden bg-gradient-to-b from-navy-950/90 via-navy-950/40 to-transparent px-4 pb-8 pt-36 sm:px-8 md:block md:px-12">
+        <HeroHeading />
       </div>
 
       {/* Mobile slider */}

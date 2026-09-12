@@ -65,10 +65,10 @@ export default function ContactForm() {
     return (
       <div className="rounded-2xl border border-navy-900/8 bg-white p-5 shadow-lg shadow-navy-950/5 sm:p-8">
         <div className="rounded-xl border border-gold-400/30 bg-gold-500/10 px-4 py-6 text-center">
-          <p className="font-medium text-navy-900">Teşekkürler!</p>
+          <p className="font-medium text-navy-900">Mesajınız Alındı</p>
           <p className="mt-1 text-sm text-navy-700/70">
-            Mesajınız panele kaydedildi. Ekibimiz en kısa sürede size dönüş
-            yapacaktır.
+            İletişim talebiniz tarafımıza ulaşmıştır. En kısa sürede sizinle
+            iletişime geçeceğiz.
           </p>
           <button
             type="button"

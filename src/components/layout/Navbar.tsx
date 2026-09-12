@@ -127,7 +127,7 @@ function MobileNavGroup({
       <Link
         href={item.href}
         onClick={onNavigate}
-        className="flex min-h-11 items-center rounded-xl px-4 text-base font-medium uppercase tracking-widest text-white/90 transition-colors hover:bg-white/5 hover:text-gold-400"
+        className="flex min-h-11 items-center rounded-xl border border-white/5 bg-white/[0.02] px-4 text-base font-medium uppercase tracking-widest text-white/90 transition-colors hover:bg-white/5 hover:text-gold-400"
       >
         {item.label}
       </Link>
