@@ -360,9 +360,9 @@ export function filterTours(filters: {
 
 export function formatTourPrice(price: number, currency: Tour["currency"]): string {
   const formatted = price.toLocaleString("tr-TR");
-  if (currency === "TRY") return `${formatted} TL`;
-  if (currency === "USD") return `${formatted} Dolar`;
-  return `${formatted} Euro`;
+  if (currency === "TRY") return `₺${formatted}`;
+  if (currency === "USD") return `$${formatted}`;
+  return `€${formatted}`;
 }
 
 export function formatTourDate(date: string): string {
