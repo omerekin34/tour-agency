@@ -2,6 +2,7 @@ import WorldAccordionHero from "@/components/home/WorldAccordionHero";
 import SearchBar from "@/components/home/SearchBar";
 import TourCategoryRow from "@/components/home/TourCategoryRow";
 import TrustHighlights from "@/components/home/TrustHighlights";
+import { getCategoryStartingPrice } from "@/lib/data";
 import { ensureRegionsLoaded, getHeroRegions, getHomeRegions } from "@/lib/regions-store";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
@@ -11,16 +12,20 @@ export default async function Home() {
   await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
 
   const homeRegions = getHomeRegions();
-  const heroItems = getHeroRegions().map((region) => ({
-    id: region.id,
-    categoryKey: region.id,
-    title: region.heroTitle || region.name,
-    subtitle: region.heroSubtitle,
-    price: region.heroPrice,
-    period: region.heroPeriod,
-    icon: region.icon,
-    image: region.heroImage,
-  }));
+  const heroItems = getHeroRegions().map((region) => {
+    const startingPrice = getCategoryStartingPrice(region.id);
+
+    return {
+      id: region.id,
+      categoryKey: region.id,
+      title: region.heroTitle || region.name,
+      subtitle: region.heroSubtitle,
+      price: startingPrice?.price ?? region.heroPrice,
+      period: startingPrice?.period ?? region.heroPeriod,
+      icon: region.icon,
+      image: region.heroImage,
+    };
+  });
 
   return (
     <main className="min-h-screen bg-zinc-50">

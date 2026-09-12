@@ -326,6 +326,27 @@ export function getToursByCategory(categoryKey: CategoryKey): Tour[] {
   );
 }
 
+export function formatHeroPeriod(days: number): string {
+  return `${days} gece`;
+}
+
+export function getCategoryStartingPrice(categoryKey: CategoryKey): {
+  price: string;
+  period: string;
+} | null {
+  const categoryTours = getToursByCategory(categoryKey);
+  if (categoryTours.length === 0) return null;
+
+  const cheapest = categoryTours.reduce((min, tour) =>
+    tour.price < min.price ? tour : min,
+  );
+
+  return {
+    price: formatTourPrice(cheapest.price, cheapest.currency),
+    period: formatHeroPeriod(cheapest.days),
+  };
+}
+
 function getDynamicDestinationLabels(): Record<string, string> {
   const regions = getCachedRegions().filter((region) => region.published);
   if (regions.length === 0) return destinationLabels;
