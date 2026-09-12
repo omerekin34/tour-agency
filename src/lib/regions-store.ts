@@ -110,20 +110,26 @@ async function writeJsonRegions(list: TourRegion[]) {
 }
 
 async function readSupabaseRegions(): Promise<TourRegion[]> {
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("regions")
-    .select("*")
-    .order("sort_order", { ascending: true });
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("regions")
+      .select("*")
+      .order("sort_order", { ascending: true });
 
-  if (error) {
-    if (isMissingRegionsTable(error)) {
+    if (error) {
+      if (isMissingRegionsTable(error)) {
+        return readJsonRegions();
+      }
+      console.warn("[regions-store] Supabase okuma hatası:", error.message);
       return readJsonRegions();
     }
-    throw error;
-  }
 
-  return (data as RegionRow[]).map(rowToRegion);
+    return (data as RegionRow[]).map(rowToRegion);
+  } catch (error) {
+    console.warn("[regions-store] Supabase erişilemedi, yerel kayıt kullanılıyor:", error);
+    return readJsonRegions();
+  }
 }
 
 async function seedIfEmpty(items: TourRegion[]): Promise<TourRegion[]> {
@@ -145,7 +151,7 @@ async function seedIfEmpty(items: TourRegion[]): Promise<TourRegion[]> {
       .from("regions")
       .upsert(seed.map(regionToRow), { onConflict: "id" });
     if (error && !isMissingRegionsTable(error)) {
-      throw error;
+      console.warn("[regions-store] Supabase seed hatası:", error.message);
     }
   }
 
@@ -209,12 +215,18 @@ export async function ensureRegionsLoaded(): Promise<TourRegion[]> {
     return cached;
   }
 
-  const items = isSupabaseConfigured()
-    ? await readSupabaseRegions()
-    : await readJsonRegions();
+  try {
+    const items = isSupabaseConfigured()
+      ? await readSupabaseRegions()
+      : await readJsonRegions();
 
-  const loaded = await seedIfEmpty(items);
-  setRegionCache(sortRegions(loaded));
+    const loaded = await seedIfEmpty(items);
+    setRegionCache(sortRegions(loaded));
+  } catch (error) {
+    console.error("[regions-store] Yükleme hatası, varsayılan bölgeler kullanılıyor:", error);
+    setRegionCache(sortRegions(buildRegionsSeed()));
+  }
+
   return getCachedRegions();
 }
 

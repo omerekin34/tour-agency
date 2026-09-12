@@ -121,20 +121,26 @@ async function writeJsonTours(list: ManagedTour[]) {
 }
 
 async function readSupabaseTours(): Promise<ManagedTour[]> {
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("tours")
-    .select("*")
-    .order("date", { ascending: true });
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("tours")
+      .select("*")
+      .order("date", { ascending: true });
 
-  if (error) {
-    if (isMissingToursTable(error)) {
+    if (error) {
+      if (isMissingToursTable(error)) {
+        return readJsonTours();
+      }
+      console.warn("[tours-store] Supabase okuma hatası:", error.message);
       return readJsonTours();
     }
-    throw error;
-  }
 
-  return (data as TourRow[]).map(rowToManaged);
+    return (data as TourRow[]).map(rowToManaged);
+  } catch (error) {
+    console.warn("[tours-store] Supabase erişilemedi, yerel kayıt kullanılıyor:", error);
+    return readJsonTours();
+  }
 }
 
 async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
@@ -156,7 +162,7 @@ async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
       .from("tours")
       .upsert(seed.map(managedToRow), { onConflict: "id" });
     if (error && !isMissingToursTable(error)) {
-      throw error;
+      console.warn("[tours-store] Supabase seed hatası:", error.message);
     }
   }
 
@@ -169,13 +175,19 @@ export async function ensureToursLoaded(): Promise<ManagedTour[]> {
     return cached;
   }
 
-  const items = isSupabaseConfigured()
-    ? await readSupabaseTours()
-    : await readJsonTours();
+  try {
+    const items = isSupabaseConfigured()
+      ? await readSupabaseTours()
+      : await readJsonTours();
 
-  const loaded = await seedIfEmpty(items);
-  setTourCache(loaded);
-  return loaded;
+    const loaded = await seedIfEmpty(items);
+    setTourCache(loaded);
+  } catch (error) {
+    console.error("[tours-store] Yükleme hatası, varsayılan turlar kullanılıyor:", error);
+    setTourCache(buildToursSeed());
+  }
+
+  return getCachedManagedTours();
 }
 
 function revalidateTourPages(id?: string) {
