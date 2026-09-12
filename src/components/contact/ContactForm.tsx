@@ -1,32 +1,67 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Send } from "lucide-react";
-import {
-  submitContactMessage,
-  type ContactFormState,
-} from "@/app/actions/contact";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-const initialState: ContactFormState = { ok: false };
 
 export default function ContactForm() {
-  const [state, formAction, pending] = useActionState(
-    submitContactMessage,
-    initialState,
-  );
-  const formRef = useRef<HTMLFormElement>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  useEffect(() => {
-    if (state.ok) {
-      formRef.current?.reset();
-      setShowSuccess(true);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting) return;
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const phone = String(data.get("phone") ?? "").trim();
+    const subject = String(data.get("subject") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
+
+    if (!name || !email || !message) {
+      setSubmitError("Ad, e-posta ve mesaj alanları zorunludur.");
+      return;
     }
-  }, [state.ok]);
 
-  if (showSuccess && state.ok) {
+    setSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const res = await fetch("/api/iletisim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          subject: subject || "Tur Bilgi Talebi",
+          message,
+        }),
+      });
+
+      const body = (await res.json()) as { error?: string; ok?: boolean };
+
+      if (!res.ok) {
+        throw new Error(body.error ?? "Mesaj gönderilemedi.");
+      }
+
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error
+          ? err.message
+          : "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (sent) {
     return (
       <div className="rounded-2xl border border-navy-900/8 bg-white p-5 shadow-lg shadow-navy-950/5 sm:p-8">
         <div className="rounded-xl border border-gold-400/30 bg-gold-500/10 px-4 py-6 text-center">
@@ -37,7 +72,10 @@ export default function ContactForm() {
           </p>
           <button
             type="button"
-            onClick={() => setShowSuccess(false)}
+            onClick={() => {
+              setSent(false);
+              setSubmitError("");
+            }}
             className="mt-4 text-sm font-medium text-gold-600 hover:text-gold-500"
           >
             Yeni mesaj gönder
@@ -56,7 +94,7 @@ export default function ContactForm() {
         Tur talebinizi veya sorularınızı iletin, en kısa sürede dönüş yapalım.
       </p>
 
-      <form ref={formRef} action={formAction} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label
@@ -139,20 +177,20 @@ export default function ContactForm() {
           />
         </div>
 
-        {state.error && (
+        {submitError && (
           <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            {state.error}
+            {submitError}
           </p>
         )}
 
-        <Button
+        <button
           type="submit"
-          disabled={pending}
-          className="min-h-12 w-full cursor-pointer rounded-full bg-navy-900 text-sm font-semibold uppercase tracking-wider text-white hover:bg-navy-800 disabled:opacity-60 sm:w-auto sm:px-10"
+          disabled={submitting}
+          className="inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-navy-900 px-10 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-navy-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           <Send className="size-4" />
-          {pending ? "Gönderiliyor..." : "Mesaj Gönder"}
-        </Button>
+          {submitting ? "Gönderiliyor..." : "Mesaj Gönder"}
+        </button>
       </form>
     </div>
   );

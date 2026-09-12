@@ -25,8 +25,11 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ ok: true, id: message.id });
-  } catch {
-    return NextResponse.json({ error: "Mesaj kaydedilemedi." }, { status: 500 });
+  } catch (err) {
+    console.error("[POST /api/iletisim]", err);
+    const detail =
+      err instanceof Error ? err.message : "Mesaj kaydedilemedi.";
+    return NextResponse.json({ error: detail }, { status: 500 });
   }
 }
 

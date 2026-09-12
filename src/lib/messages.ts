@@ -101,7 +101,10 @@ export async function saveMessage(
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from("contact_messages").insert(messageToRow(entry));
 
-    if (error) throw error;
+    if (error) {
+      console.error("[contact_messages] Supabase insert failed:", error.message);
+      throw new Error(error.message);
+    }
     return entry;
   }
 
