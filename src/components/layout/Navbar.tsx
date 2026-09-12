@@ -5,10 +5,10 @@ import Link from "next/link";
 import { ChevronDown, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { mainNavItems, type NavItem } from "@/lib/nav-config";
+import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 const SCROLL_THRESHOLD = 40;
-const WHATSAPP_URL = "https://wa.me/905551234567";
 
 function NavDropdown({
   item,
@@ -255,7 +255,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2">
             <a
-              href={WHATSAPP_URL}
+              href={contactInfo.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
@@ -339,7 +339,7 @@ export default function Navbar() {
 
               <div className="border-t border-gold-500/10 p-5 pb-safe">
                 <a
-                  href={WHATSAPP_URL}
+                  href={contactInfo.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={closeMenu}

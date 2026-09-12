@@ -3,11 +3,11 @@ const ADDRESS = "Doğu, Ece Sokak No:20, 34890 Pendik/İstanbul";
 const MAP_QUERY = `${COMPANY_NAME}, ${ADDRESS}`;
 
 export const contactInfo = {
-  phone: "0507 972 58 13",
-  phoneHref: "tel:+905079725813",
+  phone: "0535 048 09 69",
+  phoneHref: "tel:+905350480969",
   email: "info@onda10turizm.com",
   emailHref: "mailto:info@onda10turizm.com",
-  whatsapp: "https://wa.me/905079725813",
+  whatsapp: "https://wa.me/905350480969",
   companyName: COMPANY_NAME,
   address: ADDRESS,
   mapHref: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAP_QUERY)}`,

@@ -125,10 +125,10 @@ export default function Footer() {
                   strokeWidth={1.5}
                 />
                 <a
-                  href="tel:+905079725813"
+                  href={contactInfo.phoneHref}
                   className={cn(linkClassName, "hover:underline")}
                 >
-                  0507 972 58 13
+                  {contactInfo.phone}
                 </a>
               </li>
               <li className="flex items-start gap-3">
