@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Camera, Film, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
+import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useAdminSession } from "@/components/admin/useAdminSession";
+import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import { getAllTours } from "@/lib/data";
 import type { GalleryItem, GalleryMediaType } from "@/lib/gallery-shared";
 import { Input } from "@/components/ui/input";
@@ -44,6 +46,7 @@ export default function GalleryPanel() {
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
     session;
+  const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   const fetchItems = useCallback(async (key: string) => {
     setError("");
@@ -90,6 +93,7 @@ export default function GalleryPanel() {
 
     setSubmitting(true);
     setError("");
+    clearSuccess();
     try {
       const res = await fetch("/api/galeri", {
         method: "POST",
@@ -106,6 +110,7 @@ export default function GalleryPanel() {
         setItems((prev) => [data.item!, ...prev]);
       }
       setForm((prev) => ({ ...prev, url: "", title: "" }));
+      showSuccess("Medya başarıyla eklendi.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Medya eklenemedi.");
     } finally {
@@ -118,6 +123,7 @@ export default function GalleryPanel() {
     if (!window.confirm("Bu medyayı silmek istediğinize emin misiniz?")) return;
 
     setError("");
+    clearSuccess();
     try {
       const res = await fetch(`/api/galeri/${id}`, {
         method: "DELETE",
@@ -125,6 +131,7 @@ export default function GalleryPanel() {
       });
       if (!res.ok) throw new Error("delete failed");
       setItems((prev) => prev.filter((item) => item.id !== id));
+      showSuccess("Medya başarıyla silindi.");
     } catch {
       setError("Medya silinemedi.");
     }
@@ -163,6 +170,9 @@ export default function GalleryPanel() {
             Yenile
           </Button>
         </div>
+
+        <AdminSuccessBanner message={successMessage} />
+        <AdminErrorBanner message={error} />
 
         <form
           onSubmit={addItem}
@@ -303,12 +313,6 @@ export default function GalleryPanel() {
               </SelectContent>
             </Select>
           </div>
-
-          {error && (
-            <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </p>
-          )}
 
           <div className="overflow-x-auto">
             <Table>

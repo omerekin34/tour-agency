@@ -13,7 +13,9 @@ import {
 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
+import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useAdminSession } from "@/components/admin/useAdminSession";
+import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import {
   MESSAGE_STATUS_LABELS,
   getMessageStats,
@@ -55,6 +57,7 @@ export default function MessagesPanel() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selected, setSelected] = useState<ContactMessage | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
     session;
@@ -93,6 +96,8 @@ export default function MessagesPanel() {
   const updateStatus = async (id: string, status: MessageStatus) => {
     if (!adminKey) return;
     setUpdatingId(id);
+    setError("");
+    clearSuccess();
     try {
       const res = await fetch(`/api/iletisim/${id}`, {
         method: "PATCH",
@@ -108,6 +113,7 @@ export default function MessagesPanel() {
         prev.map((item) => (item.id === id ? data.message : item)),
       );
       setSelected((prev) => (prev?.id === id ? data.message : prev));
+      showSuccess("Durum başarıyla güncellendi.");
     } catch {
       setError("Durum güncellenemedi.");
     } finally {
@@ -119,6 +125,8 @@ export default function MessagesPanel() {
     if (!adminKey) return;
     if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
 
+    setError("");
+    clearSuccess();
     try {
       const res = await fetch(`/api/iletisim/${id}`, {
         method: "DELETE",
@@ -127,6 +135,7 @@ export default function MessagesPanel() {
       if (!res.ok) throw new Error("delete failed");
       setMessages((prev) => prev.filter((item) => item.id !== id));
       setSelected((prev) => (prev?.id === id ? null : prev));
+      showSuccess("Mesaj başarıyla silindi.");
     } catch {
       setError("Mesaj silinemedi.");
     }
@@ -265,11 +274,8 @@ export default function MessagesPanel() {
             </div>
           </div>
 
-          {error && (
-            <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <AdminSuccessBanner message={successMessage} />
+          <AdminErrorBanner message={error} />
 
           {filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">

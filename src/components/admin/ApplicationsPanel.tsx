@@ -13,6 +13,8 @@ import {
   X,
 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
+import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
+import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import {
   APPLICATION_STATUS_LABELS,
   formatRoomType,
@@ -61,6 +63,7 @@ export default function ApplicationsPanel() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selected, setSelected] = useState<TourApplication | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   useEffect(() => {
     const saved = sessionStorage.getItem(STORAGE_KEY);
@@ -112,6 +115,8 @@ export default function ApplicationsPanel() {
   const updateStatus = async (id: string, status: ApplicationStatus) => {
     if (!adminKey) return;
     setUpdatingId(id);
+    setError("");
+    clearSuccess();
     try {
       const res = await fetch(`/api/basvuru/${id}`, {
         method: "PATCH",
@@ -127,6 +132,7 @@ export default function ApplicationsPanel() {
         prev.map((app) => (app.id === id ? data.application : app)),
       );
       setSelected((prev) => (prev?.id === id ? data.application : prev));
+      showSuccess("Durum başarıyla güncellendi.");
     } catch {
       setError("Durum güncellenemedi.");
     } finally {
@@ -138,6 +144,8 @@ export default function ApplicationsPanel() {
     if (!adminKey) return;
     if (!window.confirm("Bu başvuruyu silmek istediğinize emin misiniz?")) return;
 
+    setError("");
+    clearSuccess();
     try {
       const res = await fetch(`/api/basvuru/${id}`, {
         method: "DELETE",
@@ -146,6 +154,7 @@ export default function ApplicationsPanel() {
       if (!res.ok) throw new Error("delete failed");
       setApplications((prev) => prev.filter((app) => app.id !== id));
       setSelected((prev) => (prev?.id === id ? null : prev));
+      showSuccess("Başvuru başarıyla silindi.");
     } catch {
       setError("Başvuru silinemedi.");
     }
@@ -324,11 +333,8 @@ export default function ApplicationsPanel() {
             </div>
           </div>
 
-          {error && (
-            <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <AdminSuccessBanner message={successMessage} />
+          <AdminErrorBanner message={error} />
 
           {filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">

@@ -16,7 +16,9 @@ import {
 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
+import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useAdminSession } from "@/components/admin/useAdminSession";
+import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import {
   categoryLabels,
   formatTourDate,
@@ -141,7 +143,7 @@ export default function ToursPanel() {
   const [idTouched, setIdTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
     session;
@@ -188,7 +190,7 @@ export default function ToursPanel() {
     setEditorMode(mode);
     setIdTouched(mode === "edit");
     setError("");
-    setSuccessMessage("");
+    clearSuccess();
   };
 
   const openCreateEditor = () => {
@@ -214,7 +216,6 @@ export default function ToursPanel() {
     setForm(null);
     setEditorMode("edit");
     setIdTouched(false);
-    setSuccessMessage("");
   };
 
   const updateTitle = (title: string) => {
@@ -296,7 +297,7 @@ export default function ToursPanel() {
 
     setSaving(true);
     setError("");
-    setSuccessMessage("");
+    clearSuccess();
 
     try {
       if (!form.image.trim()) {
@@ -343,8 +344,8 @@ export default function ToursPanel() {
         setIdTouched(true);
       }
 
-      setSuccessMessage(
-        data.message ?? "Tur başarılı bir şekilde kaydedildi.",
+      showSuccess(
+        isCreate ? "Tur başarıyla eklendi." : "Tur başarıyla kaydedildi.",
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Tur kaydedilemedi.");
@@ -361,7 +362,7 @@ export default function ToursPanel() {
 
     setDeleting(true);
     setError("");
-    setSuccessMessage("");
+    clearSuccess();
 
     try {
       const res = await fetch(`/api/turlar/${selected.id}`, {
@@ -372,7 +373,7 @@ export default function ToursPanel() {
       if (!res.ok) throw new Error(data.error ?? "Tur silinemedi.");
 
       setTours((prev) => prev.filter((item) => item.id !== selected.id));
-      setSuccessMessage(data.message ?? "Tur başarılı bir şekilde silindi.");
+      showSuccess("Tur başarıyla silindi.");
       closeEditor();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Tur silinemedi.");
@@ -436,17 +437,8 @@ export default function ToursPanel() {
             />
           </div>
 
-          {successMessage && (
-            <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-              {successMessage}
-            </p>
-          )}
-
-          {error && (
-            <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </p>
-          )}
+          <AdminSuccessBanner message={successMessage} />
+          <AdminErrorBanner message={error} />
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {filteredTours.map((tour) => (
@@ -539,17 +531,8 @@ export default function ToursPanel() {
             </div>
 
             <form onSubmit={saveTour} className="overflow-y-auto px-5 py-5">
-              {successMessage && (
-                <p className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                  {successMessage}
-                </p>
-              )}
-
-              {error && (
-                <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {error}
-                </p>
-              )}
+              <AdminSuccessBanner message={successMessage} />
+              <AdminErrorBanner message={error} />
 
               <div className="grid gap-4 md:grid-cols-2">
                 <Field
