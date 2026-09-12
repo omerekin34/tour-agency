@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "On'da 10 Turizm",
   description: "Lüks seyahatin yeni adresi — Umre, yurt dışı ve yurt içi turlar.",
+  icons: {
+    icon: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export const viewport = {

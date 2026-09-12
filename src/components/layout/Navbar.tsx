@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import BrandLogo from "@/components/layout/BrandLogo";
 import { mainNavItems, type NavItem } from "@/lib/nav-config";
 import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
@@ -224,26 +225,7 @@ export default function Navbar() {
         )}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 md:px-10">
-          <Link href="/" className="group shrink-0 py-2">
-            <span className="flex flex-col leading-none">
-              <span
-                className={cn(
-                  "text-base font-semibold tracking-[0.2em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-lg md:text-xl",
-                  !scrolled && !menuOpen && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]",
-                )}
-              >
-                ON&apos;DA
-              </span>
-              <span
-                className={cn(
-                  "mt-0.5 text-[0.6rem] font-light uppercase tracking-[0.4em] text-white/90 sm:text-[0.65rem] md:text-xs",
-                  !scrolled && !menuOpen && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]",
-                )}
-              >
-                10 World
-              </span>
-            </span>
-          </Link>
+          <BrandLogo priority />
 
           <ul className="hidden items-center gap-8 lg:gap-10 md:flex">
             {mainNavItems.map((item) => (
