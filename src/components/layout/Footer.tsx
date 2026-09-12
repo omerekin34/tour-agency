@@ -2,7 +2,6 @@ import Link from "next/link";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import BrandLogo from "@/components/layout/BrandLogo";
 import { cn } from "@/lib/utils";
 import { contactInfo } from "@/lib/contact";
 
@@ -57,7 +56,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {/* Brand & Social */}
           <div className="space-y-5">
-            <BrandLogo />
+            <Link href="/" className="inline-block">
+              <span className="flex flex-col leading-none">
+                <span className="text-xl font-semibold tracking-[0.2em] text-gold-400">
+                  ON&apos;DA
+                </span>
+                <span className="mt-1 text-xs font-light uppercase tracking-[0.45em] text-white/90">
+                  10 World
+                </span>
+              </span>
+            </Link>
             <p className="max-w-xs text-sm leading-relaxed text-white/60">
               Hayallerinizdeki seyahat için buradayız. Güven ve tecrübeyle
               dünyayı keşfedin.
