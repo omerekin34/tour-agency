@@ -38,7 +38,7 @@ const quickLinks = [
 ] as const;
 
 const socialLinks = [
-  { href: "https://instagram.com", label: "Instagram", icon: InstagramIcon },
+  { href: contactInfo.instagram, label: "Instagram", icon: InstagramIcon },
   { href: "https://facebook.com", label: "Facebook", icon: FacebookIcon },
   { href: "https://youtube.com", label: "YouTube", icon: YoutubeIcon },
 ] as const;

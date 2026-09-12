@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 function FacebookIcon({ className }: { className?: string }) {
@@ -35,7 +36,7 @@ function LinkedInIcon({ className }: { className?: string }) {
 
 const socialLinks = [
   { href: "https://facebook.com", label: "Facebook", icon: FacebookIcon },
-  { href: "https://instagram.com", label: "Instagram", icon: InstagramIcon },
+  { href: contactInfo.instagram, label: "Instagram", icon: InstagramIcon },
   { href: "https://x.com", label: "X", icon: XIcon },
   { href: "https://linkedin.com", label: "LinkedIn", icon: LinkedInIcon },
 ] as const;

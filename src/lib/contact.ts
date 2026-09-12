@@ -8,6 +8,7 @@ export const contactInfo = {
   email: "info@onda10turizm.com",
   emailHref: "mailto:info@onda10turizm.com",
   whatsapp: "https://wa.me/905350480969",
+  instagram: "https://www.instagram.com/onda10tur/",
   companyName: COMPANY_NAME,
   address: ADDRESS,
   mapHref: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAP_QUERY)}`,
