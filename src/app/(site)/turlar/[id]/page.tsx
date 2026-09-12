@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import TourDetailView from "@/components/tours/TourDetailView";
 import { getTourById } from "@/lib/data";
 import { getTourDetailContent } from "@/lib/tour-details";
+import { ensureRegionsLoaded } from "@/lib/regions-store";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ type TourDetailPageProps = {
 export async function generateMetadata({
   params,
 }: TourDetailPageProps): Promise<Metadata> {
-  await ensureToursLoaded();
+  await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
   const { id } = await params;
   const tour = getTourById(id);
   if (!tour) return { title: "Tur Bulunamadı" };
@@ -28,7 +29,7 @@ export async function generateMetadata({
 }
 
 export default async function TourDetailPage({ params }: TourDetailPageProps) {
-  await ensureToursLoaded();
+  await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
   const { id } = await params;
   const tour = getTourById(id);
 

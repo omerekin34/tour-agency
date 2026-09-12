@@ -1,4 +1,5 @@
 import type { CategoryKey, Tour } from "@/lib/data";
+import { getCachedRegions } from "@/lib/regions-cache";
 import type { ItineraryDay, TourDetailContent } from "@/lib/tour-details";
 
 export type ManagedTour = Tour &
@@ -55,13 +56,23 @@ export function parseItineraryJson(value: string): ItineraryDay[] {
   return parsed;
 }
 
-export const CATEGORY_OPTIONS: { value: CategoryKey; label: string }[] = [
-  { value: "umre", label: "Umre" },
-  { value: "misir", label: "Mısır" },
-  { value: "dubai", label: "Dubai" },
-  { value: "balkanlar", label: "Balkanlar" },
-  { value: "yurt-ici", label: "Yurt İçi" },
-];
+export function getCategoryOptions(): { value: string; label: string }[] {
+  const regions = getCachedRegions()
+    .filter((region) => region.published)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  if (regions.length > 0) {
+    return regions.map((region) => ({ value: region.id, label: region.name }));
+  }
+
+  return [
+    { value: "umre", label: "Umre" },
+    { value: "misir", label: "Mısır" },
+    { value: "dubai", label: "Dubai" },
+    { value: "balkanlar", label: "Balkanlar" },
+    { value: "yurt-ici", label: "Yurt İçi" },
+  ];
+}
 
 export const CURRENCY_OPTIONS = [
   { value: "USD", label: "Dolar" },

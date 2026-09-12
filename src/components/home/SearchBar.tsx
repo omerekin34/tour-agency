@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, CalendarDays, Search } from "lucide-react";
 import {
@@ -10,15 +10,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getDestinations } from "@/lib/data";
-import type { CategoryKey } from "@/lib/data";
 
-const destinations = getDestinations();
+type DestinationOption = { value: string; label: string };
 
 export default function SearchBar() {
   const router = useRouter();
-  const [bolge, setBolge] = useState<CategoryKey | "">("");
+  const [bolge, setBolge] = useState("");
   const [tarih, setTarih] = useState("");
+  const [destinations, setDestinations] = useState<DestinationOption[]>([]);
+
+  useEffect(() => {
+    void fetch("/api/bolgeler")
+      .then((res) => res.json())
+      .then((data: { regions?: { id: string; name: string }[] }) => {
+        setDestinations(
+          (data.regions ?? []).map((region) => ({
+            value: region.id,
+            label: region.name,
+          })),
+        );
+      })
+      .catch(() => setDestinations([]));
+  }, []);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -44,7 +57,7 @@ export default function SearchBar() {
             </p>
             <Select
               value={bolge || null}
-              onValueChange={(value) => setBolge(value as CategoryKey)}
+              onValueChange={(value) => setBolge(value ?? "")}
             >
               <SelectTrigger className="h-auto w-full min-h-11 border-0 bg-transparent p-0 text-base shadow-none focus-visible:ring-0 sm:min-h-8 sm:text-sm">
                 <SelectValue placeholder="Bölge Seçin">

@@ -19,16 +19,12 @@
  */
 
 import type { TourCardProps } from "@/components/tours/TourCard";
+import { getCachedRegions } from "@/lib/regions-cache";
 import { getCachedManagedTours } from "@/lib/tours-cache";
 import { managedToTour } from "@/lib/tours-shared";
 import { filterToursAdvanced, parseTourSearchParams } from "@/lib/tour-filters";
 
-export type CategoryKey =
-  | "umre"
-  | "misir"
-  | "dubai"
-  | "balkanlar"
-  | "yurt-ici";
+export type CategoryKey = string;
 
 export type Tour = {
   id: string;
@@ -330,15 +326,32 @@ export function getToursByCategory(categoryKey: CategoryKey): Tour[] {
   );
 }
 
+function getDynamicDestinationLabels(): Record<string, string> {
+  const regions = getCachedRegions().filter((region) => region.published);
+  if (regions.length === 0) return destinationLabels;
+  return Object.fromEntries(regions.map((region) => [region.id, region.name]));
+}
+
+function getDynamicCategoryLabels(): Record<string, string> {
+  const regions = getCachedRegions().filter((region) => region.published);
+  if (regions.length === 0) return categoryLabels;
+  return Object.fromEntries(regions.map((region) => [region.id, region.cardLabel]));
+}
+
+export function getCategoryLabel(category: string): string {
+  return getDynamicCategoryLabels()[category] ?? category.toUpperCase();
+}
+
 export function getDestinations(): { value: CategoryKey; label: string }[] {
-  const keys: CategoryKey[] = [
-    "umre",
-    "misir",
-    "dubai",
-    "balkanlar",
-    "yurt-ici",
-  ];
-  return keys.map((value) => ({
+  const regions = getCachedRegions()
+    .filter((region) => region.published && region.showInSearch)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  if (regions.length > 0) {
+    return regions.map((region) => ({ value: region.id, label: region.name }));
+  }
+
+  return (Object.keys(destinationLabels) as CategoryKey[]).map((value) => ({
     value,
     label: destinationLabels[value],
   }));
@@ -348,7 +361,7 @@ export function getDestinationLabel(
   destination: string | undefined,
 ): string | null {
   if (!destination) return null;
-  return destinationLabels[destination as CategoryKey] ?? null;
+  return getDynamicDestinationLabels()[destination] ?? destination;
 }
 
 export function filterTours(filters: {
@@ -389,7 +402,7 @@ export function toTourCardProps(tour: Tour): TourCardProps {
   return {
     title: tour.title,
     image: tour.image,
-    category: categoryLabels[tour.category],
+    category: getCategoryLabel(tour.category),
     duration: formatDuration(tour.days),
     transport: tour.transport,
     accommodation: tour.accommodation,

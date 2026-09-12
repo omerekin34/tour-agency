@@ -10,10 +10,34 @@ import {
   MapPinned,
   MoonStar,
   ArrowRight,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const destinations = [
+export type HeroDestinationItem = {
+  id: string;
+  categoryKey: string;
+  title: string;
+  subtitle: string;
+  price: string;
+  period: string;
+  icon: string;
+  image: string;
+};
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  pyramid: Pyramid,
+  "building-2": Building2,
+  "mountain-snow": MountainSnow,
+  "map-pinned": MapPinned,
+  "moon-star": MoonStar,
+};
+
+function resolveIcon(name: string): LucideIcon {
+  return ICON_MAP[name] ?? MapPinned;
+}
+
+const DEFAULT_DESTINATIONS: HeroDestinationItem[] = [
   {
     id: "egypt",
     categoryKey: "misir",
@@ -21,7 +45,7 @@ const destinations = [
     subtitle: "Piramitler & Nil'in Büyüsü",
     price: "€899",
     period: "7 gece",
-    icon: Pyramid,
+    icon: "pyramid",
     image:
       "https://images.unsplash.com/photo-1539768942893-daf53e448371?w=1200&q=80&auto=format&fit=crop",
   },
@@ -32,7 +56,7 @@ const destinations = [
     subtitle: "Çölün İncisi & Lüks",
     price: "€1.299",
     period: "5 gece",
-    icon: Building2,
+    icon: "building-2",
     image:
       "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80&auto=format&fit=crop",
   },
@@ -43,7 +67,7 @@ const destinations = [
     subtitle: "Tarih & Doğa Harmanı",
     price: "€699",
     period: "6 gece",
-    icon: MountainSnow,
+    icon: "mountain-snow",
     image: "/images/tours/balkanlar-mostar.png",
   },
   {
@@ -53,7 +77,7 @@ const destinations = [
     subtitle: "Edirne & Trakya Keşfi",
     price: "₺4.999",
     period: "3 gece",
-    icon: MapPinned,
+    icon: "map-pinned",
     image:
       "https://images.unsplash.com/photo-1662555025766-2bb053a30e9c?w=1600&q=85&auto=format&fit=crop",
   },
@@ -64,11 +88,11 @@ const destinations = [
     subtitle: "Kutsal Topraklar & Huzur",
     price: "$749",
     period: "10 gece",
-    icon: MoonStar,
+    icon: "moon-star",
     image:
       "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1600&q=85&auto=format&fit=crop",
   },
-] as const;
+];
 
 function HeroHeading({ className }: { className?: string }) {
   return (
@@ -83,12 +107,12 @@ function HeroHeading({ className }: { className?: string }) {
   );
 }
 
-function MobileHeroSlider() {
+function MobileHeroSlider({ destinations }: { destinations: HeroDestinationItem[] }) {
   return (
     <div className="relative flex flex-col md:hidden">
       <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-4 pb-8 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {destinations.map((dest) => {
-          const Icon = dest.icon;
+          const Icon = resolveIcon(dest.icon);
 
           return (
             <article
@@ -149,9 +173,11 @@ function MobileHeroSlider() {
 }
 
 function DesktopAccordion({
+  destinations,
   activeIndex,
   setActiveIndex,
 }: {
+  destinations: HeroDestinationItem[];
   activeIndex: number | null;
   setActiveIndex: (index: number | null) => void;
 }) {
@@ -169,7 +195,7 @@ function DesktopAccordion({
   return (
     <div className="relative z-20 hidden h-full w-full md:flex">
       {destinations.map((dest, index) => {
-        const Icon = dest.icon;
+        const Icon = resolveIcon(dest.icon);
         const isActive = activeIndex === index;
         const isAnyActive = activeIndex !== null;
 
@@ -309,8 +335,13 @@ function DesktopAccordion({
   );
 }
 
-export default function WorldAccordionHero() {
+type WorldAccordionHeroProps = {
+  items?: HeroDestinationItem[];
+};
+
+export default function WorldAccordionHero({ items }: WorldAccordionHeroProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const destinations = items?.length ? items : DEFAULT_DESTINATIONS;
 
   return (
     <section className="relative flex w-full flex-col overflow-hidden bg-navy-950 md:h-screen md:min-h-[calc(100dvh-var(--site-header-offset))]">
@@ -325,10 +356,11 @@ export default function WorldAccordionHero() {
       </div>
 
       {/* Mobile slider */}
-      <MobileHeroSlider />
+      <MobileHeroSlider destinations={destinations} />
 
       {/* Desktop accordion */}
       <DesktopAccordion
+        destinations={destinations}
         activeIndex={activeIndex}
         setActiveIndex={setActiveIndex}
       />

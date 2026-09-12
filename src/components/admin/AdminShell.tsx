@@ -10,6 +10,7 @@ import {
   LogOut,
   Mail,
   Map,
+  MapPinned,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,11 @@ const navItems = [
     href: "/admin/turlar",
     label: "Turlar",
     icon: Map,
+  },
+  {
+    href: "/admin/bolgeler",
+    label: "Bölgeler",
+    icon: MapPinned,
   },
   {
     href: "/admin/basvurular",

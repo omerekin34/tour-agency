@@ -18,7 +18,15 @@ export type TourDetailContent = {
   excludes: string[];
 };
 
-const CATEGORY_VIDEOS: Record<CategoryKey, string> = {
+const DEFAULT_VIDEO =
+  "https://cdn.coverr.co/videos/coverr-aerial-view-of-a-beautiful-coastal-city-4176/1080p.mp4";
+
+const DEFAULT_GALLERY = [
+  "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=85&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&q=85&auto=format&fit=crop",
+];
+
+const CATEGORY_VIDEOS: Record<string, string> = {
   umre:
     "https://cdn.coverr.co/videos/coverr-aerial-view-of-a-beautiful-coastal-city-4176/1080p.mp4",
   misir:
@@ -31,7 +39,7 @@ const CATEGORY_VIDEOS: Record<CategoryKey, string> = {
     "https://cdn.coverr.co/videos/coverr-aerial-view-of-a-beautiful-coastal-city-4176/1080p.mp4",
 };
 
-const CATEGORY_GALLERY: Record<CategoryKey, string[]> = {
+const CATEGORY_GALLERY: Record<string, string[]> = {
   umre: [
     "/images/tours/umre-kaaba-kiswa.png",
     "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1200&q=85&auto=format&fit=crop",
@@ -254,6 +262,14 @@ function buildItinerary(tour: Tour): ItineraryDay[] {
   return days;
 }
 
+function getCategoryVideo(category: string): string {
+  return CATEGORY_VIDEOS[category] ?? DEFAULT_VIDEO;
+}
+
+function getCategoryGallery(category: string): string[] {
+  return CATEGORY_GALLERY[category] ?? DEFAULT_GALLERY;
+}
+
 function getCategoryIncludes(category: CategoryKey): string[] {
   const base = [
     "Profesyonel Türkçe rehberlik",
@@ -261,7 +277,7 @@ function getCategoryIncludes(category: CategoryKey): string[] {
     "Programda belirtilen ulaşım",
   ];
 
-  const extras: Record<CategoryKey, string[]> = {
+  const extras: Record<string, string[]> = {
     umre: ["Vize işlemleri danışmanlığı", "Havalimanı transferleri", "Ziyaret ve ibadet programı"],
     misir: ["Havalimanı transferleri", "Müze ve ören yeri girişleri", "Kahvaltı dahil konaklama"],
     dubai: ["Havalimanı transferleri", "Seçili tur ve aktiviteler", "Kahvaltı dahil konaklama"],
@@ -269,7 +285,7 @@ function getCategoryIncludes(category: CategoryKey): string[] {
     "yurt-ici": ["Otel veya pansiyon konaklaması", "Kahvaltı", "Programdaki tüm transferler"],
   };
 
-  return [...base, ...extras[category]];
+  return [...base, ...(extras[category] ?? ["Havalimanı transferleri", "Program dahilindeki geziler"])];
 }
 
 export function getTourDetailContent(tour: Tour): TourDetailContent {
@@ -279,7 +295,7 @@ export function getTourDetailContent(tour: Tour): TourDetailContent {
   const override = TOUR_OVERRIDES[tour.id];
   const gallery = [
     tour.image,
-    ...CATEGORY_GALLERY[tour.category].filter((img) => img !== tour.image),
+    ...getCategoryGallery(tour.category).filter((img) => img !== tour.image),
   ].slice(0, 5);
 
   return {
@@ -295,7 +311,7 @@ export function getTourDetailContent(tour: Tour): TourDetailContent {
     ],
     itinerary: override?.itinerary ?? buildItinerary(tour),
     gallery: override?.gallery ?? gallery,
-    videoUrl: override?.videoUrl ?? CATEGORY_VIDEOS[tour.category],
+    videoUrl: override?.videoUrl ?? getCategoryVideo(tour.category),
     includes: override?.includes ?? getCategoryIncludes(tour.category),
     excludes: override?.excludes ?? COMMON_EXCLUDES,
   };

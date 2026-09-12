@@ -20,7 +20,6 @@ import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFe
 import { useAdminSession } from "@/components/admin/useAdminSession";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import {
-  categoryLabels,
   formatTourDate,
   formatTourPrice,
 } from "@/lib/data";
@@ -28,7 +27,6 @@ import type { ManagedTour } from "@/lib/tours-shared";
 import type { ItineraryDay } from "@/lib/tour-details";
 import {
   buildItineraryTemplate,
-  CATEGORY_OPTIONS,
   createDefaultManagedTour,
   CURRENCY_OPTIONS,
   linesToList,
@@ -136,6 +134,9 @@ function formToManagedTour(form: TourFormState): ManagedTour {
 export default function ToursPanel() {
   const session = useAdminSession();
   const [tours, setTours] = useState<ManagedTour[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<ManagedTour | null>(null);
   const [form, setForm] = useState<TourFormState | null>(null);
@@ -162,15 +163,42 @@ export default function ToursPanel() {
     }
   }, [setError]);
 
+  const fetchRegions = useCallback(async (key: string) => {
+    try {
+      const res = await fetch("/api/bolgeler/admin", {
+        headers: { "x-admin-key": key },
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        regions?: { id: string; name: string; published: boolean }[];
+      };
+      setCategoryOptions(
+        (data.regions ?? [])
+          .filter((region) => region.published)
+          .map((region) => ({ value: region.id, label: region.name })),
+      );
+    } catch {
+      setCategoryOptions([]);
+    }
+  }, []);
+
+  const categoryLabelMap = useMemo(
+    () => Object.fromEntries(categoryOptions.map((option) => [option.value, option.label])),
+    [categoryOptions],
+  );
+
   useEffect(() => {
     if (authed && adminKey) {
       void fetchTours(adminKey);
+      void fetchRegions(adminKey);
     }
-  }, [authed, adminKey, fetchTours]);
+  }, [authed, adminKey, fetchTours, fetchRegions]);
 
   const handleLogin = async (e: React.FormEvent) => {
     const ok = await login(e, "/api/basvuru");
-    if (ok) await fetchTours(inputKey);
+    if (ok) {
+      await Promise.all([fetchTours(inputKey), fetchRegions(inputKey)]);
+    }
   };
 
   const filteredTours = useMemo(() => {
@@ -180,9 +208,9 @@ export default function ToursPanel() {
       (tour) =>
         tour.title.toLowerCase().includes(q) ||
         tour.id.toLowerCase().includes(q) ||
-        categoryLabels[tour.category].toLowerCase().includes(q),
+        (categoryLabelMap[tour.category] ?? tour.category).toLowerCase().includes(q),
     );
-  }, [tours, search]);
+  }, [tours, search, categoryLabelMap]);
 
   const openEditor = (tour: ManagedTour, mode: EditorMode = "edit") => {
     setSelected(tour);
@@ -448,7 +476,7 @@ export default function ToursPanel() {
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
-                      {categoryLabels[tour.category]}
+                      {categoryLabelMap[tour.category] ?? tour.category}
                     </p>
                     <h2 className="mt-1 line-clamp-2 text-sm font-medium text-navy-900">
                       {tour.title}
@@ -578,7 +606,7 @@ export default function ToursPanel() {
                     }}
                     className={nativeSelectClassName}
                   >
-                    {CATEGORY_OPTIONS.map((option) => (
+                    {categoryOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>

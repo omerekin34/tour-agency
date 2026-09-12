@@ -62,6 +62,28 @@ create table if not exists tours (
 create index if not exists tours_date_idx on tours (date);
 create index if not exists tours_category_idx on tours (category);
 
+create table if not exists regions (
+  id text primary key,
+  name text not null,
+  card_label text not null,
+  home_title text not null default '',
+  home_variant text not null default 'light'
+    check (home_variant in ('light', 'dark')),
+  sort_order int not null default 0,
+  published boolean not null default true,
+  show_on_home boolean not null default true,
+  show_in_search boolean not null default true,
+  show_in_hero boolean not null default false,
+  hero_title text not null default '',
+  hero_subtitle text not null default '',
+  hero_price text not null default '',
+  hero_period text not null default '',
+  hero_image text not null default '',
+  icon text not null default 'map-pinned'
+);
+
+create index if not exists regions_sort_order_idx on regions (sort_order);
+
 create table if not exists gallery_items (
   id text primary key,
   created_at timestamptz not null default now(),
@@ -83,5 +105,6 @@ alter table tour_applications enable row level security;
 alter table contact_messages enable row level security;
 alter table gallery_items enable row level security;
 alter table tours enable row level security;
+alter table regions enable row level security;
 
 -- API service role key ile erişir; public erişim kapalı.

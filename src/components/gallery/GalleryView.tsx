@@ -4,12 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Camera, Film, Play, X } from "lucide-react";
-import {
-  categoryLabels,
-  destinationLabels,
-  type CategoryKey,
-  type Tour,
-} from "@/lib/data";
+import { type CategoryKey, type Tour } from "@/lib/data";
 import {
   isYouTubeUrl,
   toYouTubeEmbedUrl,
@@ -18,9 +13,15 @@ import {
 } from "@/lib/gallery-shared";
 import { cn } from "@/lib/utils";
 
+type GalleryRegion = {
+  id: string;
+  name: string;
+};
+
 type GalleryViewProps = {
   items: GalleryItem[];
   tours: Tour[];
+  regions?: GalleryRegion[];
 };
 
 type FilterState = {
@@ -29,7 +30,7 @@ type FilterState = {
   type: GalleryMediaType | "all";
 };
 
-const categoryOrder: CategoryKey[] = [
+const fallbackCategoryOrder: CategoryKey[] = [
   "umre",
   "misir",
   "dubai",
@@ -52,11 +53,20 @@ function filterItems(items: GalleryItem[], filters: FilterState) {
   });
 }
 
+function getRegionLabel(
+  category: string,
+  regionOptions: { id: string; label: string }[],
+): string {
+  return regionOptions.find((region) => region.id === category)?.label ?? category.toUpperCase();
+}
+
 function MediaCard({
   item,
+  categoryLabel,
   onPhotoClick,
 }: {
   item: GalleryItem;
+  categoryLabel: string;
   onPhotoClick: (item: GalleryItem) => void;
 }) {
   const isVideo = item.type === "video";
@@ -122,7 +132,7 @@ function MediaCard({
 
       <div className="space-y-2 p-4">
         <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
-          {categoryLabels[item.category]}
+          {categoryLabel}
         </p>
         <h3 className="line-clamp-2 text-sm font-medium leading-snug text-navy-900">
           {item.title}
@@ -138,13 +148,23 @@ function MediaCard({
   );
 }
 
-export default function GalleryView({ items, tours }: GalleryViewProps) {
+export default function GalleryView({ items, tours, regions = [] }: GalleryViewProps) {
   const [filters, setFilters] = useState<FilterState>({
     category: "all",
     tourId: "all",
     type: "all",
   });
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
+
+  const regionOptions = useMemo(() => {
+    if (regions.length > 0) {
+      return regions.map((region) => ({ id: region.id, label: region.name }));
+    }
+    return fallbackCategoryOrder.map((id) => ({
+      id,
+      label: id.replace("-", " ").toUpperCase(),
+    }));
+  }, [regions]);
 
   const filteredItems = useMemo(
     () => filterItems(items, filters),
@@ -215,19 +235,19 @@ export default function GalleryView({ items, tours }: GalleryViewProps) {
                 >
                   Tümü
                 </FilterChip>
-                {categoryOrder.map((key) => (
+                {regionOptions.map((region) => (
                   <FilterChip
-                    key={key}
-                    active={filters.category === key}
+                    key={region.id}
+                    active={filters.category === region.id}
                     onClick={() =>
                       setFilters({
-                        category: key,
+                        category: region.id,
                         tourId: "all",
                         type: filters.type,
                       })
                     }
                   >
-                    {destinationLabels[key]}
+                    {region.label}
                   </FilterChip>
                 ))}
               </div>
@@ -316,7 +336,7 @@ export default function GalleryView({ items, tours }: GalleryViewProps) {
                 <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-gold-600">
-                      {categoryLabels[group.category]}
+                      {getRegionLabel(group.category, regionOptions)}
                     </p>
                     <h2 className="mt-1 text-xl font-light text-navy-900 sm:text-2xl">
                       {group.tourTitle}
@@ -335,6 +355,7 @@ export default function GalleryView({ items, tours }: GalleryViewProps) {
                     <MediaCard
                       key={item.id}
                       item={item}
+                      categoryLabel={getRegionLabel(item.category, regionOptions)}
                       onPhotoClick={setLightbox}
                     />
                   ))}

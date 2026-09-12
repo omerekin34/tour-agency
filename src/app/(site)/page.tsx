@@ -2,49 +2,45 @@ import WorldAccordionHero from "@/components/home/WorldAccordionHero";
 import SearchBar from "@/components/home/SearchBar";
 import TourCategoryRow from "@/components/home/TourCategoryRow";
 import TrustHighlights from "@/components/home/TrustHighlights";
+import { ensureRegionsLoaded, getHeroRegions, getHomeRegions } from "@/lib/regions-store";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  await ensureToursLoaded();
+  await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
+
+  const homeRegions = getHomeRegions();
+  const heroItems = getHeroRegions().map((region) => ({
+    id: region.id,
+    categoryKey: region.id,
+    title: region.heroTitle || region.name,
+    subtitle: region.heroSubtitle,
+    price: region.heroPrice,
+    period: region.heroPeriod,
+    icon: region.icon,
+    image: region.heroImage,
+  }));
+
   return (
     <main className="min-h-screen bg-zinc-50">
-      <WorldAccordionHero />
+      <WorldAccordionHero items={heroItems} />
       <section className="pointer-events-none relative z-30 -mt-6 px-3 pb-10 pt-2 sm:-mt-8 sm:px-4 sm:pb-12 sm:pt-3 md:-mt-10 md:px-8 md:pt-4">
         <div className="pointer-events-auto">
           <SearchBar />
         </div>
       </section>
-      <TourCategoryRow
-        categoryKey="umre"
-        title="Huzura Yolculuk: Umre Programları"
-        variant="light"
-      />
-      <TrustHighlights />
-      <TourCategoryRow
-        categoryKey="misir"
-        title="Tarihin Gizemi: Mısır Turları"
-        variant="dark"
-      />
-      <TourCategoryRow
-        categoryKey="balkanlar"
-        title="Kültür Köprüsü: Balkanlar"
-        variant="light"
-        fadeFrom="dark"
-      />
-      <TourCategoryRow
-        categoryKey="dubai"
-        title="Lüks & Macera: Dubai Turları"
-        variant="dark"
-        fadeFrom="light"
-      />
-      <TourCategoryRow
-        categoryKey="yurt-ici"
-        title="Vatanın Kalbi: Edirne & Trakya"
-        variant="light"
-        fadeFrom="dark"
-      />
+      {homeRegions.map((region, index) => (
+        <div key={region.id}>
+          <TourCategoryRow
+            categoryKey={region.id}
+            title={region.homeTitle}
+            variant={region.homeVariant}
+            fadeFrom={index > 0 ? homeRegions[index - 1]?.homeVariant : undefined}
+          />
+          {index === 0 && <TrustHighlights />}
+        </div>
+      ))}
     </main>
   );
 }

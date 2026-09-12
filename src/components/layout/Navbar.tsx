@@ -5,6 +5,10 @@ import Link from "next/link";
 import { ChevronDown, MessageCircle, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { mainNavItems, type NavItem } from "@/lib/nav-config";
+
+type NavbarProps = {
+  navItems?: NavItem[];
+};
 import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
@@ -190,7 +194,7 @@ function MobileNavGroup({
   );
 }
 
-export default function Navbar() {
+export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -246,7 +250,7 @@ export default function Navbar() {
           </Link>
 
           <ul className="hidden items-center gap-8 lg:gap-10 md:flex">
-            {mainNavItems.map((item) => (
+            {navItems.map((item) => (
               <li key={item.id}>
                 <NavDropdown item={item} scrolled={scrolled} />
               </li>
@@ -325,7 +329,7 @@ export default function Navbar() {
               </div>
 
               <nav className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-4">
-                {mainNavItems.map((item, index) => (
+                {navItems.map((item, index) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, x: 16 }}

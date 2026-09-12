@@ -8,6 +8,7 @@ import {
   hasActiveFilters,
   parseTourSearchParams,
 } from "@/lib/tour-filters";
+import { ensureRegionsLoaded } from "@/lib/regions-store";
 import { ensureToursLoaded } from "@/lib/tours-store";
 import { getAllTours } from "@/lib/data";
 
@@ -31,7 +32,7 @@ function FiltersSkeleton() {
 }
 
 export default async function TurlarPage({ searchParams }: TurlarPageProps) {
-  await ensureToursLoaded();
+  await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
   const params = await searchParams;
   const allTours = getAllTours();
   const filters = parseTourSearchParams(params);

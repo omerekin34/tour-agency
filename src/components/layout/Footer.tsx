@@ -29,14 +29,18 @@ function YoutubeIcon({ className }: { className?: string }) {
   );
 }
 
-const quickLinks = [
+type FooterLink = { href: string; label: string };
+
+const staticQuickLinks: FooterLink[] = [
   { href: "/", label: "Ana Sayfa" },
-  { href: "/turlar?bolge=umre", label: "Umre Turları" },
-  { href: "/turlar?bolge=yurt-ici", label: "Yurt İçi Turları" },
   { href: "/gezi-takvimi", label: "Gezi Takvimi" },
   { href: "/galeri", label: "Galeri" },
   { href: "/iletisim", label: "İletişim" },
-] as const;
+];
+
+type FooterProps = {
+  regionLinks?: FooterLink[];
+};
 
 const socialLinks = [
   { href: contactInfo.instagram, label: "Instagram", icon: InstagramIcon },
@@ -50,7 +54,13 @@ const linkClassName =
 const socialClassName =
   "inline-flex size-11 items-center justify-center rounded-full border border-white/10 text-white/80 transition-colors hover:border-gold-400/40 hover:bg-gold-500/10 hover:text-gold-400";
 
-export default function Footer() {
+export default function Footer({ regionLinks = [] }: FooterProps) {
+  const quickLinks = [
+    staticQuickLinks[0],
+    ...regionLinks,
+    ...staticQuickLinks.slice(1),
+  ];
+
   return (
     <footer id="iletisim" className="bg-brand-navy-950 text-white/80">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:px-10 md:py-16">

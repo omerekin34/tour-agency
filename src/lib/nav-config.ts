@@ -11,6 +11,12 @@ export type NavItem = {
   children?: NavChild[];
 };
 
+export type NavRegion = {
+  id: string;
+  name: string;
+  heroSubtitle?: string;
+};
+
 export const mainNavItems: NavItem[] = [
   {
     id: "umre",
@@ -89,3 +95,55 @@ export const mainNavItems: NavItem[] = [
     href: "/iletisim",
   },
 ];
+
+const STATIC_NAV_IDS = new Set(["gezi-takvimi", "galeri", "iletisim"]);
+
+export function buildNavItemsFromRegions(regions: NavRegion[]): NavItem[] {
+  const byId = new Map(regions.map((region) => [region.id, region]));
+  const dynamicItems: NavItem[] = [];
+
+  const umre = byId.get("umre");
+  if (umre) {
+    const staticUmre = mainNavItems.find((item) => item.id === "umre");
+    dynamicItems.push({
+      id: "umre",
+      label: umre.name,
+      href: `/turlar?bolge=${umre.id}`,
+      children: staticUmre?.children,
+    });
+  }
+
+  const foreignRegions = regions.filter(
+    (region) => region.id !== "umre" && region.id !== "yurt-ici",
+  );
+
+  if (foreignRegions.length > 0) {
+    dynamicItems.push({
+      id: "yurt-disi",
+      label: "Yurt Dışı",
+      href: "/turlar",
+      children: foreignRegions.map((region) => ({
+        href: `/turlar?bolge=${region.id}`,
+        label: `${region.name} Turları`,
+        hint: region.heroSubtitle,
+      })),
+    });
+  }
+
+  dynamicItems.push(
+    ...mainNavItems.filter((item) => STATIC_NAV_IDS.has(item.id)),
+  );
+
+  const yurtIci = byId.get("yurt-ici");
+  if (yurtIci) {
+    const staticYurtIci = mainNavItems.find((item) => item.id === "yurt-ici");
+    dynamicItems.splice(dynamicItems.length - 2, 0, {
+      id: "yurt-ici",
+      label: yurtIci.name,
+      href: `/turlar?bolge=${yurtIci.id}`,
+      children: staticYurtIci?.children,
+    });
+  }
+
+  return dynamicItems;
+}
