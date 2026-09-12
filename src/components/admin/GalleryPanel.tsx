@@ -110,7 +110,7 @@ export default function GalleryPanel() {
         setItems((prev) => [data.item!, ...prev]);
       }
       setForm((prev) => ({ ...prev, url: "", title: "" }));
-      showSuccess("Medya başarıyla eklendi.");
+      showSuccess("Medya başarıyla eklendi!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Medya eklenemedi.");
     } finally {
@@ -131,7 +131,7 @@ export default function GalleryPanel() {
       });
       if (!res.ok) throw new Error("delete failed");
       setItems((prev) => prev.filter((item) => item.id !== id));
-      showSuccess("Medya başarıyla silindi.");
+      showSuccess("Medya başarıyla silindi!");
     } catch {
       setError("Medya silinemedi.");
     }
@@ -151,6 +151,9 @@ export default function GalleryPanel() {
 
   return (
     <AdminShell onLogout={logout}>
+      <AdminSuccessBanner message={successMessage} variant="toast" />
+      <AdminErrorBanner message={error} variant="toast" />
+
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -170,9 +173,6 @@ export default function GalleryPanel() {
             Yenile
           </Button>
         </div>
-
-        <AdminSuccessBanner message={successMessage} />
-        <AdminErrorBanner message={error} />
 
         <form
           onSubmit={addItem}

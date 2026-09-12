@@ -323,21 +323,20 @@ export default function ToursPanel() {
         body: JSON.stringify(isCreate ? tourPayload : formToPayload(form)),
       });
 
-      const data = (await res.json()) as {
-        error?: string;
-        message?: string;
-        tour?: ManagedTour;
-      };
+      let data: { error?: string; message?: string; tour?: ManagedTour };
+      try {
+        data = (await res.json()) as typeof data;
+      } catch {
+        throw new Error("Sunucu yanıtı okunamadı. Lütfen tekrar deneyin.");
+      }
+
       if (!res.ok) {
         throw new Error(data.error ?? (isCreate ? "Tur eklenemedi." : "Tur güncellenemedi."));
       }
 
+      await fetchTours(adminKey);
+
       if (data.tour) {
-        setTours((prev) =>
-          isCreate
-            ? [...prev, data.tour!].sort((a, b) => a.date.localeCompare(b.date))
-            : prev.map((item) => (item.id === data.tour!.id ? data.tour! : item)),
-        );
         setSelected(data.tour);
         setForm(tourToForm(data.tour));
         setEditorMode("edit");
@@ -345,7 +344,7 @@ export default function ToursPanel() {
       }
 
       showSuccess(
-        isCreate ? "Tur başarıyla eklendi." : "Tur başarıyla kaydedildi.",
+        isCreate ? "Tur başarıyla eklendi!" : "Tur başarıyla kaydedildi!",
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Tur kaydedilemedi.");
@@ -373,7 +372,7 @@ export default function ToursPanel() {
       if (!res.ok) throw new Error(data.error ?? "Tur silinemedi.");
 
       setTours((prev) => prev.filter((item) => item.id !== selected.id));
-      showSuccess("Tur başarıyla silindi.");
+      showSuccess("Tur başarıyla silindi!");
       closeEditor();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Tur silinemedi.");
@@ -396,6 +395,9 @@ export default function ToursPanel() {
 
   return (
     <AdminShell onLogout={logout}>
+      <AdminSuccessBanner message={successMessage} variant="toast" />
+      <AdminErrorBanner message={error} variant="toast" />
+
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -436,9 +438,6 @@ export default function ToursPanel() {
               className="min-h-11 pl-10"
             />
           </div>
-
-          <AdminSuccessBanner message={successMessage} />
-          <AdminErrorBanner message={error} />
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {filteredTours.map((tour) => (
@@ -531,9 +530,6 @@ export default function ToursPanel() {
             </div>
 
             <form onSubmit={saveTour} className="overflow-y-auto px-5 py-5">
-              <AdminSuccessBanner message={successMessage} />
-              <AdminErrorBanner message={error} />
-
               <div className="grid gap-4 md:grid-cols-2">
                 <Field
                   label={editorMode === "create" ? "Tur Kodu (benzersiz)" : "Tur Kodu"}

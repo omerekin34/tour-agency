@@ -114,7 +114,8 @@ export function createDefaultManagedTour(
     price: 0,
     currency: category === "yurt-ici" ? "TRY" : "USD",
     days,
-    image: "",
+    image:
+      "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=85&auto=format&fit=crop",
     capacity: 20,
     transport: "THY ile Direkt Uçuş",
     accommodation: "4 Yıldızlı Otel",

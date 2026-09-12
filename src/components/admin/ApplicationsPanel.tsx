@@ -132,7 +132,7 @@ export default function ApplicationsPanel() {
         prev.map((app) => (app.id === id ? data.application : app)),
       );
       setSelected((prev) => (prev?.id === id ? data.application : prev));
-      showSuccess("Durum başarıyla güncellendi.");
+      showSuccess("Durum başarıyla güncellendi!");
     } catch {
       setError("Durum güncellenemedi.");
     } finally {
@@ -154,7 +154,7 @@ export default function ApplicationsPanel() {
       if (!res.ok) throw new Error("delete failed");
       setApplications((prev) => prev.filter((app) => app.id !== id));
       setSelected((prev) => (prev?.id === id ? null : prev));
-      showSuccess("Başvuru başarıyla silindi.");
+      showSuccess("Başvuru başarıyla silindi!");
     } catch {
       setError("Başvuru silinemedi.");
     }
@@ -251,6 +251,9 @@ export default function ApplicationsPanel() {
 
   return (
     <AdminShell onLogout={handleLogout}>
+      <AdminSuccessBanner message={successMessage} variant="toast" />
+      <AdminErrorBanner message={error} variant="toast" />
+
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -332,9 +335,6 @@ export default function ApplicationsPanel() {
               ))}
             </div>
           </div>
-
-          <AdminSuccessBanner message={successMessage} />
-          <AdminErrorBanner message={error} />
 
           {filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function useSuccessMessage(timeoutMs = 5000) {
+export function useSuccessMessage(timeoutMs = 7000) {
   const [successMessage, setSuccessMessage] = useState("");
   const timerRef = useRef<number | null>(null);
 

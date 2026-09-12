@@ -113,7 +113,7 @@ export default function MessagesPanel() {
         prev.map((item) => (item.id === id ? data.message : item)),
       );
       setSelected((prev) => (prev?.id === id ? data.message : prev));
-      showSuccess("Durum başarıyla güncellendi.");
+      showSuccess("Durum başarıyla güncellendi!");
     } catch {
       setError("Durum güncellenemedi.");
     } finally {
@@ -135,7 +135,7 @@ export default function MessagesPanel() {
       if (!res.ok) throw new Error("delete failed");
       setMessages((prev) => prev.filter((item) => item.id !== id));
       setSelected((prev) => (prev?.id === id ? null : prev));
-      showSuccess("Mesaj başarıyla silindi.");
+      showSuccess("Mesaj başarıyla silindi!");
     } catch {
       setError("Mesaj silinemedi.");
     }
@@ -197,6 +197,9 @@ export default function MessagesPanel() {
 
   return (
     <AdminShell onLogout={logout}>
+      <AdminSuccessBanner message={successMessage} variant="toast" />
+      <AdminErrorBanner message={error} variant="toast" />
+
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -273,9 +276,6 @@ export default function MessagesPanel() {
               ))}
             </div>
           </div>
-
-          <AdminSuccessBanner message={successMessage} />
-          <AdminErrorBanner message={error} />
 
           {filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">

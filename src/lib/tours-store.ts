@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { revalidatePath } from "next/cache";
 import { buildToursSeed } from "@/lib/tours-seed";
 import {
   getCachedManagedTours,
@@ -141,7 +142,13 @@ async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
 
   const seed = buildToursSeed();
 
-  await writeJsonTours(seed);
+  if (isLocalJsonWritable()) {
+    try {
+      await writeJsonTours(seed);
+    } catch (error) {
+      console.warn("[tours-store] Seed JSON yazılamadı:", error);
+    }
+  }
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
@@ -158,7 +165,9 @@ async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
 
 export async function ensureToursLoaded(): Promise<ManagedTour[]> {
   const cached = getCachedManagedTours();
-  if (cached.length > 0) return cached;
+  if (!process.env.VERCEL && cached.length > 0) {
+    return cached;
+  }
 
   const items = isSupabaseConfigured()
     ? await readSupabaseTours()
@@ -167,6 +176,17 @@ export async function ensureToursLoaded(): Promise<ManagedTour[]> {
   const loaded = await seedIfEmpty(items);
   setTourCache(loaded);
   return loaded;
+}
+
+function revalidateTourPages(id?: string) {
+  revalidatePath("/");
+  revalidatePath("/turlar");
+  revalidatePath("/gezi-takvimi");
+  revalidatePath("/galeri");
+  if (id) {
+    revalidatePath(`/turlar/${id}`);
+    revalidatePath(`/turlar/${id}/basvuru`);
+  }
 }
 
 export async function getManagedTours(): Promise<ManagedTour[]> {
@@ -178,9 +198,20 @@ export async function getManagedTourById(id: string): Promise<ManagedTour | unde
   return tours.find((tour) => tour.id === id);
 }
 
+function isLocalJsonWritable() {
+  return !process.env.VERCEL;
+}
+
 async function persistToursLocally(list: ManagedTour[]) {
-  await writeJsonTours(list);
   setTourCache(list);
+
+  if (!isLocalJsonWritable()) return;
+
+  try {
+    await writeJsonTours(list);
+  } catch (error) {
+    console.warn("[tours-store] Yerel JSON yazılamadı:", error);
+  }
 }
 
 async function syncTourToSupabase(tour: ManagedTour) {
@@ -191,8 +222,12 @@ async function syncTourToSupabase(tour: ManagedTour) {
     .from("tours")
     .upsert(managedToRow(tour), { onConflict: "id" });
 
-  if (error && !isMissingToursTable(error)) {
-    throw error;
+  if (error) {
+    if (isMissingToursTable(error)) {
+      console.warn("[tours-store] Supabase tours tablosu yok, yerel kayıt kullanılıyor.");
+      return;
+    }
+    throw new Error(`Supabase kayıt hatası: ${error.message}`);
   }
 }
 
@@ -200,6 +235,10 @@ export async function updateManagedTour(
   id: string,
   data: Partial<ManagedTour>,
 ): Promise<ManagedTour | null> {
+  if (process.env.VERCEL) {
+    invalidateTourCache();
+  }
+
   const tours = await ensureToursLoaded();
   const index = tours.findIndex((tour) => tour.id === id);
   if (index === -1) return null;
@@ -217,6 +256,7 @@ export async function updateManagedTour(
 
   await syncTourToSupabase(next);
   await persistToursLocally(list);
+  revalidateTourPages(id);
 
   return next;
 }
@@ -233,6 +273,10 @@ async function deleteTourFromSupabase(id: string) {
 }
 
 export async function createManagedTour(tour: ManagedTour): Promise<ManagedTour> {
+  if (process.env.VERCEL) {
+    invalidateTourCache();
+  }
+
   const tours = await ensureToursLoaded();
 
   if (tours.some((item) => item.id === tour.id)) {
@@ -243,11 +287,16 @@ export async function createManagedTour(tour: ManagedTour): Promise<ManagedTour>
 
   await syncTourToSupabase(tour);
   await persistToursLocally(list);
+  revalidateTourPages(tour.id);
 
   return tour;
 }
 
 export async function deleteManagedTour(id: string): Promise<boolean> {
+  if (process.env.VERCEL) {
+    invalidateTourCache();
+  }
+
   const tours = await ensureToursLoaded();
   const next = tours.filter((tour) => tour.id !== id);
 
@@ -255,6 +304,7 @@ export async function deleteManagedTour(id: string): Promise<boolean> {
 
   await deleteTourFromSupabase(id);
   await persistToursLocally(next);
+  revalidateTourPages(id);
 
   return true;
 }
