@@ -21,6 +21,7 @@
 /build
 
 # misc
+/data/applications.json
 .DS_Store
 *.pem
 
