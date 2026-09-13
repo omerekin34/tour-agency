@@ -68,9 +68,80 @@ function FilterCard({
   );
 }
 
+function formatPriceLabel(value: number): string {
+  return `${value.toLocaleString("tr-TR")} ₺`;
+}
+
+function PriceRangeSlider({
+  min,
+  max,
+  values,
+  onChange,
+}: {
+  min: number;
+  max: number;
+  values: [number, number];
+  onChange: (values: [number, number]) => void;
+}) {
+  const [minVal, maxVal] = values;
+  const span = max - min || 1;
+  const minPercent = ((minVal - min) / span) * 100;
+  const maxPercent = ((maxVal - min) / span) * 100;
+  const labelsOverlap = Math.abs(maxPercent - minPercent) < 18;
+
+  return (
+    <div className="space-y-3">
+      <div className="relative px-1 pt-10 pb-1">
+        <div className="pointer-events-none absolute inset-x-1 top-0 h-10">
+          <span
+            className="absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-navy-900 px-2.5 py-1 text-xs font-semibold text-white shadow-md"
+            style={{ left: `${minPercent}%` }}
+          >
+            {formatPriceLabel(minVal)}
+            <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-navy-900" />
+          </span>
+          <span
+            className="absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-gold-500 px-2.5 py-1 text-xs font-semibold text-navy-950 shadow-md"
+            style={{
+              left: `${maxPercent}%`,
+              top: labelsOverlap ? 28 : 0,
+            }}
+          >
+            {formatPriceLabel(maxVal)}
+            <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gold-500" />
+          </span>
+        </div>
+        <Slider
+          value={values}
+          min={min}
+          max={max}
+          step={500}
+          onValueChange={(value) => {
+            const [nextMin, nextMax] = value as number[];
+            onChange([nextMin, nextMax]);
+          }}
+          className="[&_[data-slot=slider-range]]:bg-gold-500"
+        />
+      </div>
+      <div className="flex items-center justify-between text-xs text-navy-500">
+        <span>{formatPriceLabel(min)}</span>
+        <span>{formatPriceLabel(max)}</span>
+      </div>
+    </div>
+  );
+}
+
 function FilterPanel({ filters }: { filters: TourFilterState }) {
   const priceRange = getPriceRange();
   const [citySearch, setCitySearch] = useState("");
+  const [priceValues, setPriceValues] = useState<[number, number]>([
+    filters.minFiyat,
+    filters.maxFiyat,
+  ]);
+
+  useEffect(() => {
+    setPriceValues([filters.minFiyat, filters.maxFiyat]);
+  }, [filters.minFiyat, filters.maxFiyat]);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -128,27 +199,15 @@ function FilterPanel({ filters }: { filters: TourFilterState }) {
       </button>
 
       <FilterCard title="Toplam Fiyat">
-        <div className="space-y-4">
-          <Slider
-            value={[filters.minFiyat, filters.maxFiyat]}
-            min={priceRange.min}
-            max={priceRange.max}
-            step={500}
-            onValueChange={(value) => {
-              const [minFiyat, maxFiyat] = value as number[];
-              updateFilters({ minFiyat, maxFiyat });
-            }}
-            className="[&_[data-slot=slider-range]]:bg-gold-500"
-          />
-          <div className="flex items-center justify-between text-sm text-navy-700">
-            <span className="rounded-md bg-gold-500/15 px-2 py-1 font-medium text-navy-900">
-              {filters.minFiyat.toLocaleString("tr-TR")} ₺
-            </span>
-            <span className="rounded-md bg-gold-500/15 px-2 py-1 font-medium text-navy-900">
-              {filters.maxFiyat.toLocaleString("tr-TR")} ₺
-            </span>
-          </div>
-        </div>
+        <PriceRangeSlider
+          min={priceRange.min}
+          max={priceRange.max}
+          values={priceValues}
+          onChange={(values) => {
+            setPriceValues(values);
+            updateFilters({ minFiyat: values[0], maxFiyat: values[1] });
+          }}
+        />
       </FilterCard>
 
       <FilterCard title="Tarih">
