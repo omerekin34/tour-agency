@@ -1,6 +1,10 @@
 import type { CategoryKey, Tour } from "@/lib/data";
 import { getCachedRegions } from "@/lib/regions-cache";
 import type { ItineraryDay, TourDetailContent } from "@/lib/tour-details";
+import {
+  getDefaultVisaTypesForCategory,
+  type VisaType,
+} from "@/lib/tour-filters";
 
 export type ManagedTour = Tour &
   TourDetailContent & {
@@ -22,6 +26,8 @@ export function managedToTour(tour: ManagedTour): Tour {
     transport: tour.transport,
     accommodation: tour.accommodation,
     featured: tour.featured,
+    departures: tour.departures ?? ["istanbul"],
+    visaTypes: tour.visaTypes ?? getDefaultVisaTypesForCategory(tour.category),
   };
 }
 
@@ -132,6 +138,8 @@ export function createDefaultManagedTour(
     accommodation: "4 Yıldızlı Otel",
     featured: false,
     published: true,
+    departures: ["istanbul"],
+    visaTypes: getDefaultVisaTypesForCategory(category) as VisaType[],
     description: "Tur açıklamasını buraya yazın.",
     highlights: [
       "Deneyimli rehber eşliğinde geziler",

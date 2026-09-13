@@ -10,6 +10,10 @@ import {
 import type { ManagedTour } from "@/lib/tours-shared";
 import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
 import type { ItineraryDay } from "@/lib/tour-details";
+import {
+  getDefaultVisaTypesForCategory,
+  type VisaType,
+} from "@/lib/tour-filters";
 
 export {
   getCachedManagedTourById,
@@ -42,6 +46,8 @@ type TourRow = {
   video_url: string;
   includes: string[];
   excludes: string[];
+  departures: string[];
+  visa_types: VisaType[];
 };
 
 function isMissingToursTable(error: { code?: string; message?: string }) {
@@ -71,6 +77,10 @@ function rowToManaged(row: TourRow): ManagedTour {
     videoUrl: row.video_url,
     includes: row.includes ?? [],
     excludes: row.excludes ?? [],
+    departures: row.departures?.length ? row.departures : ["istanbul"],
+    visaTypes: row.visa_types?.length
+      ? row.visa_types
+      : getDefaultVisaTypesForCategory(row.category),
   };
 }
 
@@ -97,6 +107,8 @@ function managedToRow(tour: ManagedTour): TourRow {
     video_url: tour.videoUrl,
     includes: tour.includes,
     excludes: tour.excludes,
+    departures: tour.departures ?? ["istanbul"],
+    visa_types: tour.visaTypes ?? getDefaultVisaTypesForCategory(tour.category),
   };
 }
 

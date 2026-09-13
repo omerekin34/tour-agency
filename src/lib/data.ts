@@ -22,7 +22,13 @@ import type { TourCardProps } from "@/components/tours/TourCard";
 import { getCachedRegions } from "@/lib/regions-cache";
 import { getCachedManagedTours } from "@/lib/tours-cache";
 import { managedToTour } from "@/lib/tours-shared";
-import { filterToursAdvanced, parseTourSearchParams } from "@/lib/tour-filters";
+import {
+  filterToursAdvanced,
+  formatTourDepartures,
+  formatTourVisaTypes,
+  parseTourSearchParams,
+} from "@/lib/tour-filters";
+import type { VisaType } from "@/lib/tour-filters";
 
 export type CategoryKey = string;
 
@@ -40,6 +46,8 @@ export type Tour = {
   transport: string;
   accommodation: string;
   featured: boolean;
+  departures?: string[];
+  visaTypes?: VisaType[];
 };
 
 export const destinationLabels: Record<CategoryKey, string> = {
@@ -427,6 +435,8 @@ export function toTourCardProps(tour: Tour): TourCardProps {
     duration: formatDuration(tour.days),
     transport: tour.transport,
     accommodation: tour.accommodation,
+    departure: formatTourDepartures(tour),
+    visa: formatTourVisaTypes(tour),
     price: formatPrice(tour.price, tour.currency),
     href: `/turlar/${tour.id}`,
   };

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   CalendarDays,
+  FileText,
+  MapPin,
   Plane,
   Star,
   ArrowRight,
@@ -19,6 +21,8 @@ export type TourCardProps = {
   duration: string;
   transport: string;
   accommodation: string;
+  departure?: string;
+  visa?: string;
   price: string;
   href?: string;
 };
@@ -31,6 +35,8 @@ export default function TourCard({
   duration,
   transport,
   accommodation,
+  departure,
+  visa,
   price,
   href = "#",
 }: TourCardProps) {
@@ -90,6 +96,24 @@ export default function TourCard({
             />
             <span>{accommodation}</span>
           </li>
+          {departure && (
+            <li className="flex items-center gap-2.5 text-sm text-navy-700/80">
+              <MapPin
+                className="size-4 shrink-0 text-gold-500"
+                strokeWidth={1.5}
+              />
+              <span>{departure} çıkışlı</span>
+            </li>
+          )}
+          {visa && (
+            <li className="flex items-center gap-2.5 text-sm text-navy-700/80">
+              <FileText
+                className="size-4 shrink-0 text-gold-500"
+                strokeWidth={1.5}
+              />
+              <span>{visa}</span>
+            </li>
+          )}
         </ul>
 
         <div className="mt-auto flex flex-col gap-3 border-t border-zinc-100 pt-4 sm:flex-row sm:items-center sm:justify-between">

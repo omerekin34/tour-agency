@@ -100,21 +100,37 @@ export function getTourTransportTypes(tour: Tour): TransportType[] {
   return types.length > 0 ? types : ["ucak"];
 }
 
+export function getDefaultVisaTypesForCategory(category: string): VisaType[] {
+  if (category === "yurt-ici") return ["vizesiz"];
+  if (category === "balkanlar") return ["vizesiz", "yesil-pasaport"];
+  if (category === "umre") return ["vizeli"];
+  return ["vizeli"];
+}
+
 export function getTourDepartures(tour: Tour): string[] {
-  if (tour.destination === "yurt-ici") {
-    return ["istanbul", "edirne", "bursa", "ankara"];
-  }
-  if (tour.destination === "balkanlar") {
-    return ["istanbul", "ankara", "izmir", "bursa"];
-  }
-  return ["istanbul", "ankara", "izmir", "adana", "trabzon"];
+  if (tour.departures?.length) return tour.departures;
+  return ["istanbul"];
 }
 
 export function getTourVisaTypes(tour: Tour): VisaType[] {
-  if (tour.destination === "yurt-ici") return ["vizesiz"];
-  if (tour.destination === "balkanlar") return ["vizesiz", "yesil-pasaport"];
-  if (tour.destination === "umre") return ["vizeli", "yesil-pasaport"];
-  return ["vizeli"];
+  if (tour.visaTypes?.length) return tour.visaTypes;
+  return getDefaultVisaTypesForCategory(tour.category);
+}
+
+export function getDepartureCityLabel(value: string): string {
+  return DEPARTURE_CITIES.find((city) => city.value === value)?.label ?? value;
+}
+
+export function getVisaTypeLabel(value: VisaType): string {
+  return VISA_OPTIONS.find((option) => option.value === value)?.label ?? value;
+}
+
+export function formatTourDepartures(tour: Tour): string {
+  return getTourDepartures(tour).map(getDepartureCityLabel).join(", ");
+}
+
+export function formatTourVisaTypes(tour: Tour): string {
+  return getTourVisaTypes(tour).map(getVisaTypeLabel).join(", ");
 }
 
 export function getPriceRange(source?: Tour[]): { min: number; max: number } {

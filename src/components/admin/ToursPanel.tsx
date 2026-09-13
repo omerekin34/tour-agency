@@ -33,6 +33,11 @@ import {
   listToLines,
   slugifyTourId,
 } from "@/lib/tours-shared";
+import {
+  DEPARTURE_CITIES,
+  VISA_OPTIONS,
+  type VisaType,
+} from "@/lib/tour-filters";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -65,6 +70,8 @@ type TourFormState = {
   galleryText: string;
   videoUrl: string;
   itinerary: ItineraryDay[];
+  departures: string[];
+  visaTypes: VisaType[];
 };
 
 function tourToForm(tour: ManagedTour): TourFormState {
@@ -92,6 +99,8 @@ function tourToForm(tour: ManagedTour): TourFormState {
       tour.itinerary.length > 0
         ? tour.itinerary
         : buildItineraryTemplate(tour.days),
+    departures: tour.departures ?? ["istanbul"],
+    visaTypes: tour.visaTypes ?? [],
   };
 }
 
@@ -121,6 +130,8 @@ function formToPayload(form: TourFormState): Partial<ManagedTour> {
       title: day.title.trim() || `${index + 1}. Gün`,
       description: day.description.trim() || "Program detayını buraya yazın.",
     })),
+    departures: form.departures.length ? form.departures : ["istanbul"],
+    visaTypes: form.visaTypes,
   };
 }
 
@@ -707,6 +718,85 @@ export default function ToursPanel() {
                     required
                     className="min-h-11"
                   />
+                </Field>
+
+                <Field label="Çıkış Noktaları" className="md:col-span-2">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {DEPARTURE_CITIES.map((city) => {
+                      const checked = form.departures.includes(city.value);
+                      return (
+                        <label
+                          key={city.value}
+                          className={cn(
+                            "flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors",
+                            checked
+                              ? "border-gold-400/50 bg-gold-500/10 text-navy-900"
+                              : "border-navy-900/10 text-navy-700 hover:border-gold-400/30",
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              setForm((prev) => {
+                                if (!prev) return prev;
+                                const next = checked
+                                  ? prev.departures.filter((item) => item !== city.value)
+                                  : [...prev.departures, city.value];
+                                return {
+                                  ...prev,
+                                  departures: next.length ? next : ["istanbul"],
+                                };
+                              })
+                            }
+                            className="size-4 rounded border-navy-900/20 text-gold-500 focus:ring-gold-400/30"
+                          />
+                          <span>{city.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-xs text-navy-600/70">
+                    Filtrelemede görünür. En az bir çıkış noktası seçilmelidir.
+                  </p>
+                </Field>
+
+                <Field label="Vize Durumu" className="md:col-span-2">
+                  <div className="space-y-2">
+                    {VISA_OPTIONS.map((option) => {
+                      const checked = form.visaTypes.includes(option.value);
+                      return (
+                        <label
+                          key={option.value}
+                          className={cn(
+                            "flex min-h-10 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm transition-colors",
+                            checked
+                              ? "border-gold-400/50 bg-gold-500/10 text-navy-900"
+                              : "border-navy-900/10 text-navy-700 hover:border-gold-400/30",
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              setForm((prev) => {
+                                if (!prev) return prev;
+                                const next = checked
+                                  ? prev.visaTypes.filter((item) => item !== option.value)
+                                  : [...prev.visaTypes, option.value];
+                                return { ...prev, visaTypes: next };
+                              })
+                            }
+                            className="size-4 rounded border-navy-900/20 text-gold-500 focus:ring-gold-400/30"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-2 text-xs text-navy-600/70">
+                    Vize filtresinde ve tur detayında gösterilir.
+                  </p>
                 </Field>
 
                 <Field label="Kapak Görseli URL" className="md:col-span-2">

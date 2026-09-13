@@ -56,8 +56,14 @@ create table if not exists tours (
   gallery jsonb not null default '[]'::jsonb,
   video_url text not null default '',
   includes jsonb not null default '[]'::jsonb,
-  excludes jsonb not null default '[]'::jsonb
+  excludes jsonb not null default '[]'::jsonb,
+  departures jsonb not null default '["istanbul"]'::jsonb,
+  visa_types jsonb not null default '["vizeli"]'::jsonb
 );
+
+-- Mevcut tours tablosu için (bir kez çalıştırın):
+-- alter table tours add column if not exists departures jsonb not null default '["istanbul"]'::jsonb;
+-- alter table tours add column if not exists visa_types jsonb not null default '["vizeli"]'::jsonb;
 
 create index if not exists tours_date_idx on tours (date);
 create index if not exists tours_category_idx on tours (category);

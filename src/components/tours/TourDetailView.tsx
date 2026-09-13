@@ -8,8 +8,10 @@ import {
   ArrowLeft,
   CalendarDays,
   Check,
+  Clock,
   MapPin,
   ClipboardPen,
+  FileText,
   MessageCircle,
   Pause,
   Plane,
@@ -20,11 +22,15 @@ import {
 } from "lucide-react";
 import type { Tour } from "@/lib/data";
 import {
-  categoryLabels,
   formatTourDate,
   formatTourDuration,
   formatTourPrice,
+  getCategoryLabel,
 } from "@/lib/data";
+import {
+  formatTourDepartures,
+  formatTourVisaTypes,
+} from "@/lib/tour-filters";
 import type { TourDetailContent } from "@/lib/tour-details";
 import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
@@ -109,7 +115,7 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
               className="mb-4 flex flex-wrap items-center gap-2"
             >
               <span className="inline-flex rounded-full bg-gold-500 px-3.5 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-brand-navy-950 shadow-lg shadow-gold-500/25">
-                {categoryLabels[tour.category]}
+                {getCategoryLabel(tour.category)}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[0.65rem] font-medium uppercase tracking-wider text-white/90 backdrop-blur-md">
                 <CalendarDays className="size-3 text-gold-400" />
@@ -143,9 +149,9 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
 
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         {/* Quick facts */}
-        <div className="-mt-8 relative z-10 mb-10 grid grid-cols-1 gap-3 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-xl shadow-navy-950/10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:gap-4 lg:p-6">
+        <div className="-mt-8 relative z-10 mb-10 grid grid-cols-1 gap-3 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-xl shadow-navy-950/10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4 lg:p-6">
           <FactItem icon={CalendarDays} label="Tarih" value={formatTourDate(tour.date)} />
-          <FactItem icon={MapPin} label="Süre" value={formatTourDuration(tour.days)} />
+          <FactItem icon={Clock} label="Süre" value={formatTourDuration(tour.days)} />
           <FactItem
             icon={Star}
             label="Ücret"
@@ -154,6 +160,16 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
           />
           <FactItem icon={Plane} label="Ulaşım" value={tour.transport} />
           <FactItem icon={Users} label="Kontenjan" value={`${tour.capacity} kişi`} />
+          <FactItem
+            icon={MapPin}
+            label="Çıkış Noktası"
+            value={`${formatTourDepartures(tour)} çıkışlı`}
+          />
+          <FactItem
+            icon={FileText}
+            label="Vize Durumu"
+            value={formatTourVisaTypes(tour)}
+          />
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[1fr_340px] lg:gap-12">
