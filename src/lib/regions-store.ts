@@ -40,7 +40,12 @@ type RegionRow = {
 };
 
 function isMissingRegionsTable(error: { code?: string; message?: string }) {
-  return error.code === "PGRST205" || error.message?.includes("regions") === true;
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    error.code === "PGRST205" ||
+    message.includes('relation "regions" does not exist') ||
+    (message.includes("could not find the table") && message.includes("regions"))
+  );
 }
 
 function isLocalJsonWritable() {

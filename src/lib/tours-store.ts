@@ -51,7 +51,22 @@ type TourRow = {
 };
 
 function isMissingToursTable(error: { code?: string; message?: string }) {
-  return error.code === "PGRST205" || error.message?.includes("tours") === true;
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    error.code === "PGRST205" ||
+    message.includes('relation "tours" does not exist') ||
+    (message.includes("could not find the table") && message.includes("tours"))
+  );
+}
+
+function isMissingOptionalTourColumns(error: { code?: string; message?: string }) {
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    message.includes("departures") ||
+    message.includes("visa_types")
+  );
 }
 
 function rowToManaged(row: TourRow): ManagedTour {
@@ -170,9 +185,12 @@ async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
-    const { error } = await supabase
-      .from("tours")
-      .upsert(seed.map(managedToRow), { onConflict: "id" });
+    const rows = seed.map(managedToRow);
+    let { error } = await supabase.from("tours").upsert(rows, { onConflict: "id" });
+    if (error && isMissingOptionalTourColumns(error)) {
+      const legacyRows = rows.map(({ departures: _d, visa_types: _v, ...row }) => row);
+      ({ error } = await supabase.from("tours").upsert(legacyRows, { onConflict: "id" }));
+    }
     if (error && !isMissingToursTable(error)) {
       console.warn("[tours-store] Supabase seed hatası:", error.message);
     }
@@ -242,9 +260,23 @@ async function syncTourToSupabase(tour: ManagedTour) {
   if (!isSupabaseConfigured()) return;
 
   const supabase = getSupabaseAdmin();
-  const { error } = await supabase
+  const fullRow = managedToRow(tour);
+
+  let { error } = await supabase
     .from("tours")
-    .upsert(managedToRow(tour), { onConflict: "id" });
+    .upsert(fullRow, { onConflict: "id" });
+
+  if (error && isMissingOptionalTourColumns(error)) {
+    const { departures: _d, visa_types: _v, ...legacyRow } = fullRow;
+    ({ error } = await supabase
+      .from("tours")
+      .upsert(legacyRow, { onConflict: "id" }));
+    if (!error) {
+      console.warn(
+        "[tours-store] departures/visa_types kolonları yok; tur temel alanları kaydedildi.",
+      );
+    }
+  }
 
   if (error) {
     if (isMissingToursTable(error)) {
@@ -259,9 +291,7 @@ export async function updateManagedTour(
   id: string,
   data: Partial<ManagedTour>,
 ): Promise<ManagedTour | null> {
-  if (process.env.VERCEL) {
-    invalidateTourCache();
-  }
+  invalidateTourCache();
 
   const tours = await ensureToursLoaded();
   const index = tours.findIndex((tour) => tour.id === id);
@@ -297,9 +327,7 @@ async function deleteTourFromSupabase(id: string) {
 }
 
 export async function createManagedTour(tour: ManagedTour): Promise<ManagedTour> {
-  if (process.env.VERCEL) {
-    invalidateTourCache();
-  }
+  invalidateTourCache();
 
   const tours = await ensureToursLoaded();
 
@@ -317,9 +345,7 @@ export async function createManagedTour(tour: ManagedTour): Promise<ManagedTour>
 }
 
 export async function deleteManagedTour(id: string): Promise<boolean> {
-  if (process.env.VERCEL) {
-    invalidateTourCache();
-  }
+  invalidateTourCache();
 
   const tours = await ensureToursLoaded();
   const next = tours.filter((tour) => tour.id !== id);
