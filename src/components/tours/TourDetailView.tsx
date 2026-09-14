@@ -33,6 +33,7 @@ import {
 } from "@/lib/tour-filters";
 import type { TourDetailContent } from "@/lib/tour-details";
 import { contactInfo } from "@/lib/contact";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
 
 type TourDetailViewProps = {
@@ -148,44 +149,46 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 md:px-8">
-        {/* Quick facts */}
-        <div className="-mt-8 relative z-10 mb-10 grid grid-cols-1 gap-3 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-xl shadow-navy-950/10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4 lg:p-6">
-          <FactItem icon={CalendarDays} label="Tarih" value={formatTourDate(tour.date)} />
-          <FactItem icon={Clock} label="Süre" value={formatTourDuration(tour.days)} />
-          <FactItem
-            icon={Star}
-            label="Ücret"
-            value={formatTourPrice(tour.price, tour.currency)}
-            highlight
-          />
-          <FactItem icon={Plane} label="Ulaşım" value={tour.transport} />
-          <FactItem icon={Users} label="Kontenjan" value={`${tour.capacity} kişi`} />
-          <FactItem
-            icon={MapPin}
-            label="Çıkış Noktası"
-            value={`${formatTourDepartures(tour)} çıkışlı`}
-          />
-          <FactItem
-            icon={FileText}
-            label="Vize Durumu"
-            value={formatTourVisaTypes(tour)}
-          />
-        </div>
+        <ScrollReveal className="-mt-8 relative z-10 mb-10">
+          <div className="grid grid-cols-1 gap-3 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-xl shadow-navy-950/10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4 lg:p-6">
+            <FactItem icon={CalendarDays} label="Tarih" value={formatTourDate(tour.date)} />
+            <FactItem icon={Clock} label="Süre" value={formatTourDuration(tour.days)} />
+            <FactItem
+              icon={Star}
+              label="Ücret"
+              value={formatTourPrice(tour.price, tour.currency)}
+              highlight
+            />
+            <FactItem icon={Plane} label="Ulaşım" value={tour.transport} />
+            <FactItem icon={Users} label="Kontenjan" value={`${tour.capacity} kişi`} />
+            <FactItem
+              icon={MapPin}
+              label="Çıkış Noktası"
+              value={`${formatTourDepartures(tour)} çıkışlı`}
+            />
+            <FactItem
+              icon={FileText}
+              label="Vize Durumu"
+              value={formatTourVisaTypes(tour)}
+            />
+          </div>
+        </ScrollReveal>
 
         <div className="grid gap-10 lg:grid-cols-[1fr_340px] lg:gap-12">
           <div className="min-w-0 space-y-10">
-            {/* Description */}
-            <section>
-              <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-                Tur Hakkında
-              </h2>
-              <p className="text-base leading-relaxed text-navy-800/90 md:text-lg">
-                {detail.description}
-              </p>
-            </section>
+            <ScrollReveal>
+              <section>
+                <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
+                  Tur Hakkında
+                </h2>
+                <p className="text-base leading-relaxed text-navy-800/90 md:text-lg">
+                  {detail.description}
+                </p>
+              </section>
+            </ScrollReveal>
 
-            {/* Video */}
-            <section>
+            <ScrollReveal delay={0.05}>
+              <section>
               <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
                 Tur Videosu
               </h2>
@@ -225,28 +228,30 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                   />
                 )}
               </div>
-            </section>
+              </section>
+            </ScrollReveal>
 
-            {/* Highlights */}
-            <section>
-              <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-                Öne Çıkanlar
-              </h2>
-              <ul className="grid gap-3 sm:grid-cols-2">
-                {detail.highlights.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-3 rounded-xl border border-navy-900/8 bg-white p-4 shadow-sm"
-                  >
-                    <Check className="mt-0.5 size-4 shrink-0 text-gold-500" />
-                    <span className="text-sm text-navy-800">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <ScrollReveal delay={0.05}>
+              <section>
+                <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
+                  Öne Çıkanlar
+                </h2>
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {detail.highlights.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-3 rounded-xl border border-navy-900/8 bg-white p-4 shadow-sm"
+                    >
+                      <Check className="mt-0.5 size-4 shrink-0 text-gold-500" />
+                      <span className="text-sm text-navy-800">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </ScrollReveal>
 
-            {/* Gallery */}
-            <section>
+            <ScrollReveal delay={0.05}>
+              <section>
               <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
                 Fotoğraf Galerisi
               </h2>
@@ -276,33 +281,35 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                   </button>
                 ))}
               </div>
-            </section>
+              </section>
+            </ScrollReveal>
 
-            {/* Itinerary */}
-            <section>
-              <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-                Günlük Program
-              </h2>
-              <ol className="space-y-3">
-                {detail.itinerary.map((day) => (
-                  <li
-                    key={day.day}
-                    className="flex gap-4 rounded-xl border border-navy-900/8 bg-white p-4 shadow-sm"
-                  >
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-500/15 text-sm font-bold text-navy-900">
-                      {day.day}
-                    </span>
-                    <div>
-                      <h3 className="font-medium text-navy-900">{day.title}</h3>
-                      <p className="mt-1 text-sm text-navy-700/80">{day.description}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </section>
+            <ScrollReveal delay={0.05}>
+              <section>
+                <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
+                  Günlük Program
+                </h2>
+                <ol className="space-y-3">
+                  {detail.itinerary.map((day) => (
+                    <li
+                      key={day.day}
+                      className="flex gap-4 rounded-xl border border-navy-900/8 bg-white p-4 shadow-sm"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-500/15 text-sm font-bold text-navy-900">
+                        {day.day}
+                      </span>
+                      <div>
+                        <h3 className="font-medium text-navy-900">{day.title}</h3>
+                        <p className="mt-1 text-sm text-navy-700/80">{day.description}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </ScrollReveal>
 
-            {/* Başvuru CTA */}
-            <section className="rounded-2xl border border-gold-400/25 bg-gradient-to-br from-brand-navy-950 via-brand-navy-900 to-brand-navy-950 p-6 shadow-lg sm:p-8">
+            <ScrollReveal delay={0.05}>
+              <section className="rounded-2xl border border-gold-400/25 bg-gradient-to-br from-brand-navy-950 via-brand-navy-900 to-brand-navy-950 p-6 shadow-lg sm:p-8">
               <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-400">
                 Rezervasyon
               </p>
@@ -320,11 +327,12 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                 <ClipboardPen className="size-4" />
                 Başvuru Yap
               </Link>
-            </section>
+              </section>
+            </ScrollReveal>
           </div>
 
-          {/* Sidebar */}
-          <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+          <ScrollReveal className="space-y-6 lg:sticky lg:top-28 lg:self-start" delay={0.1}>
+            <aside className="space-y-6">
             <div className="rounded-2xl border border-navy-900/8 bg-white p-6 shadow-sm">
               <p className="text-[0.65rem] uppercase tracking-wider text-navy-600/60">
                 Kişi başı
@@ -387,7 +395,8 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                 ))}
               </ul>
             </div>
-          </aside>
+            </aside>
+          </ScrollReveal>
         </div>
       </div>
     </div>

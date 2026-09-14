@@ -11,6 +11,7 @@ import {
   type GalleryItem,
   type GalleryMediaType,
 } from "@/lib/gallery-shared";
+import { ScrollReveal, ScrollRevealItem } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
 
 type GalleryRegion = {
@@ -220,7 +221,8 @@ export default function GalleryView({ items, tours, regions = [] }: GalleryViewP
       </section>
 
       <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="-mt-8 relative z-10 mb-8 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-lg shadow-navy-950/5 sm:p-5">
+        <ScrollReveal className="-mt-8 relative z-10 mb-8">
+        <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-lg shadow-navy-950/5 sm:p-5">
           <div className="flex flex-col gap-4">
             <div>
               <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-navy-600/70">
@@ -319,6 +321,7 @@ export default function GalleryView({ items, tours, regions = [] }: GalleryViewP
             </p>
           </div>
         </div>
+        </ScrollReveal>
 
         {groupedByTour.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-navy-900/15 bg-white px-6 py-16 text-center">
@@ -331,8 +334,9 @@ export default function GalleryView({ items, tours, regions = [] }: GalleryViewP
           </div>
         ) : (
           <div className="space-y-12 pb-16">
-            {groupedByTour.map((group) => (
-              <section key={group.tourId}>
+            {groupedByTour.map((group, groupIndex) => (
+              <ScrollReveal key={group.tourId} delay={groupIndex * 0.04}>
+              <section>
                 <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-gold-600">
@@ -351,16 +355,18 @@ export default function GalleryView({ items, tours, regions = [] }: GalleryViewP
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  {group.items.map((item) => (
-                    <MediaCard
-                      key={item.id}
-                      item={item}
-                      categoryLabel={getRegionLabel(item.category, regionOptions)}
-                      onPhotoClick={setLightbox}
-                    />
+                  {group.items.map((item, index) => (
+                    <ScrollRevealItem key={item.id} index={index}>
+                      <MediaCard
+                        item={item}
+                        categoryLabel={getRegionLabel(item.category, regionOptions)}
+                        onPhotoClick={setLightbox}
+                      />
+                    </ScrollRevealItem>
                   ))}
                 </div>
               </section>
+              </ScrollReveal>
             ))}
           </div>
         )}
