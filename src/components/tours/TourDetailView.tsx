@@ -1,13 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import FlexibleImage from "@/components/ui/FlexibleImage";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   CalendarDays,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   MapPin,
   ClipboardPen,
@@ -41,11 +43,43 @@ type TourDetailViewProps = {
   detail: TourDetailContent;
 };
 
+const GALLERY_AUTO_PLAY_MS = 4500;
+
 export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
   const [activeImage, setActiveImage] = useState(0);
+  const [galleryPaused, setGalleryPaused] = useState(false);
+  const [autoPlayTick, setAutoPlayTick] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const galleryLength = detail.gallery.length;
+
+  const goToGalleryImage = useCallback(
+    (index: number) => {
+      if (galleryLength === 0) return;
+      setActiveImage(((index % galleryLength) + galleryLength) % galleryLength);
+      setAutoPlayTick((tick) => tick + 1);
+    },
+    [galleryLength],
+  );
+
+  const goToNextGalleryImage = useCallback(() => {
+    goToGalleryImage(activeImage + 1);
+  }, [activeImage, goToGalleryImage]);
+
+  const goToPrevGalleryImage = useCallback(() => {
+    goToGalleryImage(activeImage - 1);
+  }, [activeImage, goToGalleryImage]);
+
+  useEffect(() => {
+    if (galleryLength <= 1 || galleryPaused) return;
+
+    const timer = window.setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % galleryLength);
+    }, GALLERY_AUTO_PLAY_MS);
+
+    return () => window.clearInterval(timer);
+  }, [galleryLength, galleryPaused, autoPlayTick]);
 
   const toggleVideo = async () => {
     const video = videoRef.current;
@@ -250,39 +284,94 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
               </section>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.05}>
-              <section>
-              <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-                Fotoğraf Galerisi
-              </h2>
-              <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-2xl bg-navy-950/5">
-                <FlexibleImage
-                  src={detail.gallery[activeImage]}
-                  alt={`${tour.title} — fotoğraf ${activeImage + 1}`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 65vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {detail.gallery.map((src, index) => (
-                  <button
-                    key={src}
-                    type="button"
-                    onClick={() => setActiveImage(index)}
-                    className={cn(
-                      "relative size-20 shrink-0 overflow-hidden rounded-lg ring-2 transition-all",
-                      activeImage === index
-                        ? "ring-gold-500"
-                        : "ring-transparent opacity-70 hover:opacity-100",
-                    )}
+            {galleryLength > 0 && (
+              <ScrollReveal delay={0.05}>
+                <section>
+                  <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
+                    Fotoğraf Galerisi
+                  </h2>
+                  <div
+                    className="group relative mb-3 aspect-[16/10] overflow-hidden rounded-2xl bg-navy-950/5"
+                    onMouseEnter={() => setGalleryPaused(true)}
+                    onMouseLeave={() => setGalleryPaused(false)}
+                    onFocusCapture={() => setGalleryPaused(true)}
+                    onBlurCapture={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) {
+                        setGalleryPaused(false);
+                      }
+                    }}
                   >
-                    <FlexibleImage src={src} alt="" fill sizes="80px" className="object-cover" />
-                  </button>
-                ))}
-              </div>
-              </section>
-            </ScrollReveal>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeImage}
+                        initial={{ opacity: 0, x: 24 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -24 }}
+                        transition={{ duration: 0.35, ease: "easeInOut" }}
+                        className="absolute inset-0"
+                      >
+                        <FlexibleImage
+                          src={detail.gallery[activeImage]}
+                          alt={`${tour.title} — fotoğraf ${activeImage + 1}`}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 65vw"
+                          className="object-cover"
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+
+                    {galleryLength > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={goToPrevGalleryImage}
+                          aria-label="Önceki fotoğraf"
+                          className="absolute left-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-brand-navy-950/55 text-white shadow-lg backdrop-blur-sm transition-all hover:bg-brand-navy-950/75 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 sm:left-4"
+                        >
+                          <ChevronLeft className="size-6" strokeWidth={2} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={goToNextGalleryImage}
+                          aria-label="Sonraki fotoğraf"
+                          className="absolute right-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-brand-navy-950/55 text-white shadow-lg backdrop-blur-sm transition-all hover:bg-brand-navy-950/75 md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 sm:right-4"
+                        >
+                          <ChevronRight className="size-6" strokeWidth={2} />
+                        </button>
+                        <div className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-brand-navy-950/55 px-2.5 py-1 text-xs font-medium text-white/90 backdrop-blur-sm">
+                          {activeImage + 1} / {galleryLength}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {detail.gallery.map((src, index) => (
+                      <button
+                        key={`${index}-${src}`}
+                        type="button"
+                        onClick={() => goToGalleryImage(index)}
+                        aria-label={`Fotoğraf ${index + 1}`}
+                        aria-current={activeImage === index}
+                        className={cn(
+                          "relative size-20 shrink-0 overflow-hidden rounded-lg ring-2 transition-all",
+                          activeImage === index
+                            ? "ring-gold-500"
+                            : "ring-transparent opacity-70 hover:opacity-100",
+                        )}
+                      >
+                        <FlexibleImage
+                          src={src}
+                          alt=""
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </ScrollReveal>
+            )}
 
             <ScrollReveal delay={0.05}>
               <section>
