@@ -215,11 +215,6 @@ function FilterPanel({
             updateFilters({ minFiyat: values[0], maxFiyat: values[1] });
           }}
         />
-        <p className="mt-3 text-[11px] leading-relaxed text-navy-500">
-          Dolar ve euro turlar güncel{" "}
-          {exchangeRates.source === "tcmb" ? "TCMB" : "döviz"} kuru ile TL&apos;ye
-          çevrilerek filtrelenir.
-        </p>
       </FilterCard>
 
       <FilterCard title="Tarih">
