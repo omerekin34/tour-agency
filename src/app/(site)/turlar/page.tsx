@@ -10,9 +10,11 @@ import {
 } from "@/lib/data";
 import {
   filterToursAdvanced,
+  getPriceRange,
   hasActiveFilters,
   parseTourSearchParams,
 } from "@/lib/tour-filters";
+import { getExchangeRates } from "@/lib/exchange-rates";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
 import { ensureToursLoaded } from "@/lib/tours-store";
 import { getAllTours } from "@/lib/data";
@@ -37,13 +39,18 @@ function FiltersSkeleton() {
 }
 
 export default async function TurlarPage({ searchParams }: TurlarPageProps) {
-  await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
+  const [exchangeRates] = await Promise.all([
+    getExchangeRates(),
+    ensureToursLoaded(),
+    ensureRegionsLoaded(),
+  ]);
   const params = await searchParams;
   const allTours = getAllTours();
-  const filters = parseTourSearchParams(params);
-  const tours = filterToursAdvanced(filters, allTours);
+  const priceRange = getPriceRange(allTours, exchangeRates);
+  const filters = parseTourSearchParams(params, exchangeRates, allTours);
+  const tours = filterToursAdvanced(filters, allTours, exchangeRates);
   const bolgeLabel = getDestinationLabel(filters.bolge);
-  const filtersActive = hasActiveFilters(filters);
+  const filtersActive = hasActiveFilters(filters, exchangeRates, allTours);
 
   return (
     <main className="site-page-pt min-h-screen bg-zinc-50 pb-16 pb-safe">
@@ -72,7 +79,10 @@ export default async function TurlarPage({ searchParams }: TurlarPageProps) {
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           <aside className="w-full lg:sticky lg:top-28 lg:w-72 lg:shrink-0">
             <Suspense fallback={<FiltersSkeleton />}>
-              <TourFilters />
+              <TourFilters
+                priceRange={priceRange}
+                exchangeRates={exchangeRates}
+              />
             </Suspense>
           </aside>
 

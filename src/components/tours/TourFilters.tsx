@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import {
   buildTourSearchParams,
   DEPARTURE_CITIES,
-  getPriceRange,
   hasActiveFilters,
   MONTH_OPTIONS,
   parseTourSearchParams,
@@ -19,6 +18,7 @@ import {
   type TransportType,
   type VisaType,
 } from "@/lib/tour-filters";
+import type { ExchangeRates } from "@/lib/exchange-rates";
 import { cn } from "@/lib/utils";
 
 function FilterCard({
@@ -131,8 +131,15 @@ function PriceRangeSlider({
   );
 }
 
-function FilterPanel({ filters }: { filters: TourFilterState }) {
-  const priceRange = getPriceRange();
+function FilterPanel({
+  filters,
+  priceRange,
+  exchangeRates,
+}: {
+  filters: TourFilterState;
+  priceRange: { min: number; max: number };
+  exchangeRates: ExchangeRates;
+}) {
   const [citySearch, setCitySearch] = useState("");
   const [priceValues, setPriceValues] = useState<[number, number]>([
     filters.minFiyat,
@@ -148,11 +155,11 @@ function FilterPanel({ filters }: { filters: TourFilterState }) {
 
   const applyFilters = useCallback(
     (next: TourFilterState) => {
-      const params = buildTourSearchParams(next);
+      const params = buildTourSearchParams(next, exchangeRates);
       const query = params.toString();
       router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router],
+    [exchangeRates, pathname, router],
   );
 
   const updateFilters = (patch: Partial<TourFilterState>) => {
@@ -208,6 +215,11 @@ function FilterPanel({ filters }: { filters: TourFilterState }) {
             updateFilters({ minFiyat: values[0], maxFiyat: values[1] });
           }}
         />
+        <p className="mt-3 text-[11px] leading-relaxed text-navy-500">
+          Dolar ve euro turlar güncel{" "}
+          {exchangeRates.source === "tcmb" ? "TCMB" : "döviz"} kuru ile TL&apos;ye
+          çevrilerek filtrelenir.
+        </p>
       </FilterCard>
 
       <FilterCard title="Tarih">
@@ -314,16 +326,28 @@ function FilterPanel({ filters }: { filters: TourFilterState }) {
   );
 }
 
-export default function TourFilters() {
+type TourFiltersProps = {
+  priceRange: { min: number; max: number };
+  exchangeRates: ExchangeRates;
+};
+
+export default function TourFilters({
+  priceRange,
+  exchangeRates,
+}: TourFiltersProps) {
   const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const filters = useMemo(
-    () => parseTourSearchParams(Object.fromEntries(searchParams.entries())),
-    [searchParams],
+    () =>
+      parseTourSearchParams(
+        Object.fromEntries(searchParams.entries()),
+        exchangeRates,
+      ),
+    [exchangeRates, searchParams],
   );
 
-  const active = hasActiveFilters(filters);
+  const active = hasActiveFilters(filters, exchangeRates);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -351,7 +375,11 @@ export default function TourFilters() {
       </button>
 
       <div className="hidden lg:block">
-        <FilterPanel filters={filters} />
+        <FilterPanel
+          filters={filters}
+          priceRange={priceRange}
+          exchangeRates={exchangeRates}
+        />
       </div>
 
       {mobileOpen && (
@@ -376,7 +404,11 @@ export default function TourFilters() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto overscroll-contain p-4">
-              <FilterPanel filters={filters} />
+              <FilterPanel
+                filters={filters}
+                priceRange={priceRange}
+                exchangeRates={exchangeRates}
+              />
             </div>
             <div className="border-t border-navy-900/10 bg-white p-4 pb-safe">
               <button

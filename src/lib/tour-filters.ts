@@ -1,4 +1,6 @@
 import { getAllTours, type CategoryKey, type Tour } from "@/lib/data";
+import type { ExchangeRates } from "@/lib/exchange-rates";
+import { getFallbackExchangeRates } from "@/lib/exchange-rates";
 
 export type TransportType = "otobus" | "ucak" | "minibus" | "tekne" | "tren";
 export type VisaType = "vizesiz" | "vizeli" | "yesil-pasaport";
@@ -64,13 +66,13 @@ export const MONTH_OPTIONS = [
   { value: "2027-12", label: "Aralık 2027" },
 ];
 
-const USD_TO_TRY = 34;
-const EUR_TO_TRY = 37;
-
-export function getTourPriceTry(tour: Tour): number {
+export function getTourPriceTry(
+  tour: Tour,
+  rates: ExchangeRates = getFallbackExchangeRates(),
+): number {
   if (tour.currency === "TRY") return tour.price;
-  if (tour.currency === "USD") return Math.round(tour.price * USD_TO_TRY);
-  return Math.round(tour.price * EUR_TO_TRY);
+  if (tour.currency === "USD") return Math.round(tour.price * rates.usdToTry);
+  return Math.round(tour.price * rates.eurToTry);
 }
 
 export function getTourMonthKey(tour: Tour): string {
@@ -133,8 +135,13 @@ export function formatTourVisaTypes(tour: Tour): string {
   return getTourVisaTypes(tour).map(getVisaTypeLabel).join(", ");
 }
 
-export function getPriceRange(source?: Tour[]): { min: number; max: number } {
-  const prices = (source ?? getAllTours()).map(getTourPriceTry);
+export function getPriceRange(
+  source?: Tour[],
+  rates: ExchangeRates = getFallbackExchangeRates(),
+): { min: number; max: number } {
+  const prices = (source ?? getAllTours()).map((tour) =>
+    getTourPriceTry(tour, rates),
+  );
   const max = Math.max(...prices, 24000);
   return { min: 0, max: Math.ceil(max / 1000) * 1000 };
 }
@@ -153,8 +160,10 @@ function parseNumberList(value: string | string[] | undefined): number[] {
 
 export function parseTourSearchParams(
   params: Record<string, string | string[] | undefined>,
+  rates: ExchangeRates = getFallbackExchangeRates(),
+  source?: Tour[],
 ): TourFilterState {
-  const { min, max } = getPriceRange();
+  const { min, max } = getPriceRange(source, rates);
   const minFiyat = params.minFiyat ? Number(params.minFiyat) : min;
   const maxFiyat = params.maxFiyat ? Number(params.maxFiyat) : max;
 
@@ -173,9 +182,11 @@ export function parseTourSearchParams(
 
 export function buildTourSearchParams(
   filters: TourFilterState,
+  rates: ExchangeRates = getFallbackExchangeRates(),
+  source?: Tour[],
 ): URLSearchParams {
   const params = new URLSearchParams();
-  const { min, max } = getPriceRange();
+  const { min, max } = getPriceRange(source, rates);
 
   if (filters.bolge) params.set("bolge", filters.bolge);
   if (filters.tarih) params.set("tarih", filters.tarih);
@@ -193,6 +204,7 @@ export function buildTourSearchParams(
 export function filterToursAdvanced(
   filters: TourFilterState,
   source?: Tour[],
+  rates: ExchangeRates = getFallbackExchangeRates(),
 ): Tour[] {
   let result = source ?? getAllTours();
 
@@ -209,7 +221,7 @@ export function filterToursAdvanced(
   }
 
   result = result.filter((tour) => {
-    const priceTry = getTourPriceTry(tour);
+    const priceTry = getTourPriceTry(tour, rates);
     return priceTry >= filters.minFiyat && priceTry <= filters.maxFiyat;
   });
 
@@ -244,8 +256,12 @@ export function filterToursAdvanced(
   return result;
 }
 
-export function hasActiveFilters(filters: TourFilterState): boolean {
-  const { min, max } = getPriceRange();
+export function hasActiveFilters(
+  filters: TourFilterState,
+  rates: ExchangeRates = getFallbackExchangeRates(),
+  source?: Tour[],
+): boolean {
+  const { min, max } = getPriceRange(source, rates);
   return (
     filters.minFiyat > min ||
     filters.maxFiyat < max ||
