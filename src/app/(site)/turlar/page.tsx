@@ -3,7 +3,11 @@ import { MapPinOff } from "lucide-react";
 import TourCardGrid from "@/components/tours/TourCardGrid";
 import TourFilters from "@/components/tours/TourFilters";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { getDestinationLabel, toTourCardProps } from "@/lib/data";
+import {
+  formatTourDate,
+  getDestinationLabel,
+  toTourCardProps,
+} from "@/lib/data";
 import {
   filterToursAdvanced,
   hasActiveFilters,
@@ -54,7 +58,7 @@ export default async function TurlarPage({ searchParams }: TurlarPageProps) {
             </h1>
             {filters.tarih && (
               <p className="mt-2 text-sm text-navy-700/70">
-                {filters.tarih} tarihinden itibaren
+                {formatTourDate(filters.tarih)} tarihinden itibaren kalkan turlar
               </p>
             )}
             {filtersActive && (

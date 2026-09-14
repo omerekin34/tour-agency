@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, CalendarDays, Search } from "lucide-react";
 import {
@@ -33,7 +33,8 @@ export default function SearchBar() {
       .catch(() => setDestinations([]));
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = (event?: FormEvent) => {
+    event?.preventDefault();
     const params = new URLSearchParams();
     if (bolge) params.set("bolge", bolge);
     if (tarih) params.set("tarih", tarih);
@@ -44,7 +45,10 @@ export default function SearchBar() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-2 sm:px-1">
-      <div className="flex flex-col gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-navy-950/10 ring-1 ring-navy-950/5 sm:gap-0 sm:rounded-full sm:p-1.5 md:flex-row md:items-center">
+      <form
+        onSubmit={handleSearch}
+        className="flex flex-col gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-navy-950/10 ring-1 ring-navy-950/5 sm:gap-0 sm:rounded-full sm:p-1.5 md:flex-row md:items-center"
+      >
         {/* Region */}
         <div className="flex min-h-12 flex-1 items-center gap-3 rounded-xl px-4 py-2 sm:min-h-11 sm:rounded-full sm:px-5 md:py-1">
           <MapPin
@@ -56,18 +60,23 @@ export default function SearchBar() {
               Bölge
             </p>
             <Select
-              value={bolge || null}
-              onValueChange={(value) => setBolge(value ?? "")}
+              value={bolge || "__all__"}
+              onValueChange={(value) =>
+                setBolge(value === "__all__" ? "" : (value ?? ""))
+              }
             >
               <SelectTrigger className="h-auto w-full min-h-11 border-0 bg-transparent p-0 text-base shadow-none focus-visible:ring-0 sm:min-h-8 sm:text-sm">
                 <SelectValue placeholder="Bölge Seçin">
                   {(value) =>
-                    destinations.find((d) => d.value === value)?.label ??
-                    "Bölge Seçin"
+                    value === "__all__" || !value
+                      ? "Bölge Seçin"
+                      : (destinations.find((d) => d.value === value)?.label ??
+                        "Bölge Seçin")
                   }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__all__">Tüm Bölgeler</SelectItem>
                 {destinations.map((destination) => (
                   <SelectItem key={destination.value} value={destination.value}>
                     {destination.label}
@@ -88,7 +97,7 @@ export default function SearchBar() {
           />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-medium uppercase tracking-wider text-navy-600/60">
-              Tarih
+              En Erken Tarih
             </p>
             <input
               type="date"
@@ -96,21 +105,22 @@ export default function SearchBar() {
               min="2027-01-01"
               max="2027-12-31"
               onChange={(e) => setTarih(e.target.value)}
-              className="min-h-11 w-full bg-transparent text-base font-medium text-navy-900 outline-none [color-scheme:light] sm:min-h-8 sm:text-sm"
+              title="Seçtiğiniz tarihten itibaren kalkan turlar listelenir"
+              aria-label="En erken seyahat tarihi — bu tarihten itibaren kalkan turlar"
+              className="min-h-11 w-full bg-transparent text-base font-medium text-navy-900 outline-none [color-scheme:light] sm:min-h-8 sm:text-sm [&::-webkit-calendar-picker-indicator]:opacity-0"
             />
           </div>
         </label>
 
         {/* Search button */}
         <button
-          type="button"
-          onClick={handleSearch}
+          type="submit"
           className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-navy-900 px-6 py-3.5 text-sm font-medium uppercase tracking-wider text-white shadow-md shadow-navy-950/20 transition-all hover:bg-navy-800 hover:shadow-lg hover:shadow-navy-950/25 active:scale-[0.98] active:bg-navy-950 sm:min-h-11 sm:rounded-full md:mx-1.5 md:w-auto md:min-w-[9rem]"
         >
           <Search className="size-4" strokeWidth={2} />
           Tur Ara
         </button>
-      </div>
+      </form>
     </div>
   );
 }
