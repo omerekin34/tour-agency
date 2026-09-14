@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { revalidatePath } from "next/cache";
 import { buildGallerySeed } from "@/lib/gallery-seed";
 import type { GalleryItem, GalleryMediaType } from "@/lib/gallery-shared";
 import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
@@ -21,6 +22,10 @@ type GalleryRow = {
   url: string;
   title: string;
 };
+
+function isLocalJsonWritable() {
+  return !process.env.VERCEL;
+}
 
 function rowToItem(row: GalleryRow): GalleryItem {
   return {
@@ -67,15 +72,23 @@ async function getItemsFromJson(): Promise<GalleryItem[]> {
 }
 
 async function writeItemsJson(list: GalleryItem[]) {
+  if (!isLocalJsonWritable()) return;
   await ensureJsonStore();
   await fs.writeFile(DATA_FILE, JSON.stringify(list, null, 2), "utf-8");
 }
 
 function isMissingGalleryTable(error: { code?: string; message?: string }) {
+  const message = error.message?.toLowerCase() ?? "";
   return (
     error.code === "PGRST205" ||
-    error.message?.includes("gallery_items") === true
+    message.includes('relation "gallery_items" does not exist') ||
+    (message.includes("could not find the table") &&
+      message.includes("gallery_items"))
   );
+}
+
+function revalidateGalleryPages() {
+  revalidatePath("/galeri");
 }
 
 async function getItemsFromSupabase(): Promise<GalleryItem[]> {
@@ -87,8 +100,13 @@ async function getItemsFromSupabase(): Promise<GalleryItem[]> {
 
   if (error) {
     if (isMissingGalleryTable(error)) {
-      console.warn("[gallery_items] Supabase table missing, using JSON store.");
-      return getItemsFromJson();
+      if (isLocalJsonWritable()) {
+        console.warn("[gallery] Supabase tablosu yok, yerel JSON kullanılıyor.");
+        return getItemsFromJson();
+      }
+      throw new Error(
+        "Supabase gallery_items tablosu bulunamadı. SQL şemasını çalıştırın.",
+      );
     }
     throw error;
   }
@@ -105,8 +123,13 @@ async function seedIfEmpty(items: GalleryItem[]): Promise<GalleryItem[]> {
     const { error } = await supabase.from("gallery_items").insert(seed.map(itemToRow));
     if (error) {
       if (isMissingGalleryTable(error)) {
-        await writeItemsJson(seed);
-        return seed;
+        if (isLocalJsonWritable()) {
+          await writeItemsJson(seed);
+          return seed;
+        }
+        throw new Error(
+          "Supabase gallery_items tablosu bulunamadı. SQL şemasını çalıştırın.",
+        );
       }
       throw error;
     }
@@ -127,6 +150,13 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
   return seedIfEmpty(items);
 }
 
+async function persistGalleryItemLocally(entry: GalleryItem) {
+  if (!isLocalJsonWritable()) return;
+  const list = await getItemsFromJson();
+  list.unshift(entry);
+  await writeItemsJson(list);
+}
+
 export async function saveGalleryItem(
   data: Omit<GalleryItem, "id" | "createdAt">,
 ): Promise<GalleryItem> {
@@ -139,21 +169,22 @@ export async function saveGalleryItem(
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from("gallery_items").insert(itemToRow(entry));
+
     if (error) {
-      if (isMissingGalleryTable(error)) {
-        const list = await getItemsFromJson();
-        list.unshift(entry);
-        await writeItemsJson(list);
+      if (isMissingGalleryTable(error) && isLocalJsonWritable()) {
+        await persistGalleryItemLocally(entry);
+        revalidateGalleryPages();
         return entry;
       }
-      throw error;
+      throw new Error(`Supabase galeri kaydı hatası: ${error.message}`);
     }
+
+    revalidateGalleryPages();
     return entry;
   }
 
-  const list = await getItemsFromJson();
-  list.unshift(entry);
-  await writeItemsJson(list);
+  await persistGalleryItemLocally(entry);
+  revalidateGalleryPages();
   return entry;
 }
 
@@ -166,21 +197,26 @@ export async function deleteGalleryItem(id: string): Promise<boolean> {
       .eq("id", id);
 
     if (error) {
-      if (isMissingGalleryTable(error)) {
+      if (isMissingGalleryTable(error) && isLocalJsonWritable()) {
         const list = await getItemsFromJson();
         const next = list.filter((item) => item.id !== id);
         if (next.length === list.length) return false;
         await writeItemsJson(next);
+        revalidateGalleryPages();
         return true;
       }
-      throw error;
+      throw new Error(`Supabase galeri silme hatası: ${error.message}`);
     }
-    return (count ?? 0) > 0;
+
+    const deleted = (count ?? 0) > 0;
+    if (deleted) revalidateGalleryPages();
+    return deleted;
   }
 
   const list = await getItemsFromJson();
   const next = list.filter((item) => item.id !== id);
   if (next.length === list.length) return false;
   await writeItemsJson(next);
+  revalidateGalleryPages();
   return true;
 }

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { isValidAdminKey } from "@/lib/applications";
 import { deleteGalleryItem } from "@/lib/gallery";
 
+export const dynamic = "force-dynamic";
+
 type RouteContext = {
   params: Promise<{ id: string }>;
 };

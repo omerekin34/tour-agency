@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { isValidAdminKey } from "@/lib/applications";
-import { getAllTours } from "@/lib/data";
 import { deleteGalleryItem, getGalleryItems, saveGalleryItem } from "@/lib/gallery";
+import { ensureToursLoaded, getManagedTourById } from "@/lib/tours-store";
 
 export async function GET() {
   try {
@@ -38,15 +40,16 @@ export async function POST(request: Request) {
     }
 
     const tourId = String(body.tourId).trim();
-    const tour = getAllTours().find((item) => item.id === tourId);
-    if (!tour) {
+    await ensureToursLoaded();
+    const managedTour = await getManagedTourById(tourId);
+    if (!managedTour) {
       return NextResponse.json({ error: "Tur bulunamadı." }, { status: 400 });
     }
 
     const item = await saveGalleryItem({
       tourId,
-      tourTitle: tour.title,
-      category: tour.category,
+      tourTitle: managedTour.title,
+      category: managedTour.category,
       type,
       url: String(body.url).trim(),
       title: String(body.title).trim(),

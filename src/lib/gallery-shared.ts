@@ -23,6 +23,11 @@ export function isYouTubeUrl(url: string): boolean {
   return /youtube\.com|youtu\.be/.test(url);
 }
 
+/** Yerel veya data URL — Next/Image ile optimize edilebilir */
+export function isLocalGalleryMediaUrl(url: string): boolean {
+  return url.startsWith("/") || url.startsWith("data:");
+}
+
 export function toYouTubeEmbedUrl(url: string): string {
   const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
   if (shortMatch) {
