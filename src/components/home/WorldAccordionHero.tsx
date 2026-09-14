@@ -50,6 +50,16 @@ const DEFAULT_DESTINATIONS: HeroDestinationItem[] = [
       "https://images.unsplash.com/photo-1539768942893-daf53e448371?w=1200&q=80&auto=format&fit=crop",
   },
   {
+    id: "balkans",
+    categoryKey: "balkanlar",
+    title: "Balkanlar",
+    subtitle: "Tarih & Doğa Harmanı",
+    price: "€699",
+    period: "6 gece",
+    icon: "mountain-snow",
+    image: "/images/tours/balkanlar-mostar.png",
+  },
+  {
     id: "dubai",
     categoryKey: "dubai",
     title: "Dubai",
@@ -61,14 +71,15 @@ const DEFAULT_DESTINATIONS: HeroDestinationItem[] = [
       "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80&auto=format&fit=crop",
   },
   {
-    id: "balkans",
-    categoryKey: "balkanlar",
-    title: "Balkanlar",
-    subtitle: "Tarih & Doğa Harmanı",
-    price: "€699",
-    period: "6 gece",
-    icon: "mountain-snow",
-    image: "/images/tours/balkanlar-mostar.png",
+    id: "umre",
+    categoryKey: "umre",
+    title: "Umre",
+    subtitle: "Kutsal Topraklar & Huzur",
+    price: "$749",
+    period: "10 gece",
+    icon: "moon-star",
+    image:
+      "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1600&q=85&auto=format&fit=crop",
   },
   {
     id: "yurt-ici",
@@ -80,17 +91,6 @@ const DEFAULT_DESTINATIONS: HeroDestinationItem[] = [
     icon: "map-pinned",
     image:
       "https://images.unsplash.com/photo-1662555025766-2bb053a30e9c?w=1600&q=85&auto=format&fit=crop",
-  },
-  {
-    id: "umre",
-    categoryKey: "umre",
-    title: "Umre",
-    subtitle: "Kutsal Topraklar & Huzur",
-    price: "$749",
-    period: "10 gece",
-    icon: "moon-star",
-    image:
-      "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=1600&q=85&auto=format&fit=crop",
   },
 ];
 
