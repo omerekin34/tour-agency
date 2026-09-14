@@ -5,6 +5,7 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import ContactForm from "@/components/contact/ContactForm";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/ScrollReveal";
 import { contactInfo } from "@/lib/contact";
+import { cn } from "@/lib/utils";
 
 const contactCards = [
   {
@@ -51,17 +52,43 @@ export default function ContactPageBody() {
               href={href}
               target={isExternalHref(href) ? "_blank" : undefined}
               rel={isExternalHref(href) ? "noopener noreferrer" : undefined}
-              className="group flex min-h-[7.5rem] h-full flex-col justify-between rounded-2xl border border-navy-900/8 bg-white p-5 shadow-md shadow-navy-950/5 transition-all hover:border-gold-400/30 hover:shadow-lg"
+              className={cn(
+                "group flex min-h-[7.5rem] h-full flex-col justify-between rounded-2xl border border-navy-900/8 bg-white p-5 shadow-md shadow-navy-950/5 transition-all duration-300",
+                "hover:-translate-y-1 hover:border-gold-400/45 hover:bg-gradient-to-br hover:from-gold-500/10 hover:via-white hover:to-gold-500/5 hover:shadow-lg hover:shadow-gold-500/15",
+                "active:translate-y-0 active:scale-[0.99] active:shadow-md",
+                label === "WhatsApp" &&
+                  "hover:border-[#25D366]/40 hover:from-[#25D366]/10 hover:to-[#25D366]/5 hover:shadow-[#25D366]/10",
+              )}
             >
-              <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-gold-500/15 transition-colors group-hover:bg-gold-500/25">
-                <Icon className="size-5 text-gold-600" strokeWidth={1.5} />
+              <div
+                className={cn(
+                  "mb-3 flex size-10 items-center justify-center rounded-full bg-gold-500/15 transition-all duration-300 group-hover:scale-110 group-hover:bg-gold-500/30",
+                  label === "WhatsApp" && "group-hover:bg-[#25D366]/15",
+                )}
+              >
+                <Icon
+                  className={cn(
+                    "size-5 text-gold-600 transition-colors duration-300 group-hover:text-gold-500",
+                    label === "WhatsApp" && "group-hover:text-[#25D366]",
+                  )}
+                  strokeWidth={1.5}
+                />
               </div>
               <div>
-                <p className="text-[0.65rem] font-medium uppercase tracking-wider text-navy-600/60">
+                <p className="text-[0.65rem] font-medium uppercase tracking-wider text-navy-600/60 transition-colors duration-300 group-hover:text-gold-600/90">
                   {label}
                 </p>
-                <p className="mt-0.5 font-medium text-navy-900">{value}</p>
-                <p className="mt-1 text-xs text-gold-600/80">{hint}</p>
+                <p className="mt-0.5 font-medium text-navy-900 transition-colors duration-300 group-hover:text-brand-navy-950">
+                  {value}
+                </p>
+                <p
+                  className={cn(
+                    "mt-1 text-xs text-gold-600/80 transition-colors duration-300 group-hover:text-gold-600",
+                    label === "WhatsApp" && "group-hover:text-[#25D366]",
+                  )}
+                >
+                  {hint}
+                </p>
               </div>
             </Link>
           </ScrollRevealItem>
