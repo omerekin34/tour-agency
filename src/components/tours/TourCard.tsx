@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import FlexibleImage from "@/components/ui/FlexibleImage";
 import { motion } from "framer-motion";
 import {
   CalendarDays,
@@ -48,7 +48,7 @@ export default function TourCard({
     >
       {/* Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden">
-        <Image
+        <FlexibleImage
           src={image}
           alt={title}
           fill

@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import FlexibleImage from "@/components/ui/FlexibleImage";
 import { Camera, Film, Play, X } from "lucide-react";
 import { type CategoryKey, type Tour } from "@/lib/data";
 import {
-  isLocalGalleryMediaUrl,
   isYouTubeUrl,
   toYouTubeEmbedUrl,
   type GalleryItem,
@@ -62,39 +61,6 @@ function getRegionLabel(
   return regionOptions.find((region) => region.id === category)?.label ?? category.toUpperCase();
 }
 
-function GalleryPhoto({
-  src,
-  alt,
-  className,
-  sizes,
-  priority = false,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  sizes?: string;
-  priority?: boolean;
-}) {
-  if (isLocalGalleryMediaUrl(src)) {
-    return (
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes={sizes}
-        priority={priority}
-        className={className}
-      />
-    );
-  }
-
-  return (
-    // Harici URL'ler admin panelinden yapıştırılabilir; Next/Image domain kısıtına takılmasın.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} className={cn("absolute inset-0 h-full w-full", className)} />
-  );
-}
-
 function MediaCard({
   item,
   categoryLabel,
@@ -133,9 +99,10 @@ function MediaCard({
             onClick={() => onPhotoClick(item)}
             className="relative block h-full w-full cursor-zoom-in"
           >
-            <GalleryPhoto
+            <FlexibleImage
               src={item.url}
               alt={item.title}
+              fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -423,9 +390,10 @@ export default function GalleryView({ items, tours, regions = [] }: GalleryViewP
 
           <div className="relative max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-black">
             <div className="relative aspect-[16/10] w-full">
-              <GalleryPhoto
+              <FlexibleImage
                 src={lightbox.url}
                 alt={lightbox.title}
+                fill
                 sizes="100vw"
                 className="object-contain"
                 priority

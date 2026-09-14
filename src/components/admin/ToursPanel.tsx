@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import AdminActionButton from "@/components/admin/AdminActionButton";
+import MediaUrlInput from "@/components/admin/MediaUrlInput";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
@@ -809,23 +810,28 @@ export default function ToursPanel() {
                 </Field>
 
                 <Field label="Kapak Görseli URL" className="md:col-span-2">
-                  <Input
+                  <MediaUrlInput
                     value={form.image}
-                    onChange={(e) =>
-                      setForm((prev) => prev && { ...prev, image: e.target.value })
+                    onChange={(value) =>
+                      setForm((prev) => prev && { ...prev, image: value })
                     }
-                    placeholder="https://... veya /images/tours/..."
-                    className="min-h-11"
+                    adminKey={adminKey ?? ""}
+                    accept="image/*"
+                    placeholder="https://... veya Dosya Seç ile yükleyin"
+                    onUploadError={setError}
                   />
                 </Field>
 
                 <Field label="Video URL" className="md:col-span-2">
-                  <Input
+                  <MediaUrlInput
                     value={form.videoUrl}
-                    onChange={(e) =>
-                      setForm((prev) => prev && { ...prev, videoUrl: e.target.value })
+                    onChange={(value) =>
+                      setForm((prev) => prev && { ...prev, videoUrl: value })
                     }
-                    className="min-h-11"
+                    adminKey={adminKey ?? ""}
+                    accept="video/*,image/*"
+                    placeholder="Video linki veya Dosya Seç"
+                    onUploadError={setError}
                   />
                 </Field>
 
@@ -865,13 +871,35 @@ export default function ToursPanel() {
                   }
                 />
 
-                <TextAreaField
-                  label="Galeri Görselleri (her satır bir URL)"
-                  value={form.galleryText}
-                  onChange={(value) =>
-                    setForm((prev) => prev && { ...prev, galleryText: value })
-                  }
-                />
+                <Field label="Galeri Görselleri (her satır bir URL)" className="md:col-span-2">
+                  <textarea
+                    value={form.galleryText}
+                    onChange={(e) =>
+                      setForm((prev) => prev && { ...prev, galleryText: e.target.value })
+                    }
+                    rows={4}
+                    className={cn(
+                      "mb-2 w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 py-3 text-sm outline-none",
+                      "focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
+                    )}
+                  />
+                  <MediaUrlInput
+                    value=""
+                    onChange={(url) =>
+                      setForm((prev) => {
+                        if (!prev) return prev;
+                        const next = prev.galleryText.trim()
+                          ? `${prev.galleryText.trim()}\n${url}`
+                          : url;
+                        return { ...prev, galleryText: next };
+                      })
+                    }
+                    adminKey={adminKey ?? ""}
+                    accept="image/*,video/*"
+                    placeholder="Galeriye dosya eklemek için Dosya Seç"
+                    onUploadError={setError}
+                  />
+                </Field>
 
                 <ItineraryEditor
                   itinerary={form.itinerary}

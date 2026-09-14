@@ -107,6 +107,12 @@ create index if not exists gallery_items_created_at_idx
 create index if not exists gallery_items_tour_id_idx
   on gallery_items (tour_id);
 
+-- Medya yükleme (admin Dosya Seç) için Storage bucket:
+-- Dashboard → Storage → New bucket → ad: media → Public bucket: ON
+-- veya SQL:
+-- insert into storage.buckets (id, name, public) values ('media', 'media', true)
+-- on conflict (id) do update set public = true;
+
 alter table tour_applications enable row level security;
 alter table contact_messages enable row level security;
 alter table gallery_items enable row level security;

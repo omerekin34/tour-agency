@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import FlexibleImage from "@/components/ui/FlexibleImage";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -79,7 +79,7 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
           transition={{ duration: 1.4, ease: [0.32, 0.72, 0, 1] }}
           className="absolute inset-0"
         >
-          <Image
+          <FlexibleImage
             src={detail.gallery[0] ?? tour.image}
             alt={tour.title}
             fill
@@ -220,7 +220,7 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                     </button>
                   </>
                 ) : (
-                  <Image
+                  <FlexibleImage
                     src={detail.gallery[0]}
                     alt={tour.title}
                     fill
@@ -256,7 +256,7 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                 Fotoğraf Galerisi
               </h2>
               <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-2xl bg-navy-950/5">
-                <Image
+                <FlexibleImage
                   src={detail.gallery[activeImage]}
                   alt={`${tour.title} — fotoğraf ${activeImage + 1}`}
                   fill
@@ -277,7 +277,7 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
                         : "ring-transparent opacity-70 hover:opacity-100",
                     )}
                   >
-                    <Image src={src} alt="" fill sizes="80px" className="object-cover" />
+                    <FlexibleImage src={src} alt="" fill sizes="80px" className="object-cover" />
                   </button>
                 ))}
               </div>

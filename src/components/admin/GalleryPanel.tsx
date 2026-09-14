@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Camera, Film, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
 import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
+import MediaUrlInput from "@/components/admin/MediaUrlInput";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
@@ -248,14 +249,13 @@ export default function GalleryPanel() {
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
                 URL
               </label>
-              <Input
+              <MediaUrlInput
                 value={form.url}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, url: e.target.value }))
-                }
-                placeholder="https://... veya /images/tours/..."
-                required
-                className="min-h-11"
+                onChange={(url) => setForm((prev) => ({ ...prev, url }))}
+                adminKey={adminKey ?? ""}
+                accept={form.type === "video" ? "video/*,image/*" : "image/*"}
+                placeholder="Link yapıştırın veya Dosya Seç"
+                onUploadError={setError}
               />
             </div>
 
