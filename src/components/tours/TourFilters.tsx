@@ -248,24 +248,26 @@ function FilterPanel({ filters }: { filters: TourFilterState }) {
       </FilterCard>
 
       <FilterCard title="Süre">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {Array.from({ length: 9 }, (_, i) => i + 1).map((day) => (
-            <label
-              key={day}
-              className={cn(
-                "flex cursor-pointer items-center gap-2 rounded-lg border px-2 py-2 text-sm transition-colors",
-                filters.gunler.includes(day)
-                  ? "border-gold-400/50 bg-gold-500/10 text-navy-900"
-                  : "border-navy-900/8 text-navy-700 hover:border-gold-400/30",
-              )}
-            >
-              <Checkbox
-                checked={filters.gunler.includes(day)}
-                onCheckedChange={() => toggleDay(day)}
-              />
-              <span>{day} Gün</span>
-            </label>
-          ))}
+        <div className="max-h-36 overflow-y-auto overscroll-contain pr-1 [cursor:ns-resize]">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {Array.from({ length: 15 }, (_, i) => i + 1).map((day) => (
+              <label
+                key={day}
+                className={cn(
+                  "flex cursor-pointer items-center gap-2 rounded-lg border px-2 py-2 text-sm transition-colors",
+                  filters.gunler.includes(day)
+                    ? "border-gold-400/50 bg-gold-500/10 text-navy-900"
+                    : "border-navy-900/8 text-navy-700 hover:border-gold-400/30",
+                )}
+              >
+                <Checkbox
+                  checked={filters.gunler.includes(day)}
+                  onCheckedChange={() => toggleDay(day)}
+                />
+                <span>{day} Gün</span>
+              </label>
+            ))}
+          </div>
         </div>
       </FilterCard>
 
