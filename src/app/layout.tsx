@@ -17,8 +17,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = getSiteUrl();
+const shareImageUrl = `${siteUrl}/og-image.png`;
+
 export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
+  metadataBase: new URL(siteUrl),
   title: siteTitle,
   description: siteDescription,
   icons: {
@@ -37,10 +40,12 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.png",
+        url: shareImageUrl,
+        secureUrl: shareImageUrl,
         width: 1200,
         height: 630,
         alt: siteTitle,
+        type: "image/png",
       },
     ],
   },
@@ -48,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteTitle,
     description: siteDescription,
-    images: ["/og-image.png"],
+    images: [shareImageUrl],
   },
 };
 
