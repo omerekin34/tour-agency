@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Camera, Film, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
@@ -10,7 +11,6 @@ import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import { getAllTours } from "@/lib/data";
 import type { GalleryItem, GalleryMediaType } from "@/lib/gallery-shared";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -37,6 +37,8 @@ export default function GalleryPanel() {
   const [tourFilter, setTourFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState<GalleryMediaType | "all">("all");
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     tourId: tours[0]?.id ?? "",
     type: "photo" as GalleryMediaType,
@@ -118,10 +120,21 @@ export default function GalleryPanel() {
     }
   };
 
+  const handleRefresh = async () => {
+    if (!adminKey || refreshing) return;
+    setRefreshing(true);
+    try {
+      await fetchItems(adminKey);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const deleteItem = async (id: string) => {
     if (!adminKey) return;
     if (!window.confirm("Bu medyayı silmek istediğinize emin misiniz?")) return;
 
+    setDeletingId(id);
     setError("");
     clearSuccess();
     try {
@@ -134,6 +147,8 @@ export default function GalleryPanel() {
       showSuccess("Medya başarıyla silindi!");
     } catch {
       setError("Medya silinemedi.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -163,15 +178,15 @@ export default function GalleryPanel() {
               görsel/video URL&apos;si kullanabilirsiniz.
             </p>
           </div>
-          <Button
+          <AdminActionButton
             type="button"
-            variant="outline"
-            onClick={() => adminKey && fetchItems(adminKey)}
-            className="min-h-10"
+            intent="secondary"
+            icon={RefreshCw}
+            loading={refreshing}
+            onClick={() => void handleRefresh()}
           >
-            <RefreshCw className="size-4" />
-            Yenile
-          </Button>
+            {refreshing ? "Yenileniyor..." : "Yenile"}
+          </AdminActionButton>
         </div>
 
         <form
@@ -260,14 +275,16 @@ export default function GalleryPanel() {
             </div>
           </div>
 
-          <Button
+          <AdminActionButton
             type="submit"
-            disabled={submitting}
-            className="mt-4 min-h-11 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
+            intent="primary"
+            adminSize="lg"
+            loading={submitting}
+            icon={Plus}
+            className="mt-4"
           >
-            <Plus className="size-4" />
             {submitting ? "Ekleniyor..." : "Galeriye Ekle"}
-          </Button>
+          </AdminActionButton>
         </form>
 
         <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm sm:p-5">
@@ -369,14 +386,13 @@ export default function GalleryPanel() {
                         </a>
                       </TableCell>
                       <TableCell className="text-right">
-                        <button
-                          type="button"
-                          onClick={() => deleteItem(item.id)}
-                          className="inline-flex size-9 items-center justify-center rounded-full text-red-600 transition-colors hover:bg-red-50"
-                          aria-label="Sil"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
+                        <AdminIconButton
+                          icon={Trash2}
+                          intent="icon-danger"
+                          label="Sil"
+                          loading={deletingId === item.id}
+                          onClick={() => void deleteItem(item.id)}
+                        />
                       </TableCell>
                     </TableRow>
                   ))

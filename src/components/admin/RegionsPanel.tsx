@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pencil, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
@@ -13,7 +14,6 @@ import {
   slugifyRegionId,
 } from "@/lib/regions-shared";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type EditorMode = "create" | "edit";
@@ -93,6 +93,7 @@ export default function RegionsPanel() {
   const [idTouched, setIdTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
@@ -107,6 +108,18 @@ export default function RegionsPanel() {
     const data = (await res.json()) as { regions: TourRegion[] };
     setRegions(data.regions);
   }, [setError]);
+
+  const handleRefresh = async () => {
+    if (!adminKey || refreshing) return;
+    setRefreshing(true);
+    try {
+      await fetchRegions(adminKey);
+    } catch {
+      setError("Bölgeler yüklenemedi.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (authed && adminKey) void fetchRegions(adminKey).catch(() => setError("Bölgeler yüklenemedi."));
@@ -253,23 +266,23 @@ export default function RegionsPanel() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
+            <AdminActionButton
               type="button"
+              intent="primary"
+              icon={Plus}
               onClick={openCreateEditor}
-              className="min-h-10 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
             >
-              <Plus className="size-4" />
               Yeni Bölge
-            </Button>
-            <Button
+            </AdminActionButton>
+            <AdminActionButton
               type="button"
-              variant="outline"
-              onClick={() => adminKey && fetchRegions(adminKey)}
-              className="min-h-10"
+              intent="secondary"
+              icon={RefreshCw}
+              loading={refreshing}
+              onClick={() => void handleRefresh()}
             >
-              <RefreshCw className="size-4" />
-              Yenile
-            </Button>
+              {refreshing ? "Yenileniyor..." : "Yenile"}
+            </AdminActionButton>
           </div>
         </div>
 
@@ -296,15 +309,15 @@ export default function RegionsPanel() {
 
               <p className="mb-4 line-clamp-2 text-xs text-navy-700/70">{region.homeTitle}</p>
 
-              <Button
+              <AdminActionButton
                 type="button"
-                variant="outline"
+                intent="secondary"
+                icon={Pencil}
                 onClick={() => openEditor(region)}
-                className="min-h-10 w-full"
+                className="w-full"
               >
-                <Pencil className="size-4" />
                 Düzenle
-              </Button>
+              </AdminActionButton>
             </article>
           ))}
         </div>
@@ -432,19 +445,38 @@ export default function RegionsPanel() {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3 border-t border-navy-900/8 pt-5">
-                <Button type="submit" disabled={saving || deleting} className="min-h-11 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900">
-                  <Save className="size-4" />
+                <AdminActionButton
+                  type="submit"
+                  intent="primary"
+                  adminSize="lg"
+                  loading={saving}
+                  icon={Save}
+                  disabled={deleting}
+                >
                   {saving ? "Kaydediliyor..." : editorMode === "create" ? "Bölge Ekle" : "Kaydet"}
-                </Button>
+                </AdminActionButton>
                 {editorMode === "edit" && (
-                  <Button type="button" variant="outline" disabled={saving || deleting} onClick={() => void deleteRegion()} className="min-h-11 text-red-700 hover:bg-red-50">
-                    <Trash2 className="size-4" />
+                  <AdminActionButton
+                    type="button"
+                    intent="danger"
+                    adminSize="lg"
+                    loading={deleting}
+                    icon={Trash2}
+                    disabled={saving}
+                    onClick={() => void deleteRegion()}
+                  >
                     {deleting ? "Siliniyor..." : "Sil"}
-                  </Button>
+                  </AdminActionButton>
                 )}
-                <Button type="button" variant="outline" onClick={closeEditor} disabled={saving || deleting} className="min-h-11">
+                <AdminActionButton
+                  type="button"
+                  intent="secondary"
+                  adminSize="lg"
+                  onClick={closeEditor}
+                  disabled={saving || deleting}
+                >
                   Vazgeç
-                </Button>
+                </AdminActionButton>
               </div>
             </form>
           </div>

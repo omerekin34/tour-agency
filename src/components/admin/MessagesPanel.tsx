@@ -11,6 +11,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
@@ -24,7 +25,6 @@ import {
 } from "@/lib/messages-shared";
 import { formatWhatsAppPhone } from "@/lib/applications-shared";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -57,6 +57,8 @@ export default function MessagesPanel() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selected, setSelected] = useState<ContactMessage | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
@@ -88,9 +90,14 @@ export default function MessagesPanel() {
   };
 
   const refresh = async () => {
-    if (!adminKey) return;
+    if (!adminKey || refreshing) return;
+    setRefreshing(true);
     setError("");
-    await fetchMessages(adminKey);
+    try {
+      await fetchMessages(adminKey);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const updateStatus = async (id: string, status: MessageStatus) => {
@@ -125,6 +132,7 @@ export default function MessagesPanel() {
     if (!adminKey) return;
     if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
 
+    setDeletingId(id);
     setError("");
     clearSuccess();
     try {
@@ -138,6 +146,8 @@ export default function MessagesPanel() {
       showSuccess("Mesaj başarıyla silindi!");
     } catch {
       setError("Mesaj silinemedi.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -211,25 +221,24 @@ export default function MessagesPanel() {
             </h1>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
+            <AdminActionButton
               type="button"
-              variant="outline"
+              intent="secondary"
+              icon={Download}
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="min-h-10 gap-2 rounded-full"
             >
-              <Download className="size-4" />
               CSV İndir
-            </Button>
-            <Button
+            </AdminActionButton>
+            <AdminActionButton
               type="button"
-              variant="outline"
+              intent="secondary"
+              icon={RefreshCw}
+              loading={refreshing}
               onClick={() => void refresh()}
-              className="min-h-10 gap-2 rounded-full"
             >
-              <RefreshCw className="size-4" />
-              Yenile
-            </Button>
+              {refreshing ? "Yenileniyor..." : "Yenile"}
+            </AdminActionButton>
           </div>
         </div>
 
@@ -333,6 +342,7 @@ export default function MessagesPanel() {
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <QuickActions
                             item={item}
+                            deleting={deletingId === item.id}
                             onDelete={() => void deleteMessage(item.id)}
                           />
                         </TableCell>
@@ -371,6 +381,7 @@ export default function MessagesPanel() {
                       />
                       <QuickActions
                         item={item}
+                        deleting={deletingId === item.id}
                         onDelete={() => void deleteMessage(item.id)}
                       />
                     </div>
@@ -389,6 +400,7 @@ export default function MessagesPanel() {
           onStatusChange={(status) => void updateStatus(selected.id, status)}
           onDelete={() => void deleteMessage(selected.id)}
           updating={updatingId === selected.id}
+          deleting={deletingId === selected.id}
         />
       )}
     </AdminShell>
@@ -457,9 +469,11 @@ function StatusSelect({
 function QuickActions({
   item,
   onDelete,
+  deleting = false,
 }: {
   item: ContactMessage;
   onDelete: () => void;
+  deleting?: boolean;
 }) {
   const waPhone = item.phone ? formatWhatsAppPhone(item.phone) : null;
   const waText = encodeURIComponent(
@@ -495,14 +509,13 @@ function QuickActions({
       >
         <Mail className="size-4" />
       </a>
-      <button
-        type="button"
+      <AdminIconButton
+        icon={Trash2}
+        intent="icon-danger"
+        label="Sil"
+        loading={deleting}
         onClick={onDelete}
-        className="inline-flex size-9 items-center justify-center rounded-full text-red-500 transition-colors hover:bg-red-50"
-        title="Sil"
-      >
-        <Trash2 className="size-4" />
-      </button>
+      />
     </div>
   );
 }
@@ -513,12 +526,14 @@ function DetailDrawer({
   onStatusChange,
   onDelete,
   updating,
+  deleting = false,
 }: {
   item: ContactMessage;
   onClose: () => void;
   onStatusChange: (status: MessageStatus) => void;
   onDelete: () => void;
   updating: boolean;
+  deleting?: boolean;
 }) {
   const waPhone = item.phone ? formatWhatsAppPhone(item.phone) : null;
 
@@ -575,14 +590,17 @@ function DetailDrawer({
               Yanıtla
             </a>
           </div>
-          <button
+          <AdminActionButton
             type="button"
+            intent="danger"
+            adminSize="lg"
+            icon={Trash2}
+            loading={deleting}
             onClick={onDelete}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
+            className="w-full"
           >
-            <Trash2 className="size-4" />
-            Mesajı Sil
-          </button>
+            {deleting ? "Siliniyor..." : "Mesajı Sil"}
+          </AdminActionButton>
         </div>
       </aside>
     </div>

@@ -12,6 +12,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
 import AdminShell from "@/components/admin/AdminShell";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
@@ -24,7 +25,6 @@ import {
   type TourApplication,
 } from "@/lib/applications-shared";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -63,6 +63,7 @@ export default function ApplicationsPanel() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selected, setSelected] = useState<TourApplication | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   useEffect(() => {
@@ -144,6 +145,7 @@ export default function ApplicationsPanel() {
     if (!adminKey) return;
     if (!window.confirm("Bu başvuruyu silmek istediğinize emin misiniz?")) return;
 
+    setDeletingId(id);
     setError("");
     clearSuccess();
     try {
@@ -157,6 +159,8 @@ export default function ApplicationsPanel() {
       showSuccess("Başvuru başarıyla silindi!");
     } catch {
       setError("Başvuru silinemedi.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -237,12 +241,15 @@ export default function ApplicationsPanel() {
               required
             />
             {error && <p className="text-sm text-red-600">{error}</p>}
-            <Button
+            <AdminActionButton
               type="submit"
-              className="min-h-12 w-full rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
+              intent="primary"
+              adminSize="lg"
+              loading={loading}
+              className="w-full"
             >
-              Panele Gir
-            </Button>
+              {loading ? "Kontrol ediliyor..." : "Panele Gir"}
+            </AdminActionButton>
           </form>
         </div>
       </div>
@@ -265,26 +272,24 @@ export default function ApplicationsPanel() {
             </h1>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
+            <AdminActionButton
               type="button"
-              variant="outline"
+              intent="secondary"
+              icon={Download}
               onClick={exportCsv}
               disabled={filtered.length === 0}
-              className="min-h-10 gap-2 rounded-full"
             >
-              <Download className="size-4" />
               CSV İndir
-            </Button>
-            <Button
+            </AdminActionButton>
+            <AdminActionButton
               type="button"
-              variant="outline"
+              intent="secondary"
+              icon={RefreshCw}
+              loading={loading}
               onClick={() => adminKey && void fetchApplications(adminKey)}
-              disabled={loading}
-              className="min-h-10 gap-2 rounded-full"
             >
-              <RefreshCw className={cn("size-4", loading && "animate-spin")} />
-              Yenile
-            </Button>
+              {loading ? "Yenileniyor..." : "Yenile"}
+            </AdminActionButton>
           </div>
         </div>
 
@@ -403,6 +408,7 @@ export default function ApplicationsPanel() {
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <QuickActions
                             app={app}
+                            deleting={deletingId === app.id}
                             onDelete={() => void deleteApplication(app.id)}
                           />
                         </TableCell>
@@ -447,6 +453,7 @@ export default function ApplicationsPanel() {
                       />
                       <QuickActions
                         app={app}
+                        deleting={deletingId === app.id}
                         onDelete={() => void deleteApplication(app.id)}
                       />
                     </div>
@@ -465,6 +472,7 @@ export default function ApplicationsPanel() {
           onStatusChange={(status) => void updateStatus(selected.id, status)}
           onDelete={() => void deleteApplication(selected.id)}
           updating={updatingId === selected.id}
+          deleting={deletingId === selected.id}
         />
       )}
     </AdminShell>
@@ -535,9 +543,11 @@ function StatusSelect({
 function QuickActions({
   app,
   onDelete,
+  deleting = false,
 }: {
   app: TourApplication;
   onDelete: () => void;
+  deleting?: boolean;
 }) {
   const waPhone = formatWhatsAppPhone(app.phone);
   const waText = encodeURIComponent(
@@ -569,14 +579,13 @@ function QuickActions({
       >
         <Mail className="size-4" />
       </a>
-      <button
-        type="button"
+      <AdminIconButton
+        icon={Trash2}
+        intent="icon-danger"
+        label="Sil"
+        loading={deleting}
         onClick={onDelete}
-        className="inline-flex size-9 items-center justify-center rounded-full text-red-500 transition-colors hover:bg-red-50"
-        title="Sil"
-      >
-        <Trash2 className="size-4" />
-      </button>
+      />
     </div>
   );
 }
@@ -587,12 +596,14 @@ function DetailDrawer({
   onStatusChange,
   onDelete,
   updating,
+  deleting = false,
 }: {
   app: TourApplication;
   onClose: () => void;
   onStatusChange: (status: ApplicationStatus) => void;
   onDelete: () => void;
   updating: boolean;
+  deleting?: boolean;
 }) {
   const waPhone = formatWhatsAppPhone(app.phone);
 
@@ -671,14 +682,17 @@ function DetailDrawer({
           >
             Turu Görüntüle
           </Link>
-          <button
+          <AdminActionButton
             type="button"
+            intent="danger"
+            adminSize="lg"
+            icon={Trash2}
+            loading={deleting}
             onClick={onDelete}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
+            className="w-full"
           >
-            <Trash2 className="size-4" />
-            Başvuruyu Sil
-          </button>
+            {deleting ? "Siliniyor..." : "Başvuruyu Sil"}
+          </AdminActionButton>
         </div>
       </aside>
     </div>

@@ -14,6 +14,7 @@ import {
   Wand2,
   X,
 } from "lucide-react";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
@@ -39,7 +40,6 @@ import {
   type VisaType,
 } from "@/lib/tour-filters";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const nativeSelectClassName = cn(
@@ -155,6 +155,7 @@ export default function ToursPanel() {
   const [idTouched, setIdTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const { successMessage, showSuccess, clearSuccess } = useSuccessMessage();
 
   const { adminKey, authed, setError, login, logout, inputKey, setInputKey, loading, error } =
@@ -173,6 +174,16 @@ export default function ToursPanel() {
       setError("Turlar yüklenemedi.");
     }
   }, [setError]);
+
+  const handleRefresh = async () => {
+    if (!adminKey || refreshing) return;
+    setRefreshing(true);
+    try {
+      await fetchTours(adminKey);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const fetchRegions = useCallback(async (key: string) => {
     try {
@@ -447,23 +458,23 @@ export default function ToursPanel() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
+            <AdminActionButton
               type="button"
+              intent="primary"
+              icon={Plus}
               onClick={openCreateEditor}
-              className="min-h-10 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
             >
-              <Plus className="size-4" />
               Yeni Tur Ekle
-            </Button>
-            <Button
+            </AdminActionButton>
+            <AdminActionButton
               type="button"
-              variant="outline"
-              onClick={() => adminKey && fetchTours(adminKey)}
-              className="min-h-10"
+              intent="secondary"
+              icon={RefreshCw}
+              loading={refreshing}
+              onClick={() => void handleRefresh()}
             >
-              <RefreshCw className="size-4" />
-              Yenile
-            </Button>
+              {refreshing ? "Yenileniyor..." : "Yenile"}
+            </AdminActionButton>
           </div>
         </div>
 
@@ -515,24 +526,22 @@ export default function ToursPanel() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <Button
+                  <AdminActionButton
                     type="button"
-                    variant="outline"
+                    intent="secondary"
+                    icon={Pencil}
                     onClick={() => openEditor(tour)}
-                    className="min-h-10"
                   >
-                    <Pencil className="size-4" />
                     Düzenle
-                  </Button>
-                  <Button
+                  </AdminActionButton>
+                  <AdminActionButton
                     type="button"
-                    variant="outline"
+                    intent="secondary"
+                    icon={Copy}
                     onClick={() => openDuplicateEditor(tour)}
-                    className="min-h-10"
                   >
-                    <Copy className="size-4" />
                     Kopyala
-                  </Button>
+                  </AdminActionButton>
                 </div>
               </article>
             ))}
@@ -896,39 +905,42 @@ export default function ToursPanel() {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3 border-t border-navy-900/8 pt-5">
-                <Button
+                <AdminActionButton
                   type="submit"
-                  disabled={saving || deleting}
-                  className="min-h-11 rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
+                  intent="primary"
+                  adminSize="lg"
+                  loading={saving}
+                  icon={Save}
+                  disabled={deleting}
                 >
-                  <Save className="size-4" />
                   {saving
                     ? "Kaydediliyor..."
                     : editorMode === "create"
                       ? "Tur Ekle"
                       : "Kaydet"}
-                </Button>
+                </AdminActionButton>
                 {editorMode === "edit" && (
-                  <Button
+                  <AdminActionButton
                     type="button"
-                    variant="outline"
-                    disabled={saving || deleting}
+                    intent="danger"
+                    adminSize="lg"
+                    loading={deleting}
+                    icon={Trash2}
+                    disabled={saving}
                     onClick={() => void deleteTour()}
-                    className="min-h-11 text-red-700 hover:bg-red-50 hover:text-red-800"
                   >
-                    <Trash2 className="size-4" />
                     {deleting ? "Siliniyor..." : "Sil"}
-                  </Button>
+                  </AdminActionButton>
                 )}
-                <Button
+                <AdminActionButton
                   type="button"
-                  variant="outline"
+                  intent="secondary"
+                  adminSize="lg"
                   onClick={closeEditor}
                   disabled={saving || deleting}
-                  className="min-h-11"
                 >
                   Vazgeç
-                </Button>
+                </AdminActionButton>
               </div>
             </form>
           </div>
@@ -1001,14 +1013,24 @@ function ItineraryEditor({
   return (
     <Field label="Gün Programı" className="md:col-span-2">
       <div className="mb-3 flex flex-wrap gap-2">
-        <Button type="button" variant="outline" onClick={onGenerate} className="min-h-9">
-          <Wand2 className="size-4" />
+        <AdminActionButton
+          type="button"
+          intent="secondary"
+          adminSize="sm"
+          icon={Wand2}
+          onClick={onGenerate}
+        >
           Gün sayısına göre oluştur
-        </Button>
-        <Button type="button" variant="outline" onClick={onAddDay} className="min-h-9">
-          <Plus className="size-4" />
+        </AdminActionButton>
+        <AdminActionButton
+          type="button"
+          intent="secondary"
+          adminSize="sm"
+          icon={Plus}
+          onClick={onAddDay}
+        >
           Gün ekle
-        </Button>
+        </AdminActionButton>
       </div>
 
       <div className="space-y-3">
@@ -1020,15 +1042,15 @@ function ItineraryEditor({
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-navy-900">{index + 1}. Gün</p>
               {itinerary.length > 1 && (
-                <Button
+                <AdminActionButton
                   type="button"
-                  variant="outline"
+                  intent="danger"
+                  adminSize="sm"
+                  icon={Trash2}
                   onClick={() => onRemoveDay(index)}
-                  className="min-h-8 text-red-700 hover:bg-red-50"
                 >
-                  <Trash2 className="size-3.5" />
                   Günü sil
-                </Button>
+                </AdminActionButton>
               )}
             </div>
 

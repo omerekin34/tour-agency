@@ -1,7 +1,7 @@
 "use client";
 
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 type AdminLoginProps = {
   inputKey: string;
@@ -39,13 +39,15 @@ export default function AdminLogin({
             required
           />
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button
+          <AdminActionButton
             type="submit"
-            disabled={loading}
-            className="min-h-12 w-full rounded-full bg-brand-navy-950 hover:bg-brand-navy-900"
+            intent="primary"
+            adminSize="lg"
+            loading={loading}
+            className="w-full"
           >
             {loading ? "Kontrol ediliyor..." : "Panele Gir"}
-          </Button>
+          </AdminActionButton>
         </form>
       </div>
     </div>
