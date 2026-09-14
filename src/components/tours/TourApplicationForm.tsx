@@ -2,10 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, ClipboardCheck, Send, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Clock,
+  FileText,
+  MapPin,
+  Plane,
+  Send,
+  Star,
+  Users,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -14,7 +25,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Tour } from "@/lib/data";
-import { formatTourDate, formatTourDuration, formatTourPrice } from "@/lib/data";
+import {
+  formatTourDate,
+  formatTourDuration,
+  formatTourPrice,
+} from "@/lib/data";
+import {
+  formatTourDepartures,
+  formatTourVisaTypes,
+} from "@/lib/tour-filters";
 
 type TourApplicationFormProps = {
   tour: Tour;
@@ -104,23 +123,38 @@ export default function TourApplicationForm({ tour }: TourApplicationFormProps) 
       </section>
 
       <div className="mx-auto max-w-3xl px-4 md:px-8">
-        {/* Tur özeti */}
-        <div className="-mt-5 relative z-10 mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-lg shadow-navy-950/5 sm:grid-cols-3 sm:p-5">
-          <SummaryItem
+        <div className="-mt-5 relative z-10 mb-8 grid grid-cols-1 gap-3 rounded-2xl border border-navy-900/8 bg-white p-4 shadow-xl shadow-navy-950/10 sm:grid-cols-2 md:grid-cols-3 md:p-5 lg:gap-4 lg:p-6">
+          <TourFactItem
             icon={CalendarDays}
-            label="Tur Tarihi"
+            label="Tarih"
             value={formatTourDate(tour.date)}
           />
-          <SummaryItem
-            icon={ClipboardCheck}
+          <TourFactItem
+            icon={Clock}
             label="Süre"
             value={formatTourDuration(tour.days)}
           />
-          <SummaryItem
-            icon={Users}
-            label="Kişi Başı"
+          <TourFactItem
+            icon={Star}
+            label="Ücret"
             value={formatTourPrice(tour.price, tour.currency)}
             highlight
+          />
+          <TourFactItem icon={Plane} label="Ulaşım" value={tour.transport} />
+          <TourFactItem
+            icon={Users}
+            label="Kontenjan"
+            value={`${tour.capacity} kişi`}
+          />
+          <TourFactItem
+            icon={MapPin}
+            label="Çıkış Noktası"
+            value={`${formatTourDepartures(tour)} çıkışlı`}
+          />
+          <TourFactItem
+            icon={FileText}
+            label="Vize Durumu"
+            value={formatTourVisaTypes(tour)}
           />
         </div>
 
@@ -283,7 +317,7 @@ function Field({
   );
 }
 
-function SummaryItem({
+function TourFactItem({
   icon: Icon,
   label,
   value,
@@ -295,24 +329,22 @@ function SummaryItem({
   highlight?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gold-500/15">
-        <Icon className="size-4 text-gold-600" strokeWidth={1.5} />
-      </div>
-      <div>
+    <div className="min-w-0">
+      <div className="mb-1 flex items-center gap-1.5">
+        <Icon className="size-3.5 shrink-0 text-gold-500" strokeWidth={1.5} />
         <p className="text-[0.65rem] uppercase tracking-wider text-navy-600/60">
           {label}
         </p>
-        <p
-          className={
-            highlight
-              ? "text-lg font-semibold text-gold-600"
-              : "text-sm font-medium text-navy-900"
-          }
-        >
-          {value}
-        </p>
       </div>
+      <p
+        className={cn(
+          "break-words text-sm font-medium leading-snug text-navy-900",
+          highlight && "text-base font-semibold text-gold-600",
+        )}
+        title={value}
+      >
+        {value}
+      </p>
     </div>
   );
 }
