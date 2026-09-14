@@ -51,6 +51,9 @@ const socialLinks = [
 const linkClassName =
   "inline-flex min-h-11 items-center py-1 text-sm text-white/70 transition-colors hover:text-gold-400";
 
+const quickLinkClassName =
+  "inline-block py-0.5 text-sm leading-snug text-white/70 transition-colors hover:text-gold-400";
+
 const socialClassName =
   "inline-flex size-11 items-center justify-center rounded-full border border-white/10 text-white/80 transition-colors hover:border-gold-400/40 hover:bg-gold-500/10 hover:text-gold-400";
 
@@ -102,10 +105,10 @@ export default function Footer({ regionLinks = [] }: FooterProps) {
             <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-gold-400">
               Hızlı Menü
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-0.5">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className={linkClassName}>
+                  <Link href={link.href} className={quickLinkClassName}>
                     {link.label}
                   </Link>
                 </li>
