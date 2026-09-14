@@ -208,6 +208,14 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
           </div>
         </ScrollReveal>
 
+        <ScrollReveal className="mb-8 lg:hidden">
+          <TourBookingCard
+            tour={tour}
+            whatsappMessage={whatsappMessage}
+            variant="mobile"
+          />
+        </ScrollReveal>
+
         <div className="grid gap-10 lg:grid-cols-[1fr_340px] lg:gap-12">
           <div className="min-w-0 space-y-10">
             <ScrollReveal>
@@ -398,7 +406,7 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
             </ScrollReveal>
 
             <ScrollReveal delay={0.05}>
-              <section className="rounded-2xl border border-gold-400/25 bg-gradient-to-br from-brand-navy-950 via-brand-navy-900 to-brand-navy-950 p-6 shadow-lg sm:p-8">
+              <section className="hidden rounded-2xl border border-gold-400/25 bg-gradient-to-br from-brand-navy-950 via-brand-navy-900 to-brand-navy-950 p-6 shadow-lg sm:p-8 lg:block lg:p-8">
               <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-400">
                 Rezervasyon
               </p>
@@ -422,39 +430,8 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
 
           <ScrollReveal className="space-y-6 lg:sticky lg:top-28 lg:self-start" delay={0.1}>
             <aside className="space-y-6">
-            <div className="rounded-2xl border border-navy-900/8 bg-white p-6 shadow-sm">
-              <p className="text-[0.65rem] uppercase tracking-wider text-navy-600/60">
-                Kişi başı
-              </p>
-              <p className="mt-1 text-3xl font-semibold text-navy-900">
-                {formatTourPrice(tour.price, tour.currency)}
-              </p>
-              <p className="mt-2 text-sm text-navy-700/70">{tour.accommodation}</p>
-
-              <Link
-                href={`/turlar/${tour.id}/basvuru`}
-                className="mt-6 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 shadow-md shadow-gold-500/20 transition-all hover:bg-gold-400 active:scale-[0.98]"
-              >
-                <ClipboardPen className="size-4" />
-                Başvuru Yap
-              </Link>
-
-              <a
-                href={`${contactInfo.whatsapp}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-green-600 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-green-500 active:scale-[0.98]"
-              >
-                <MessageCircle className="size-4" />
-                WhatsApp ile Sor
-              </a>
-
-              <Link
-                href={`/turlar?bolge=${tour.destination}`}
-                className="mt-3 flex min-h-11 w-full items-center justify-center rounded-full border border-navy-900/15 px-6 py-3 text-sm font-medium text-navy-800 transition-colors hover:border-gold-400/40 hover:text-gold-600"
-              >
-                Benzer Turları Gör
-              </Link>
+            <div className="hidden lg:block">
+              <TourBookingCard tour={tour} whatsappMessage={whatsappMessage} />
             </div>
 
             <div className="rounded-2xl border border-navy-900/8 bg-white p-6 shadow-sm">
@@ -487,6 +464,87 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
             </aside>
           </ScrollReveal>
         </div>
+
+        <section className="mt-10 lg:hidden">
+          <div className="rounded-2xl border border-gold-400/25 bg-gradient-to-br from-brand-navy-950 via-brand-navy-900 to-brand-navy-950 p-6 shadow-lg">
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-400">
+              Rezervasyon
+            </p>
+            <h2 className="text-xl font-light text-white">
+              Bu tura başvurmak ister misiniz?
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-white/60">
+              Başvuru formunu doldurun; ekibimiz kontenjan ve ödeme
+              detaylarıyla sizinle iletişime geçsin.
+            </p>
+            <Link
+              href={`/turlar/${tour.id}/basvuru`}
+              className="mt-5 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 transition-all hover:bg-gold-400 active:scale-[0.98]"
+            >
+              <ClipboardPen className="size-4" />
+              Başvuru Yap
+            </Link>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function TourBookingCard({
+  tour,
+  whatsappMessage,
+  variant = "sidebar",
+}: {
+  tour: Tour;
+  whatsappMessage: string;
+  variant?: "mobile" | "sidebar";
+}) {
+  const isMobile = variant === "mobile";
+
+  return (
+    <div className="rounded-2xl border border-navy-900/8 bg-white p-5 shadow-sm sm:p-6">
+      <p className="text-[0.65rem] uppercase tracking-wider text-navy-600/60">
+        Kişi başı
+      </p>
+      <p className="mt-1 text-3xl font-semibold text-navy-900">
+        {formatTourPrice(tour.price, tour.currency)}
+      </p>
+      <p className="mt-2 text-sm text-navy-700/70">{tour.accommodation}</p>
+
+      <div
+        className={cn(
+          "mt-5",
+          isMobile ? "grid gap-3 grid-cols-2" : "space-y-3",
+        )}
+      >
+        <Link
+          href={`/turlar/${tour.id}/basvuru`}
+          className={cn(
+            "flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 shadow-md shadow-gold-500/20 transition-all hover:bg-gold-400 active:scale-[0.98]",
+            isMobile && "col-span-2",
+          )}
+        >
+          <ClipboardPen className="size-4" />
+          Başvuru Yap
+        </Link>
+
+        <a
+          href={`${contactInfo.whatsapp}?text=${whatsappMessage}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-green-600 px-4 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-green-500 active:scale-[0.98]"
+        >
+          <MessageCircle className="size-4 shrink-0" />
+          {isMobile ? "WhatsApp" : "WhatsApp ile Sor"}
+        </a>
+
+        <Link
+          href={`/turlar?bolge=${tour.destination}`}
+          className="flex min-h-12 w-full items-center justify-center rounded-full border border-navy-900/15 px-4 py-3 text-sm font-medium text-navy-800 transition-colors hover:border-gold-400/40 hover:text-gold-600"
+        >
+          {isMobile ? "Benzer Turlar" : "Benzer Turları Gör"}
+        </Link>
       </div>
     </div>
   );
