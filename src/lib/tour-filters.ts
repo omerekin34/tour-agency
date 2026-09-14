@@ -1,6 +1,9 @@
 import { getAllTours, type CategoryKey, type Tour } from "@/lib/data";
 import type { ExchangeRates } from "@/lib/exchange-rates";
 import { getFallbackExchangeRates } from "@/lib/exchange-rates";
+import { DEPARTURE_CITIES } from "@/lib/turkish-provinces";
+
+export { DEPARTURE_CITIES };
 
 export type TransportType = "otobus" | "ucak" | "minibus" | "tekne" | "tren";
 export type VisaType = "vizesiz" | "vizeli" | "yesil-pasaport";
@@ -37,18 +40,6 @@ export const VISA_OPTIONS: {
     label: "Yeşil Pasaporta Vizesiz",
     tone: "green",
   },
-];
-
-export const DEPARTURE_CITIES: { value: string; label: string }[] = [
-  { value: "istanbul", label: "İstanbul" },
-  { value: "izmir", label: "İzmir" },
-  { value: "adana", label: "Adana" },
-  { value: "trabzon", label: "Trabzon" },
-  { value: "samsun", label: "Samsun" },
-  { value: "gaziantep", label: "Gaziantep" },
-  { value: "ankara", label: "Ankara" },
-  { value: "edirne", label: "Edirne" },
-  { value: "bursa", label: "Bursa" },
 ];
 
 export const MONTH_OPTIONS = [

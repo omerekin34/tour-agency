@@ -731,7 +731,8 @@ export default function ToursPanel() {
                 </Field>
 
                 <Field label="Çıkış Noktaları" className="md:col-span-2">
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div className="max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-navy-900/10 p-3">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {DEPARTURE_CITIES.map((city) => {
                       const checked = form.departures.includes(city.value);
                       return (
@@ -765,6 +766,7 @@ export default function ToursPanel() {
                         </label>
                       );
                     })}
+                    </div>
                   </div>
                   <p className="mt-2 text-xs text-navy-600/70">
                     Filtrelemede görünür. En az bir çıkış noktası seçilmelidir.

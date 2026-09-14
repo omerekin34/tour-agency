@@ -1,0 +1,105 @@
+const TURKISH_PROVINCE_NAMES = [
+  "Adana",
+  "Adıyaman",
+  "Afyonkarahisar",
+  "Ağrı",
+  "Aksaray",
+  "Amasya",
+  "Ankara",
+  "Antalya",
+  "Ardahan",
+  "Artvin",
+  "Aydın",
+  "Balıkesir",
+  "Bartın",
+  "Batman",
+  "Bayburt",
+  "Bilecik",
+  "Bingöl",
+  "Bitlis",
+  "Bolu",
+  "Burdur",
+  "Bursa",
+  "Çanakkale",
+  "Çankırı",
+  "Çorum",
+  "Denizli",
+  "Diyarbakır",
+  "Düzce",
+  "Edirne",
+  "Elazığ",
+  "Erzincan",
+  "Erzurum",
+  "Eskişehir",
+  "Gaziantep",
+  "Giresun",
+  "Gümüşhane",
+  "Hakkari",
+  "Hatay",
+  "Iğdır",
+  "Isparta",
+  "İstanbul",
+  "İzmir",
+  "Kahramanmaraş",
+  "Karabük",
+  "Karaman",
+  "Kars",
+  "Kastamonu",
+  "Kayseri",
+  "Kilis",
+  "Kırıkkale",
+  "Kırklareli",
+  "Kırşehir",
+  "Kocaeli",
+  "Konya",
+  "Kütahya",
+  "Malatya",
+  "Manisa",
+  "Mardin",
+  "Mersin",
+  "Muğla",
+  "Muş",
+  "Nevşehir",
+  "Niğde",
+  "Ordu",
+  "Osmaniye",
+  "Rize",
+  "Sakarya",
+  "Samsun",
+  "Şanlıurfa",
+  "Siirt",
+  "Sinop",
+  "Sivas",
+  "Şırnak",
+  "Tekirdağ",
+  "Tokat",
+  "Trabzon",
+  "Tunceli",
+  "Uşak",
+  "Van",
+  "Yalova",
+  "Yozgat",
+  "Zonguldak",
+] as const;
+
+export function provinceToSlug(name: string): string {
+  return name
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+export const DEPARTURE_CITIES = [
+  { value: "istanbul", label: "İstanbul" },
+  ...TURKISH_PROVINCE_NAMES.filter((name) => name !== "İstanbul")
+    .sort((a, b) => a.localeCompare(b, "tr"))
+    .map((label) => ({
+      value: provinceToSlug(label),
+      label,
+    })),
+];

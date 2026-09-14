@@ -232,7 +232,7 @@ function FilterPanel({
       </FilterCard>
 
       <FilterCard title="Çıkış Noktaları" collapsible>
-        <ul className="mb-3 max-h-44 space-y-2.5 overflow-y-auto pr-1">
+        <ul className="mb-3 max-h-56 space-y-2.5 overflow-y-auto overscroll-contain pr-1">
           {filteredCities.map((city) => (
             <li key={city.value} className="flex items-center gap-2.5">
               <Checkbox
