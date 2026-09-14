@@ -50,7 +50,7 @@ export default function SearchBar() {
         className="flex flex-col gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-navy-950/10 ring-1 ring-navy-950/5 sm:gap-0 sm:rounded-full sm:p-1.5 md:flex-row md:items-center"
       >
         {/* Region */}
-        <div className="flex min-h-12 flex-1 items-center gap-3 rounded-xl px-4 py-2 sm:min-h-11 sm:rounded-full sm:px-5 md:py-1">
+        <div className="flex min-h-12 flex-1 cursor-pointer items-center gap-3 rounded-xl px-4 py-2 transition-colors active:bg-zinc-100 sm:min-h-11 sm:rounded-full sm:px-5 md:py-1">
           <MapPin
             className="size-5 shrink-0 text-gold-500"
             strokeWidth={1.5}
@@ -65,7 +65,7 @@ export default function SearchBar() {
                 setBolge(value === "__all__" ? "" : (value ?? ""))
               }
             >
-              <SelectTrigger className="h-auto w-full min-h-11 border-0 bg-transparent p-0 text-base shadow-none focus-visible:ring-0 sm:min-h-8 sm:text-sm">
+              <SelectTrigger className="h-auto w-full min-h-11 cursor-pointer border-0 bg-transparent p-0 text-base shadow-none focus-visible:ring-0 sm:min-h-8 sm:text-sm">
                 <SelectValue placeholder="Bölge Seçin">
                   {(value) =>
                     value === "__all__" || !value
