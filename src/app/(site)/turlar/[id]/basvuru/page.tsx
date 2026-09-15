@@ -4,6 +4,7 @@ import TourApplicationForm from "@/components/tours/TourApplicationForm";
 import { getTourById } from "@/lib/data";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
 import { getTourCapacityInfo } from "@/lib/tour-capacity";
+import { computeTourUrgency } from "@/lib/tour-urgency-shared";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,13 @@ export default async function BasvuruPage({ params }: BasvuruPageProps) {
   if (!tour) notFound();
 
   const capacityInfo = await getTourCapacityInfo(tour);
+  const urgency = computeTourUrgency(tour, capacityInfo);
 
-  return <TourApplicationForm tour={tour} capacityInfo={capacityInfo} />;
+  return (
+    <TourApplicationForm
+      tour={tour}
+      capacityInfo={capacityInfo}
+      urgency={urgency}
+    />
+  );
 }

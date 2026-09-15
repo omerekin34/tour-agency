@@ -12,6 +12,8 @@ import {
   Star,
   ArrowRight,
 } from "lucide-react";
+import { TourUrgencyBadge } from "@/components/tours/TourUrgencyBanner";
+import type { TourUrgencyBadgeTone } from "@/lib/tour-urgency-shared";
 import { cn } from "@/lib/utils";
 
 export type TourCardProps = {
@@ -27,6 +29,9 @@ export type TourCardProps = {
   price: string;
   href?: string;
   isFull?: boolean;
+  urgencyBadgeLabel?: string | null;
+  urgencyBadgeTone?: TourUrgencyBadgeTone | null;
+  urgencyHint?: string | null;
 };
 
 export default function TourCard({
@@ -42,6 +47,9 @@ export default function TourCard({
   price,
   href = "#",
   isFull = false,
+  urgencyBadgeLabel,
+  urgencyBadgeTone,
+  urgencyHint,
 }: TourCardProps) {
   const reduceMotion = useReducedMotion();
 
@@ -74,18 +82,34 @@ export default function TourCard({
           {category}
         </span>
 
-        {status && (
-          <span className="absolute right-3 top-3 rounded-full bg-red-600 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white shadow-sm">
-            {status}
-          </span>
+        {(status || (urgencyBadgeLabel && urgencyBadgeTone)) && (
+          <div className="absolute right-3 top-3 flex max-w-[55%] flex-col items-end gap-1.5">
+            {status && (
+              <span className="rounded-full bg-red-600 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white shadow-sm">
+                {status}
+              </span>
+            )}
+            {!status && urgencyBadgeLabel && urgencyBadgeTone && (
+              <TourUrgencyBadge
+                label={urgencyBadgeLabel}
+                tone={urgencyBadgeTone}
+              />
+            )}
+          </div>
         )}
       </div>
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="mb-4 line-clamp-2 text-lg font-medium leading-snug text-navy-900 transition-colors duration-300 ease-out group-hover:text-gold-600">
+        <h3 className="mb-2 line-clamp-2 text-lg font-medium leading-snug text-navy-900 transition-colors duration-300 ease-out group-hover:text-gold-600">
           {title}
         </h3>
+        {urgencyHint && (
+          <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-navy-700/75">
+            {urgencyHint}
+          </p>
+        )}
+        {!urgencyHint && <div className="mb-4" />}
 
         <ul className="mb-5 flex flex-col gap-2.5">
           <li className="flex items-center gap-2.5 text-sm text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-navy-800">

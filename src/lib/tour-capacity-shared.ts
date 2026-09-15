@@ -1,6 +1,10 @@
 import type { TourApplication } from "@/lib/applications-shared";
 import type { TourCardProps } from "@/components/tours/TourCard";
 import { toTourCardProps, type Tour } from "@/lib/data";
+import {
+  computeTourUrgency,
+  type TourUrgencyBadgeTone,
+} from "@/lib/tour-urgency-shared";
 
 export type TourCapacityInfo = {
   capacity: number;
@@ -85,6 +89,9 @@ export type TourCardWithCapacity = TourCardProps & {
   id?: string;
   isFull?: boolean;
   remaining?: number;
+  urgencyBadgeLabel?: string | null;
+  urgencyBadgeTone?: TourUrgencyBadgeTone | null;
+  urgencyHint?: string | null;
 };
 
 export function toTourCardPropsWithCapacity(
@@ -92,11 +99,15 @@ export function toTourCardPropsWithCapacity(
   bookedMap: Map<string, number>,
 ): TourCardWithCapacity {
   const info = getTourCapacityFromMap(tour, bookedMap);
+  const urgency = computeTourUrgency(tour, info);
   return {
     ...toTourCardProps(tour),
     id: tour.id,
     isFull: info.isFull,
     remaining: info.remaining,
     status: info.isFull ? "Dolu" : undefined,
+    urgencyBadgeLabel: urgency.badgeLabel,
+    urgencyBadgeTone: urgency.badgeTone,
+    urgencyHint: urgency.hint,
   };
 }

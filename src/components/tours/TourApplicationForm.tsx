@@ -34,19 +34,23 @@ import {
   formatTourDepartures,
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
+import TourUrgencyBanner from "@/components/tours/TourUrgencyBanner";
 import {
   formatCapacityDetail,
   type TourCapacityInfo,
 } from "@/lib/tour-capacity-shared";
+import type { TourUrgencyInfo } from "@/lib/tour-urgency-shared";
 
 type TourApplicationFormProps = {
   tour: Tour;
   capacityInfo: TourCapacityInfo;
+  urgency: TourUrgencyInfo;
 };
 
 export default function TourApplicationForm({
   tour,
   capacityInfo,
+  urgency,
 }: TourApplicationFormProps) {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -169,6 +173,12 @@ export default function TourApplicationForm({
             value={formatTourVisaTypes(tour)}
           />
         </div>
+
+        {urgency.showBanner && !capacityInfo.isFull && (
+          <div className="mb-6">
+            <TourUrgencyBanner urgency={urgency} />
+          </div>
+        )}
 
         <div className="rounded-2xl border border-navy-900/8 bg-white p-5 shadow-lg shadow-navy-950/5 sm:p-8">
           <h2 className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">

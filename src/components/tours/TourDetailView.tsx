@@ -34,10 +34,14 @@ import {
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
 import type { TourDetailContent } from "@/lib/tour-details";
+import TourUrgencyBanner, {
+  TourUrgencyBadge,
+} from "@/components/tours/TourUrgencyBanner";
 import {
   formatCapacityDetail,
   type TourCapacityInfo,
 } from "@/lib/tour-capacity-shared";
+import type { TourUrgencyInfo } from "@/lib/tour-urgency-shared";
 import { contactInfo } from "@/lib/contact";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
@@ -47,6 +51,7 @@ type TourDetailViewProps = {
   detail: TourDetailContent;
   whatsappHref?: string;
   capacityInfo: TourCapacityInfo;
+  urgency: TourUrgencyInfo;
 };
 
 const GALLERY_AUTO_PLAY_MS = 4500;
@@ -56,6 +61,7 @@ export default function TourDetailView({
   detail,
   whatsappHref = contactInfo.whatsapp,
   capacityInfo,
+  urgency,
 }: TourDetailViewProps) {
   const [activeImage, setActiveImage] = useState(0);
   const [galleryPaused, setGalleryPaused] = useState(false);
@@ -175,6 +181,15 @@ export default function TourDetailView({
                   Dolu
                 </span>
               )}
+              {!capacityInfo.isFull &&
+                urgency.badgeLabel &&
+                urgency.badgeTone && (
+                  <TourUrgencyBadge
+                    label={urgency.badgeLabel}
+                    tone={urgency.badgeTone}
+                    className="px-3.5 py-1.5 text-[0.65rem] tracking-[0.15em]"
+                  />
+                )}
             </motion.div>
 
             <motion.h1
@@ -228,6 +243,12 @@ export default function TourDetailView({
             />
           </div>
         </ScrollReveal>
+
+        {urgency.showBanner && (
+          <ScrollReveal className="mb-8">
+            <TourUrgencyBanner urgency={urgency} />
+          </ScrollReveal>
+        )}
 
         <ScrollReveal className="mb-8 lg:hidden">
           <TourBookingCard

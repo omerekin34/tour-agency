@@ -18,7 +18,9 @@ import {
   formatTourPrice,
   type Tour,
 } from "@/lib/data";
+import { TourUrgencyBadge } from "@/components/tours/TourUrgencyBanner";
 import { computeTourCapacity } from "@/lib/tour-capacity-shared";
+import { computeTourUrgency } from "@/lib/tour-urgency-shared";
 
 type TourCalendarTableProps = {
   tours: Tour[];
@@ -37,6 +39,7 @@ export default function TourCalendarTable({
             tour.capacity,
             bookedSeatsByTourId[tour.id] ?? 0,
           );
+          const urgency = computeTourUrgency(tour, capacity);
           return (
           <ScrollRevealItem key={tour.id} index={index}>
             <LuxuryHoverCard
@@ -61,7 +64,22 @@ export default function TourCalendarTable({
                     Dolu
                   </span>
                 )}
+                {!capacity.isFull &&
+                  urgency.badgeLabel &&
+                  urgency.badgeTone && (
+                    <TourUrgencyBadge
+                      label={urgency.badgeLabel}
+                      tone={urgency.badgeTone}
+                      className="text-[0.6rem]"
+                    />
+                  )}
               </div>
+
+              {urgency.hint && !capacity.isFull && (
+                <p className="mb-3 text-xs leading-relaxed text-navy-700/75">
+                  {urgency.hint}
+                </p>
+              )}
 
               <div className="mb-4 flex flex-col gap-2 text-sm text-navy-700/80">
                 <p className="flex items-center gap-2">
@@ -124,6 +142,7 @@ export default function TourCalendarTable({
                   tour.capacity,
                   bookedSeatsByTourId[tour.id] ?? 0,
                 );
+                const urgency = computeTourUrgency(tour, capacity);
                 return (
                 <TableRow
                   key={tour.id}
@@ -140,7 +159,21 @@ export default function TourCalendarTable({
                           Dolu
                         </span>
                       )}
+                      {!capacity.isFull &&
+                        urgency.badgeLabel &&
+                        urgency.badgeTone && (
+                          <TourUrgencyBadge
+                            label={urgency.badgeLabel}
+                            tone={urgency.badgeTone}
+                            className="text-[0.55rem]"
+                          />
+                        )}
                     </div>
+                    {urgency.hint && !capacity.isFull && (
+                      <p className="mt-1 max-w-md text-xs leading-snug text-navy-600/75">
+                        {urgency.hint}
+                      </p>
+                    )}
                   </TableCell>
                   <TableCell className="px-4 py-4 text-navy-700/80">
                     {formatTourDate(tour.date)}
