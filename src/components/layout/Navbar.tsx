@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, MessageCircle, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { mainNavItems, type NavItem } from "@/lib/nav-config";
 
 type NavbarProps = {
   navItems?: NavItem[];
 };
-import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 const SCROLL_THRESHOLD = 40;
@@ -227,7 +226,7 @@ export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
             : "border-b border-transparent bg-transparent backdrop-blur-none",
         )}
       >
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 md:px-10">
+        <nav className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:h-20 sm:px-6 md:px-10">
           <Link href="/" className="group shrink-0 py-2">
             <span className="flex flex-col leading-none">
               <span
@@ -249,28 +248,14 @@ export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
             </span>
           </Link>
 
-          <ul className="hidden items-center gap-8 lg:gap-10 md:flex">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <NavDropdown item={item} scrolled={scrolled} />
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex items-center gap-2">
-            <a
-              href={contactInfo.whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "hidden min-h-11 items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-medium text-white transition-all duration-300 md:flex",
-                "shadow-md shadow-[#25D366]/25 hover:bg-[#20BD5A] hover:shadow-lg hover:shadow-[#25D366]/35",
-                !scrolled && "shadow-[0_2px_8px_rgba(0,0,0,0.35)]",
-              )}
-            >
-              <MessageCircle className="size-4" strokeWidth={2} />
-              WhatsApp ile Sor
-            </a>
+          <div className="ml-auto flex items-center gap-5 lg:gap-8">
+            <ul className="hidden items-center gap-5 lg:gap-8 md:flex">
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <NavDropdown item={item} scrolled={scrolled} />
+                </li>
+              ))}
+            </ul>
 
             <button
               type="button"
@@ -328,7 +313,7 @@ export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
                 </button>
               </div>
 
-              <nav className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-4">
+              <nav className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-4 pb-safe">
                 {navItems.map((item, index) => (
                   <motion.div
                     key={item.id}
@@ -340,19 +325,6 @@ export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
                   </motion.div>
                 ))}
               </nav>
-
-              <div className="border-t border-gold-500/10 p-5 pb-safe">
-                <a
-                  href={contactInfo.whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={closeMenu}
-                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-medium text-white shadow-md shadow-[#25D366]/25 transition-colors hover:bg-[#20BD5A] active:bg-[#1DA851]"
-                >
-                  <MessageCircle className="size-4" strokeWidth={2} />
-                  WhatsApp ile Sor
-                </a>
-              </div>
             </motion.aside>
           </>
         )}

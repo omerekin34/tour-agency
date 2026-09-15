@@ -34,7 +34,6 @@ import {
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
 import type { TourDetailContent } from "@/lib/tour-details";
-import WhatsAppSticky from "@/components/layout/WhatsAppSticky";
 import { contactInfo } from "@/lib/contact";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
@@ -494,7 +493,6 @@ export default function TourDetailView({
         </section>
       </div>
 
-      <WhatsAppSticky href={`${whatsappHref}?text=${whatsappMessage}`} />
     </div>
   );
 }

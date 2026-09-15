@@ -2,6 +2,7 @@ import CookieConsent from "@/components/layout/CookieConsent";
 import Navbar from "@/components/layout/Navbar";
 import TopBar from "@/components/layout/TopBar";
 import Footer from "@/components/layout/Footer";
+import WhatsAppSticky from "@/components/layout/WhatsAppSticky";
 import { buildNavItemsFromRegions, mainNavItems } from "@/lib/nav-config";
 import { ensureRegionsLoaded, getPublishedRegions } from "@/lib/regions-store";
 import { resolveContactFromSettings } from "@/lib/site-settings-shared";
@@ -44,6 +45,10 @@ export default async function SiteLayout({
       <Navbar navItems={navItems} />
       <div className="flex-1">{children}</div>
       <Footer regionLinks={footerRegionLinks} siteContact={siteContact} />
+      <WhatsAppSticky
+        href={`${siteContact.whatsapp}?text=${encodeURIComponent("Merhaba, tur hakkında bilgi almak istiyorum.")}`}
+        label="WhatsApp ile yazın"
+      />
       <CookieConsent />
     </>
   );
