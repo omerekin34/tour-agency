@@ -6,10 +6,12 @@ import {
   ClipboardList,
   ExternalLink,
   Images,
+  LayoutDashboard,
   LogOut,
   Mail,
   Map,
   MapPinned,
+  Settings,
 } from "lucide-react";
 import {
   adminNavPillClass,
@@ -21,11 +23,13 @@ type AdminShellProps = {
 };
 
 const navItems = [
+  { href: "/admin", label: "Özet", icon: LayoutDashboard },
   { href: "/admin/turlar", label: "Turlar", icon: Map },
   { href: "/admin/bolgeler", label: "Bölgeler", icon: MapPinned },
   { href: "/admin/basvurular", label: "Başvurular", icon: ClipboardList },
   { href: "/admin/mesajlar", label: "İletişim Mesajları", icon: Mail },
   { href: "/admin/galeri", label: "Galeri", icon: Images },
+  { href: "/admin/ayarlar", label: "Site Ayarları", icon: Settings },
 ];
 
 export default function AdminShell({ children, onLogout }: AdminShellProps) {
@@ -42,7 +46,7 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
 
       <header className="sticky top-0 z-40 border-b border-gold-500/10 bg-brand-navy-950/90 text-white backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-          <Link href="/admin/turlar" className="group flex items-center gap-3">
+          <Link href="/admin" className="group flex items-center gap-3">
             <span className="flex flex-col leading-none">
               <span className="text-sm font-semibold tracking-[0.22em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-base">
                 ON&apos;DA
@@ -84,7 +88,10 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
         <nav className="mx-auto flex max-w-7xl gap-1.5 overflow-x-auto px-4 py-3">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = pathname === item.href;
+            const active =
+              item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname === item.href;
 
             return (
               <Link
@@ -105,7 +112,10 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
           <nav className="sticky top-24 space-y-1 rounded-2xl border border-gold-500/10 bg-brand-navy-900/50 p-2 shadow-lg shadow-black/20 backdrop-blur-md">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const active = pathname === item.href;
+              const active =
+              item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname === item.href;
 
               return (
                 <Link

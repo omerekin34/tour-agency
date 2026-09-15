@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { isValidAdminKey } from "@/lib/applications";
 import { getMessages, saveMessage } from "@/lib/messages";
+import {
+  buildMessageNotificationHtml,
+  sendAdminNotification,
+} from "@/lib/notify-email";
 
 export async function POST(request: Request) {
   try {
@@ -16,12 +20,19 @@ export async function POST(request: Request) {
       }
     }
 
-    const message = await saveMessage({
+    const payload = {
       name: String(body.name).trim(),
       email: String(body.email).trim(),
       phone: String(body.phone ?? "").trim(),
       subject: String(body.subject ?? "Tur Bilgi Talebi").trim(),
       message: String(body.message).trim(),
+    };
+
+    const message = await saveMessage(payload);
+
+    void sendAdminNotification({
+      subject: `Yeni iletişim mesajı: ${payload.name}`,
+      html: buildMessageNotificationHtml(payload),
     });
 
     return NextResponse.json({ ok: true, id: message.id });

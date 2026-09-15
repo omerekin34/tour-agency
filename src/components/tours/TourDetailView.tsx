@@ -34,6 +34,7 @@ import {
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
 import type { TourDetailContent } from "@/lib/tour-details";
+import WhatsAppSticky from "@/components/layout/WhatsAppSticky";
 import { contactInfo } from "@/lib/contact";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
@@ -41,11 +42,16 @@ import { cn } from "@/lib/utils";
 type TourDetailViewProps = {
   tour: Tour;
   detail: TourDetailContent;
+  whatsappHref?: string;
 };
 
 const GALLERY_AUTO_PLAY_MS = 4500;
 
-export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
+export default function TourDetailView({
+  tour,
+  detail,
+  whatsappHref = contactInfo.whatsapp,
+}: TourDetailViewProps) {
   const [activeImage, setActiveImage] = useState(0);
   const [galleryPaused, setGalleryPaused] = useState(false);
   const [autoPlayTick, setAutoPlayTick] = useState(0);
@@ -487,6 +493,8 @@ export default function TourDetailView({ tour, detail }: TourDetailViewProps) {
           </div>
         </section>
       </div>
+
+      <WhatsAppSticky href={`${whatsappHref}?text=${whatsappMessage}`} />
     </div>
   );
 }

@@ -9,6 +9,8 @@ import {
 export type ManagedTour = Tour &
   TourDetailContent & {
     published: boolean;
+    metaTitle?: string;
+    metaDescription?: string;
   };
 
 export function managedToTour(tour: ManagedTour): Tour {
@@ -151,5 +153,7 @@ export function createDefaultManagedTour(
     videoUrl: "",
     includes: ["Konaklama", "Kahvaltı", "Programdaki transferler"],
     excludes: ["Kişisel harcamalar", "Vize ücretleri (varsa)"],
+    metaTitle: "",
+    metaDescription: "",
   };
 }

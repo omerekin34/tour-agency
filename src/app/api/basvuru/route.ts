@@ -4,6 +4,10 @@ import {
   isValidAdminKey,
   saveApplication,
 } from "@/lib/applications";
+import {
+  buildApplicationNotificationHtml,
+  sendAdminNotification,
+} from "@/lib/notify-email";
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +23,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const application = await saveApplication({
+    const payload = {
       tourId: String(body.tourId),
       tourTitle: String(body.tourTitle),
       tourDate: String(body.tourDate),
@@ -30,6 +34,20 @@ export async function POST(request: Request) {
       travelers: String(body.travelers ?? "1"),
       roomType: String(body.roomType ?? "cift"),
       notes: String(body.notes ?? "").trim(),
+    };
+
+    const application = await saveApplication(payload);
+
+    void sendAdminNotification({
+      subject: `Yeni tur başvurusu: ${payload.name}`,
+      html: buildApplicationNotificationHtml({
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        tourTitle: payload.tourTitle,
+        tourDate: payload.tourDate,
+        travelers: payload.travelers,
+      }),
     });
 
     return NextResponse.json({ ok: true, id: application.id });

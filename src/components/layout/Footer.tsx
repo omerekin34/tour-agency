@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { contactInfo } from "@/lib/contact";
+import type { ResolvedContactInfo } from "@/lib/site-settings-shared";
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -35,18 +36,14 @@ const staticQuickLinks: FooterLink[] = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/gezi-takvimi", label: "Gezi Takvimi" },
   { href: "/galeri", label: "Galeri" },
+  { href: "/sss", label: "S.S.S." },
   { href: "/iletisim", label: "İletişim" },
 ];
 
 type FooterProps = {
   regionLinks?: FooterLink[];
+  siteContact?: ResolvedContactInfo;
 };
-
-const socialLinks = [
-  { href: contactInfo.instagram, label: "Instagram", icon: InstagramIcon },
-  { href: "https://facebook.com", label: "Facebook", icon: FacebookIcon },
-  { href: "https://youtube.com", label: "YouTube", icon: YoutubeIcon },
-] as const;
 
 const linkClassName =
   "inline-flex min-h-11 items-center py-1 text-sm text-white/70 transition-colors hover:text-gold-400";
@@ -57,7 +54,23 @@ const quickLinkClassName =
 const socialClassName =
   "inline-flex size-11 items-center justify-center rounded-full border border-white/10 text-white/80 transition-colors hover:border-gold-400/40 hover:bg-gold-500/10 hover:text-gold-400";
 
-export default function Footer({ regionLinks = [] }: FooterProps) {
+export default function Footer({ regionLinks = [], siteContact }: FooterProps) {
+  const info = siteContact ?? {
+    ...contactInfo,
+    emailHref: contactInfo.emailHref,
+    facebook: "https://facebook.com",
+    youtube: "https://youtube.com",
+    topBarMessage: "",
+    mapHref: contactInfo.mapHref,
+    mapEmbedHref: contactInfo.mapEmbedHref,
+  };
+
+  const socialLinks = [
+    { href: info.instagram, label: "Instagram", icon: InstagramIcon },
+    { href: info.facebook, label: "Facebook", icon: FacebookIcon },
+    { href: info.youtube, label: "YouTube", icon: YoutubeIcon },
+  ] as const;
+
   const quickLinks = [
     staticQuickLinks[0],
     ...regionLinks,
@@ -128,9 +141,9 @@ export default function Footer({ regionLinks = [] }: FooterProps) {
                   strokeWidth={1.5}
                 />
                 <span className="text-sm leading-relaxed text-white/70">
-                  {contactInfo.companyName}
+                  {info.companyName}
                   <br />
-                  {contactInfo.address}
+                  {info.address}
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -139,10 +152,10 @@ export default function Footer({ regionLinks = [] }: FooterProps) {
                   strokeWidth={1.5}
                 />
                 <a
-                  href={contactInfo.phoneHref}
+                  href={info.phoneHref}
                   className={cn(linkClassName, "hover:underline")}
                 >
-                  {contactInfo.phone}
+                  {info.phone}
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -151,10 +164,10 @@ export default function Footer({ regionLinks = [] }: FooterProps) {
                   strokeWidth={1.5}
                 />
                 <a
-                  href="mailto:info@onda10turizm.com"
+                  href={info.emailHref}
                   className={cn(linkClassName, "hover:underline")}
                 >
-                  info@onda10turizm.com
+                  {info.email}
                 </a>
               </li>
             </ul>
@@ -194,16 +207,22 @@ export default function Footer({ regionLinks = [] }: FooterProps) {
           </p>
           <div className="flex items-center gap-6">
             <Link
-              href="#"
+              href="/gizlilik-politikasi"
               className="inline-flex min-h-11 items-center text-xs text-white/50 transition-colors hover:text-gold-400"
             >
               Gizlilik Politikası
             </Link>
             <Link
-              href="#"
+              href="/kullanim-sartlari"
               className="inline-flex min-h-11 items-center text-xs text-white/50 transition-colors hover:text-gold-400"
             >
               Kullanım Şartları
+            </Link>
+            <Link
+              href="/cerez-politikasi"
+              className="inline-flex min-h-11 items-center text-xs text-white/50 transition-colors hover:text-gold-400"
+            >
+              Çerez Politikası
             </Link>
           </div>
         </div>

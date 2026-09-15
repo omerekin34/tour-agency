@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import DashboardPanel from "@/components/admin/DashboardPanel";
 
 export default function AdminPage() {
-  redirect("/admin/basvurular");
+  return <DashboardPanel />;
 }

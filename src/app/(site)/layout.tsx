@@ -1,8 +1,11 @@
+import CookieConsent from "@/components/layout/CookieConsent";
 import Navbar from "@/components/layout/Navbar";
 import TopBar from "@/components/layout/TopBar";
 import Footer from "@/components/layout/Footer";
 import { buildNavItemsFromRegions, mainNavItems } from "@/lib/nav-config";
 import { ensureRegionsLoaded, getPublishedRegions } from "@/lib/regions-store";
+import { resolveContactFromSettings } from "@/lib/site-settings-shared";
+import { getSiteSettings } from "@/lib/site-settings-store";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +16,7 @@ export default async function SiteLayout({
 }) {
   let navItems = mainNavItems;
   let footerRegionLinks: { href: string; label: string }[] = [];
+  let siteContact = resolveContactFromSettings(await getSiteSettings());
 
   try {
     await ensureRegionsLoaded();
@@ -36,10 +40,11 @@ export default async function SiteLayout({
 
   return (
     <>
-      <TopBar />
+      <TopBar siteContact={siteContact} />
       <Navbar navItems={navItems} />
       <div className="flex-1">{children}</div>
-      <Footer regionLinks={footerRegionLinks} />
+      <Footer regionLinks={footerRegionLinks} siteContact={siteContact} />
+      <CookieConsent />
     </>
   );
 }

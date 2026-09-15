@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import TourDetailView from "@/components/tours/TourDetailView";
 import { getTourById } from "@/lib/data";
 import { getTourDetailContent } from "@/lib/tour-details";
+import { getCachedManagedTourById } from "@/lib/tours-cache";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
+import { resolveContactFromSettings } from "@/lib/site-settings-shared";
+import { getSiteSettings } from "@/lib/site-settings-store";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
@@ -21,11 +24,12 @@ export async function generateMetadata({
   if (!tour) return { title: "Tur Bulunamadı" };
 
   const detail = getTourDetailContent(tour);
+  const managed = getCachedManagedTourById(id);
+  const title = managed?.metaTitle?.trim() || `${tour.title} | On'da 10 Turizm`;
+  const description =
+    managed?.metaDescription?.trim() || detail.description.slice(0, 160);
 
-  return {
-    title: `${tour.title} | On'da 10 Turizm`,
-    description: detail.description.slice(0, 160),
-  };
+  return { title, description };
 }
 
 export default async function TourDetailPage({ params }: TourDetailPageProps) {
@@ -36,6 +40,13 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
   if (!tour) notFound();
 
   const detail = getTourDetailContent(tour);
+  const siteContact = resolveContactFromSettings(await getSiteSettings());
 
-  return <TourDetailView tour={tour} detail={detail} />;
+  return (
+    <TourDetailView
+      tour={tour}
+      detail={detail}
+      whatsappHref={siteContact.whatsapp}
+    />
+  );
 }

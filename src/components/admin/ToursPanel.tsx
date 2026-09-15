@@ -90,6 +90,8 @@ type TourFormState = {
   itinerary: ItineraryDay[];
   departures: string[];
   visaTypes: VisaType[];
+  metaTitle: string;
+  metaDescription: string;
 };
 
 function tourToForm(tour: ManagedTour): TourFormState {
@@ -119,6 +121,8 @@ function tourToForm(tour: ManagedTour): TourFormState {
         : buildItineraryTemplate(tour.days),
     departures: tour.departures ?? ["istanbul"],
     visaTypes: tour.visaTypes ?? [],
+    metaTitle: tour.metaTitle ?? "",
+    metaDescription: tour.metaDescription ?? "",
   };
 }
 
@@ -150,6 +154,8 @@ function formToPayload(form: TourFormState): Partial<ManagedTour> {
     })),
     departures: form.departures.length ? form.departures : ["istanbul"],
     visaTypes: form.visaTypes,
+    metaTitle: form.metaTitle.trim(),
+    metaDescription: form.metaDescription.trim(),
   };
 }
 
@@ -864,6 +870,28 @@ export default function ToursPanel() {
                     rows={4}
                     required
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20"
+                  />
+                </Field>
+
+                <Field label="SEO Başlık (Google)">
+                  <Input
+                    value={form.metaTitle}
+                    onChange={(e) =>
+                      setForm((prev) => prev && { ...prev, metaTitle: e.target.value })
+                    }
+                    placeholder="Boş bırakılırsa tur adı kullanılır"
+                    className={adminInputClass}
+                  />
+                </Field>
+
+                <Field label="SEO Açıklama (Google)">
+                  <Input
+                    value={form.metaDescription}
+                    onChange={(e) =>
+                      setForm((prev) => prev && { ...prev, metaDescription: e.target.value })
+                    }
+                    placeholder="Boş bırakılırsa tur açıklaması kullanılır"
+                    className={adminInputClass}
                   />
                 </Field>
 

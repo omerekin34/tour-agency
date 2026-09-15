@@ -48,6 +48,8 @@ type TourRow = {
   excludes: string[];
   departures: string[];
   visa_types: VisaType[];
+  meta_title?: string;
+  meta_description?: string;
 };
 
 function isMissingToursTable(error: { code?: string; message?: string }) {
@@ -65,7 +67,9 @@ function isMissingOptionalTourColumns(error: { code?: string; message?: string }
     error.code === "42703" ||
     error.code === "PGRST204" ||
     message.includes("departures") ||
-    message.includes("visa_types")
+    message.includes("visa_types") ||
+    message.includes("meta_title") ||
+    message.includes("meta_description")
   );
 }
 
@@ -96,6 +100,8 @@ function rowToManaged(row: TourRow): ManagedTour {
     visaTypes: row.visa_types?.length
       ? row.visa_types
       : getDefaultVisaTypesForCategory(row.category),
+    metaTitle: row.meta_title ?? "",
+    metaDescription: row.meta_description ?? "",
   };
 }
 
@@ -124,6 +130,8 @@ function managedToRow(tour: ManagedTour): TourRow {
     excludes: tour.excludes,
     departures: tour.departures ?? ["istanbul"],
     visa_types: tour.visaTypes ?? getDefaultVisaTypesForCategory(tour.category),
+    meta_title: tour.metaTitle ?? "",
+    meta_description: tour.metaDescription ?? "",
   };
 }
 
@@ -267,7 +275,13 @@ async function syncTourToSupabase(tour: ManagedTour) {
     .upsert(fullRow, { onConflict: "id" });
 
   if (error && isMissingOptionalTourColumns(error)) {
-    const { departures: _d, visa_types: _v, ...legacyRow } = fullRow;
+    const {
+      departures: _d,
+      visa_types: _v,
+      meta_title: _mt,
+      meta_description: _md,
+      ...legacyRow
+    } = fullRow;
     ({ error } = await supabase
       .from("tours")
       .upsert(legacyRow, { onConflict: "id" }));
