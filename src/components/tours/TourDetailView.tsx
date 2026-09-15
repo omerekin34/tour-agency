@@ -42,6 +42,7 @@ import {
   type TourCapacityInfo,
 } from "@/lib/tour-capacity-shared";
 import type { TourUrgencyInfo } from "@/lib/tour-urgency-shared";
+import ItineraryCopyActions from "@/components/tours/ItineraryCopyActions";
 import { contactInfo } from "@/lib/contact";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
@@ -436,6 +437,11 @@ export default function TourDetailView({
                 <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
                   Günlük Program
                 </h2>
+                <ItineraryCopyActions
+                  tour={tour}
+                  itinerary={detail.itinerary}
+                  className="mb-5"
+                />
                 <ol className="space-y-3">
                   {detail.itinerary.map((day) => (
                     <li
