@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LuxuryHoverCard } from "@/components/ui/LuxuryHoverCard";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/ScrollReveal";
 import {
   formatTourDate,
@@ -38,7 +39,10 @@ export default function TourCalendarTable({
           );
           return (
           <ScrollRevealItem key={tour.id} index={index}>
-            <article className="rounded-2xl border border-navy-900/10 bg-white p-4 shadow-sm">
+            <LuxuryHoverCard
+              as="article"
+              className="rounded-2xl border border-navy-900/10 bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-md hover:shadow-gold-500/10"
+            >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <span className="shrink-0 rounded-full bg-navy-900/5 px-2.5 py-1 text-xs font-semibold text-navy-700/70">
                   {String(index + 1).padStart(2, "0")}
@@ -83,7 +87,7 @@ export default function TourCalendarTable({
                   <ArrowRight className="size-4" />
                 </Link>
               )}
-            </article>
+            </LuxuryHoverCard>
           </ScrollRevealItem>
           );
         })}

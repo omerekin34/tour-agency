@@ -1,4 +1,5 @@
 import CookieConsent from "@/components/layout/CookieConsent";
+import PageTransition from "@/components/layout/PageTransition";
 import Navbar from "@/components/layout/Navbar";
 import TopBar from "@/components/layout/TopBar";
 import Footer from "@/components/layout/Footer";
@@ -43,7 +44,7 @@ export default async function SiteLayout({
     <>
       <TopBar siteContact={siteContact} />
       <Navbar navItems={navItems} />
-      <div className="flex-1">{children}</div>
+      <PageTransition>{children}</PageTransition>
       <Footer regionLinks={footerRegionLinks} siteContact={siteContact} />
       <WhatsAppSticky
         href={`${siteContact.whatsapp}?text=${encodeURIComponent("Merhaba, tur hakkında bilgi almak istiyorum.")}`}

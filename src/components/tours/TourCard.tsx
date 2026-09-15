@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import FlexibleImage from "@/components/ui/FlexibleImage";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { hoverLift, luxuryEase } from "@/lib/motion-presets";
 import {
   CalendarDays,
   FileText,
@@ -42,10 +43,20 @@ export default function TourCard({
   href = "#",
   isFull = false,
 }: TourCardProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <motion.article
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+      whileHover={
+        reduceMotion
+          ? undefined
+          : {
+              y: hoverLift.y,
+              scale: hoverLift.scale,
+              transition: { duration: hoverLift.duration, ease: luxuryEase },
+            }
+      }
+      whileTap={reduceMotion ? undefined : { scale: 0.992 }}
       className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-md shadow-navy-950/5 ring-1 ring-navy-950/5 transition-[box-shadow,ring-color] duration-300 ease-out hover:shadow-xl hover:shadow-gold-500/10 hover:ring-gold-400/40"
     >
       {/* Image */}

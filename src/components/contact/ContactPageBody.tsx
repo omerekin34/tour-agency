@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import ContactForm from "@/components/contact/ContactForm";
+import { LuxuryHoverCard } from "@/components/ui/LuxuryHoverCard";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/ScrollReveal";
 import { contactInfo } from "@/lib/contact";
 import { cn } from "@/lib/utils";
@@ -48,14 +49,14 @@ export default function ContactPageBody() {
       <div className="-mt-6 relative z-10 mb-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
         {contactCards.map(({ icon: Icon, label, value, href, hint }, index) => (
           <ScrollRevealItem key={label} index={index}>
+            <LuxuryHoverCard className="h-full">
             <Link
               href={href}
               target={isExternalHref(href) ? "_blank" : undefined}
               rel={isExternalHref(href) ? "noopener noreferrer" : undefined}
               className={cn(
-                "group flex min-h-[7.5rem] h-full flex-col justify-between rounded-2xl border border-navy-900/8 bg-white p-5 shadow-md shadow-navy-950/5 transition-all duration-300",
-                "hover:-translate-y-1 hover:border-gold-400/45 hover:bg-gradient-to-br hover:from-gold-500/10 hover:via-white hover:to-gold-500/5 hover:shadow-lg hover:shadow-gold-500/15",
-                "active:translate-y-0 active:scale-[0.99] active:shadow-md",
+                "group flex min-h-[7.5rem] h-full flex-col justify-between rounded-2xl border border-navy-900/8 bg-white p-5 shadow-md shadow-navy-950/5 transition-[border-color,background,box-shadow] duration-300",
+                "hover:border-gold-400/45 hover:bg-gradient-to-br hover:from-gold-500/10 hover:via-white hover:to-gold-500/5 hover:shadow-lg hover:shadow-gold-500/15",
                 label === "WhatsApp" &&
                   "hover:border-[#25D366]/40 hover:from-[#25D366]/10 hover:to-[#25D366]/5 hover:shadow-[#25D366]/10",
               )}
@@ -91,6 +92,7 @@ export default function ContactPageBody() {
                 </p>
               </div>
             </Link>
+            </LuxuryHoverCard>
           </ScrollRevealItem>
         ))}
       </div>

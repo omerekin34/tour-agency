@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { hoverLift, luxuryEase } from "@/lib/motion-presets";
 import { MapPinned, Star, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -114,18 +115,28 @@ function HighlightCard({
   compact?: boolean;
 }) {
   const Icon = item.icon;
+  const reduceMotion = useReducedMotion();
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 0, y: 28, scale: 0.985 }}
+      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{
         duration: 0.55,
         delay: 0.12 + index * 0.1,
-        ease: [0.32, 0.72, 0, 1],
+        ease: luxuryEase,
       }}
+      whileHover={
+        reduceMotion
+          ? undefined
+          : {
+              y: hoverLift.y,
+              scale: hoverLift.scale,
+              transition: { duration: hoverLift.duration, ease: luxuryEase },
+            }
+      }
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-navy-900/6 bg-zinc-50/80 p-6 shadow-sm shadow-navy-950/5 transition-all duration-500 hover:border-gold-400/25 hover:shadow-md hover:shadow-gold-500/5",
+        "group relative overflow-hidden rounded-2xl border border-navy-900/6 bg-zinc-50/80 p-6 shadow-sm shadow-navy-950/5 transition-[border-color,box-shadow] duration-500 hover:border-gold-400/25 hover:shadow-md hover:shadow-gold-500/5",
         compact ? "h-full min-h-[220px]" : "min-h-[240px]",
       )}
     >

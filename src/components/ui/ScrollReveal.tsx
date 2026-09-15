@@ -3,8 +3,11 @@
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const ease = [0.32, 0.72, 0, 1] as const;
+import {
+  luxuryEase,
+  scrollRevealHidden,
+  scrollRevealVisible,
+} from "@/lib/motion-presets";
 
 type ScrollRevealProps = {
   children: React.ReactNode;
@@ -26,11 +29,15 @@ export function ScrollReveal({
   return (
     <motion.div
       ref={ref}
-      initial={reduceMotion ? false : { opacity: 0, y }}
-      animate={
-        reduceMotion || inView ? { opacity: 1, y: 0 } : { opacity: 0, y }
+      initial={
+        reduceMotion ? false : { ...scrollRevealHidden, y: y ?? scrollRevealHidden.y }
       }
-      transition={{ duration: 0.55, delay, ease }}
+      animate={
+        reduceMotion || inView
+          ? { ...scrollRevealVisible, y: 0 }
+          : { ...scrollRevealHidden, y: y ?? scrollRevealHidden.y }
+      }
+      transition={{ duration: 0.55, delay, ease: luxuryEase }}
       className={className}
     >
       {children}
@@ -57,11 +64,15 @@ export function ScrollRevealItem({
   return (
     <motion.div
       ref={ref}
-      initial={reduceMotion ? false : { opacity: 0, y }}
-      animate={
-        reduceMotion || inView ? { opacity: 1, y: 0 } : { opacity: 0, y }
+      initial={
+        reduceMotion ? false : { ...scrollRevealHidden, y: y ?? scrollRevealHidden.y }
       }
-      transition={{ duration: 0.5, delay: itemDelay, ease }}
+      animate={
+        reduceMotion || inView
+          ? { ...scrollRevealVisible, y: 0 }
+          : { ...scrollRevealHidden, y: y ?? scrollRevealHidden.y }
+      }
+      transition={{ duration: 0.5, delay: itemDelay, ease: luxuryEase }}
       className={cn("h-full", className)}
     >
       {children}

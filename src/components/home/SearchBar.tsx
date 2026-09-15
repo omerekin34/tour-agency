@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, CalendarDays, Search } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -10,10 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { luxuryEase } from "@/lib/motion-presets";
 
 type DestinationOption = { value: string; label: string };
 
 export default function SearchBar() {
+  const reduceMotion = useReducedMotion();
   const router = useRouter();
   const [bolge, setBolge] = useState("");
   const [tarih, setTarih] = useState("");
@@ -45,8 +48,17 @@ export default function SearchBar() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-2 sm:px-1">
-      <form
+      <motion.form
         onSubmit={handleSearch}
+        whileHover={
+          reduceMotion
+            ? undefined
+            : {
+                y: -2,
+                boxShadow: "0 20px 40px -12px rgba(15, 23, 42, 0.15)",
+                transition: { duration: 0.4, ease: luxuryEase },
+              }
+        }
         className="flex flex-col gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-navy-950/10 ring-1 ring-navy-950/5 sm:gap-0 sm:rounded-full sm:p-1.5 md:flex-row md:items-center"
       >
         {/* Region */}
@@ -120,7 +132,7 @@ export default function SearchBar() {
           <Search className="size-4" strokeWidth={2} />
           Tur Ara
         </button>
-      </form>
+      </motion.form>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   type GalleryItem,
   type GalleryMediaType,
 } from "@/lib/gallery-shared";
+import { LuxuryHoverCard } from "@/components/ui/LuxuryHoverCard";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +74,10 @@ function MediaCard({
   const isVideo = item.type === "video";
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-navy-900/8 bg-white shadow-sm transition-all hover:border-gold-400/30 hover:shadow-lg">
+    <LuxuryHoverCard
+      as="article"
+      className="group overflow-hidden rounded-2xl border border-navy-900/8 bg-white shadow-sm transition-[border-color,box-shadow] duration-300 hover:border-gold-400/30 hover:shadow-lg hover:shadow-gold-500/10"
+    >
       <div className="relative aspect-[4/3] overflow-hidden bg-navy-950/5">
         {isVideo ? (
           isYouTubeUrl(item.url) ? (
@@ -145,7 +149,7 @@ function MediaCard({
           {item.tourTitle}
         </Link>
       </div>
-    </article>
+    </LuxuryHoverCard>
   );
 }
 
