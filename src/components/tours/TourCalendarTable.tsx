@@ -55,7 +55,7 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
 
               <Link
                 href={`/turlar/${tour.id}`}
-                className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 transition-all active:scale-[0.98] active:bg-gold-600"
+                className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-navy-900/10 bg-navy-900 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
               >
                 Detay
                 <ArrowRight className="size-4" />
@@ -114,7 +114,7 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
                   <TableCell className="px-4 py-4 text-right">
                     <Link
                       href={`/turlar/${tour.id}`}
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-gold-500 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-brand-navy-950 transition-colors hover:bg-gold-400 active:bg-gold-600"
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-navy-900/10 bg-navy-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
                     >
                       Detay
                     </Link>
