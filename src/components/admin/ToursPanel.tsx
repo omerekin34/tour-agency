@@ -190,6 +190,7 @@ export default function ToursPanel() {
     try {
       const res = await fetch("/api/turlar/admin", {
         headers: { "x-admin-key": key },
+        cache: "no-store",
       });
       if (!res.ok) throw new Error("unauthorized");
       const data = (await res.json()) as { tours: ManagedTour[] };
@@ -496,6 +497,7 @@ export default function ToursPanel() {
               intent="secondary"
               icon={RefreshCw}
               loading={refreshing}
+              disabled={refreshing}
               onClick={() => void handleRefresh()}
             >
               {refreshing ? "Yenileniyor..." : "Yenile"}

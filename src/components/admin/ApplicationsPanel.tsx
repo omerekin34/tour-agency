@@ -72,6 +72,7 @@ export default function ApplicationsPanel() {
   const [inputKey, setInputKey] = useState("");
   const [applications, setApplications] = useState<TourApplication[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [authed, setAuthed] = useState(false);
   const [search, setSearch] = useState("");
@@ -89,35 +90,54 @@ export default function ApplicationsPanel() {
     }
   }, []);
 
-  const fetchApplications = useCallback(async (key: string) => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/basvuru", {
-        headers: { "x-admin-key": key },
-      });
-      if (!res.ok) throw new Error("unauthorized");
-      const data = (await res.json()) as { applications: TourApplication[] };
-      setApplications(data.applications);
-      setAuthed(true);
-    } catch {
-      setError("Giriş başarısız. Şifrenizi kontrol edin.");
-      setAuthed(false);
-      sessionStorage.removeItem(STORAGE_KEY);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loadApplications = useCallback(
+    async (key: string, mode: "login" | "refresh") => {
+      if (mode === "login") setLoading(true);
+      else setRefreshing(true);
+      setError("");
+      try {
+        const res = await fetch("/api/basvuru", {
+          headers: { "x-admin-key": key },
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          if (mode === "login") throw new Error("unauthorized");
+          setError("Başvurular yenilenemedi.");
+          return;
+        }
+        const data = (await res.json()) as { applications: TourApplication[] };
+        setApplications(data.applications);
+        setAuthed(true);
+      } catch {
+        if (mode === "login") {
+          setError("Giriş başarısız. Şifrenizi kontrol edin.");
+          setAuthed(false);
+          sessionStorage.removeItem(STORAGE_KEY);
+        } else {
+          setError("Başvurular yenilenemedi.");
+        }
+      } finally {
+        if (mode === "login") setLoading(false);
+        else setRefreshing(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (adminKey) void fetchApplications(adminKey);
-  }, [adminKey, fetchApplications]);
+    if (adminKey) void loadApplications(adminKey, "refresh");
+  }, [adminKey, loadApplications]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     sessionStorage.setItem(STORAGE_KEY, inputKey);
     setAdminKey(inputKey);
-    void fetchApplications(inputKey);
+    void loadApplications(inputKey, "login");
+  };
+
+  const handleRefresh = () => {
+    if (!adminKey || refreshing) return;
+    void loadApplications(adminKey, "refresh");
   };
 
   const handleLogout = () => {
@@ -272,10 +292,11 @@ export default function ApplicationsPanel() {
               type="button"
               intent="secondary"
               icon={RefreshCw}
-              loading={loading}
-              onClick={() => adminKey && void fetchApplications(adminKey)}
+              loading={refreshing}
+              disabled={refreshing}
+              onClick={handleRefresh}
             >
-              {loading ? "Yenileniyor..." : "Yenile"}
+              {refreshing ? "Yenileniyor..." : "Yenile"}
             </AdminActionButton>
           </div>
         </div>

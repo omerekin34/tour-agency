@@ -82,6 +82,7 @@ export default function MessagesPanel() {
     try {
       const res = await fetch("/api/iletisim", {
         headers: { "x-admin-key": key },
+        cache: "no-store",
       });
       if (!res.ok) throw new Error("unauthorized");
       const data = (await res.json()) as { messages: ContactMessage[] };
@@ -244,6 +245,7 @@ export default function MessagesPanel() {
               intent="secondary"
               icon={RefreshCw}
               loading={refreshing}
+              disabled={refreshing}
               onClick={() => void refresh()}
             >
               {refreshing ? "Yenileniyor..." : "Yenile"}

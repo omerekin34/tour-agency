@@ -67,6 +67,7 @@ export default function GalleryPanel() {
     try {
       const res = await fetch("/api/galeri", {
         headers: { "x-admin-key": key },
+        cache: "no-store",
       });
       if (!res.ok) throw new Error("unauthorized");
       const data = (await res.json()) as { items: GalleryItem[] };
@@ -196,6 +197,7 @@ export default function GalleryPanel() {
             intent="secondary"
             icon={RefreshCw}
             loading={refreshing}
+            disabled={refreshing}
             onClick={() => void handleRefresh()}
           >
             {refreshing ? "Yenileniyor..." : "Yenile"}

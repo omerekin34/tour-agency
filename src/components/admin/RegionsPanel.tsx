@@ -114,6 +114,7 @@ export default function RegionsPanel() {
     setError("");
     const res = await fetch("/api/bolgeler/admin", {
       headers: { "x-admin-key": key },
+      cache: "no-store",
     });
     if (!res.ok) throw new Error("unauthorized");
     const data = (await res.json()) as { regions: TourRegion[] };
@@ -291,6 +292,7 @@ export default function RegionsPanel() {
               intent="secondary"
               icon={RefreshCw}
               loading={refreshing}
+              disabled={refreshing}
               onClick={() => void handleRefresh()}
             >
               {refreshing ? "Yenileniyor..." : "Yenile"}

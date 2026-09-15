@@ -37,7 +37,11 @@ export default function AdminActionButton({
       {...props}
     >
       {loading ? (
-        <Loader2 className="size-4 animate-spin" aria-hidden />
+        Icon ? (
+          <Icon className="size-4 animate-spin" aria-hidden />
+        ) : (
+          <Loader2 className="size-4 animate-spin" aria-hidden />
+        )
       ) : Icon ? (
         <Icon className="size-4" aria-hidden />
       ) : null}

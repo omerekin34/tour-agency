@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Settings,
 } from "lucide-react";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminStatCard from "@/components/admin/AdminStatCard";
@@ -56,6 +57,7 @@ export default function DashboardPanel() {
     try {
       const res = await fetch("/api/admin/dashboard", {
         headers: { "x-admin-key": key },
+        cache: "no-store",
       });
       if (!res.ok) throw new Error("unauthorized");
       setData((await res.json()) as DashboardData);
@@ -106,15 +108,16 @@ export default function DashboardPanel() {
             <p className={adminEyebrowClass}>Yönetim Paneli</p>
             <h1 className={adminTitleClass}>Özet</h1>
           </div>
-          <button
+          <AdminActionButton
             type="button"
-            onClick={() => void refresh()}
+            intent="secondary"
+            icon={RefreshCw}
+            loading={refreshing}
             disabled={refreshing}
-            className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-white/15 px-4 text-xs font-medium text-white/80 transition-colors hover:border-gold-400/40 hover:text-gold-300 disabled:opacity-60"
+            onClick={() => void refresh()}
           >
-            <RefreshCw className={`size-3.5 ${refreshing ? "animate-spin" : ""}`} />
             {refreshing ? "Yenileniyor..." : "Yenile"}
-          </button>
+          </AdminActionButton>
         </div>
 
         {data && (
