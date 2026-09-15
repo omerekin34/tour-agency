@@ -48,6 +48,12 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-brand-navy-950: #030a14;
+  --color-brand-navy-900: #071222;
+  --color-brand-navy-800: #0d1f35;
+  --color-gold-400: #d4af37;
+  --color-gold-500: #c9a227;
+  --color-gold-600: #a8851f;
 }
 
 :root {
@@ -178,5 +184,27 @@
 
   .admin-panel [data-slot="table-cell"] {
     @apply text-white/85;
+  }
+
+  .admin-panel [data-slot="input"] {
+    @apply border-white/10 bg-white/5 text-white placeholder:text-white/40;
+  }
+
+  .admin-panel [data-slot="input"]:focus-visible {
+    @apply border-gold-400/45 ring-gold-400/20;
+  }
+
+  .admin-panel [data-slot="select-trigger"] {
+    @apply border-white/10 bg-white/5 text-white;
+  }
+
+  .admin-panel h1,
+  .admin-panel h2,
+  .admin-panel h3 {
+    @apply text-white;
+  }
+
+  .admin-panel .admin-page-subtitle {
+    @apply text-sm leading-relaxed text-white/80;
   }
 }

@@ -29,10 +29,12 @@ import {
 } from "@/components/ui/table";
 import {
   adminCardClass,
+  adminEyebrowClass,
   adminFieldLabelClass,
   adminInputClass,
   adminSearchIconClass,
   adminSectionTitleClass,
+  adminSelectTriggerClass,
   adminSubtitleClass,
   adminTitleClass,
 } from "@/components/admin/admin-theme";
@@ -182,7 +184,8 @@ export default function GalleryPanel() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className={adminTitleClass}>Galeri Yönetimi</h1>
+            <p className={adminEyebrowClass}>Galeri Yönetimi</p>
+            <h1 className={adminTitleClass}>Medya</h1>
             <p className={adminSubtitleClass}>
               Her tura fotoğraf veya video ekleyin. YouTube linki veya doğrudan
               görsel/video URL&apos;si kullanabilirsiniz.
@@ -218,7 +221,7 @@ export default function GalleryPanel() {
                   setForm((prev) => ({ ...prev, tourId: value }));
                 }}
               >
-                <SelectTrigger className="min-h-11 w-full">
+                <SelectTrigger className={cn(adminSelectTriggerClass, "w-full")}>
                   <SelectValue placeholder="Tur seçin" />
                 </SelectTrigger>
                 <SelectContent>
@@ -244,7 +247,7 @@ export default function GalleryPanel() {
                   }))
                 }
               >
-                <SelectTrigger className="min-h-11 w-full">
+                <SelectTrigger className={cn(adminSelectTriggerClass, "w-full")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -311,7 +314,7 @@ export default function GalleryPanel() {
               value={tourFilter}
               onValueChange={(value) => value && setTourFilter(value)}
             >
-              <SelectTrigger className="min-h-11 w-full sm:w-56">
+              <SelectTrigger className={cn(adminSelectTriggerClass, "w-full sm:w-56")}>
                 <SelectValue placeholder="Tur filtresi" />
               </SelectTrigger>
               <SelectContent>
@@ -329,7 +332,7 @@ export default function GalleryPanel() {
                 setTypeFilter(value as GalleryMediaType | "all")
               }
             >
-              <SelectTrigger className="min-h-11 w-full sm:w-40">
+              <SelectTrigger className={cn(adminSelectTriggerClass, "w-full sm:w-40")}>
                 <SelectValue placeholder="Tip" />
               </SelectTrigger>
               <SelectContent>

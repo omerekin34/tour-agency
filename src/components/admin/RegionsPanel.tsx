@@ -15,6 +15,7 @@ import {
 } from "@/lib/regions-shared";
 import { Input } from "@/components/ui/input";
 import {
+  adminEyebrowClass,
   adminFieldLabelClass,
   adminIconButtonClass,
   adminInputClass,
@@ -269,7 +270,8 @@ export default function RegionsPanel() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className={adminTitleClass}>Bölge Yönetimi</h1>
+            <p className={adminEyebrowClass}>Bölge Yönetimi</p>
+            <h1 className={adminTitleClass}>Bölgeler</h1>
             <p className={adminSubtitleClass}>
               Umre, Mısır, Balkanlar gibi bölgeleri ekleyin, düzenleyin veya gizleyin.
               Değişiklikler ana sayfa, arama ve tur filtrelerine yansır.

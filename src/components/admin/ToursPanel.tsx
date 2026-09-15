@@ -45,6 +45,7 @@ import {
   adminCardClass,
   adminCategoryLabelClass,
   adminEmptyStateClass,
+  adminEyebrowClass,
   adminFieldLabelClass,
   adminHintClass,
   adminIconButtonClass,
@@ -468,7 +469,8 @@ export default function ToursPanel() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className={adminTitleClass}>Tur Yönetimi</h1>
+            <p className={adminEyebrowClass}>Tur Yönetimi</p>
+            <h1 className={adminTitleClass}>Turlar</h1>
             <p className={adminSubtitleClass}>
               Tur ekleyin, kopyalayın, düzenleyin veya silin. Form alanları
               hazır şablonlarla dolar; sadece bilgileri değiştirmeniz yeterli.

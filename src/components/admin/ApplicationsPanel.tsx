@@ -673,7 +673,7 @@ function DetailBlock({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-white/70">{label}</p>
       <p
         className={cn(
           "mt-1 text-sm font-medium text-white",
