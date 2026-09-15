@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
+import AdminLogin from "@/components/admin/AdminLogin";
 import AdminShell from "@/components/admin/AdminShell";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
@@ -221,38 +222,14 @@ export default function ApplicationsPanel() {
 
   if (!authed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-navy-900/10 bg-white p-6 shadow-lg">
-          <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-            On&apos;da 10 Yönetim
-          </p>
-          <h1 className="mb-2 text-2xl font-light text-navy-900">Giriş Yap</h1>
-          <p className="mb-6 text-sm text-navy-700/70">
-            Tur başvurularını görüntülemek ve yönetmek için şifrenizi girin.
-          </p>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="password"
-              value={inputKey}
-              onChange={(e) => setInputKey(e.target.value)}
-              placeholder="Yönetici şifresi"
-              className="min-h-12"
-              autoComplete="current-password"
-              required
-            />
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <AdminActionButton
-              type="submit"
-              intent="primary"
-              adminSize="lg"
-              loading={loading}
-              className="w-full"
-            >
-              {loading ? "Kontrol ediliyor..." : "Panele Gir"}
-            </AdminActionButton>
-          </form>
-        </div>
-      </div>
+      <AdminLogin
+        inputKey={inputKey}
+        setInputKey={setInputKey}
+        onSubmit={handleLogin}
+        error={error}
+        loading={loading}
+        description="Tur başvurularını görüntülemek ve yönetmek için şifrenizi girin."
+      />
     );
   }
 
