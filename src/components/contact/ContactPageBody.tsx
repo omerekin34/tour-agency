@@ -126,7 +126,7 @@ export default function ContactPageBody() {
           <ScrollReveal delay={0.14}>
             <div className="rounded-2xl border border-navy-900/8 bg-white p-2 shadow-sm">
               <iframe
-                title="On'da 10 Turizm konum"
+                title="ON'DA 10 Turizm konum"
                 src={contactInfo.mapEmbedHref}
                 className="h-48 w-full rounded-xl border-0 sm:h-56"
                 loading="lazy"

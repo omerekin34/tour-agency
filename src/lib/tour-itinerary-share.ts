@@ -1,3 +1,4 @@
+import { BRAND_LINE_1, BRAND_LINE_2, BRAND_NAME } from "@/lib/brand";
 import {
   formatTourDate,
   formatTourDuration,
@@ -12,7 +13,8 @@ export function buildTourItineraryShareText(
   detailPageUrl: string,
 ): string {
   const lines: string[] = [
-    "ON'da 10 Turizm",
+    BRAND_LINE_1,
+    BRAND_LINE_2,
     tour.title,
     "",
     `Kalkış tarihi: ${formatTourDate(tour.date)}`,
@@ -34,7 +36,7 @@ export function buildTourItineraryShareText(
   lines.push("");
   lines.push("────────────────");
   lines.push(`Tur detayı: ${detailPageUrl}`);
-  lines.push("Başvuru ve bilgi: ON'da 10 Turizm");
+  lines.push(`Başvuru ve bilgi: ${BRAND_NAME}`);
 
   return lines.join("\n");
 }

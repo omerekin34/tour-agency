@@ -1,3 +1,4 @@
+import { BRAND_POSSESSIVE } from "@/lib/brand";
 import type { CategoryKey, Tour } from "@/lib/data";
 import { getCachedManagedTourById } from "@/lib/tours-cache";
 import { managedToDetail } from "@/lib/tours-shared";
@@ -301,7 +302,7 @@ export function getTourDetailContent(tour: Tour): TourDetailContent {
   return {
     description:
       override?.description ??
-      `${tour.title}, On'da 10 Turizm'in özenle hazırladığı ${tour.days} günlük özel programdır. ${tour.transport} ile ulaşım, ${tour.accommodation.toLowerCase()} konaklama ve deneyimli rehber kadromuz eşliğinde unutulmaz bir seyahat deneyimi sunar.`,
+      `${tour.title}, ${BRAND_POSSESSIVE} özenle hazırladığı ${tour.days} günlük özel programdır. ${tour.transport} ile ulaşım, ${tour.accommodation.toLowerCase()} konaklama ve deneyimli rehber kadromuz eşliğinde unutulmaz bir seyahat deneyimi sunar.`,
     highlights: override?.highlights ?? [
       `${tour.days} gün / ${tour.days - 1} gece konforlu program`,
       tour.transport,

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import LegalPageLayout from "@/components/legal/LegalPageLayout";
+import { BRAND_NAME, brandPageTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Çerez Politikası | On'da 10 Turizm",
-  description: "On'da 10 Turizm çerez kullanım politikası.",
+  title: brandPageTitle("Çerez Politikası"),
+  description: `${BRAND_NAME} çerez kullanım politikası.`,
 };
 
 export default function CerezPolitikasiPage() {

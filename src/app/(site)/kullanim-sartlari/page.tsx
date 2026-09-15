@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import LegalPageLayout from "@/components/legal/LegalPageLayout";
+import { BRAND_NAME, brandPageTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Kullanım Şartları | On'da 10 Turizm",
-  description: "On'da 10 Turizm web sitesi kullanım şartları.",
+  title: brandPageTitle("Kullanım Şartları"),
+  description: `${BRAND_NAME} web sitesi kullanım şartları.`,
 };
 
 export default function KullanimSartlariPage() {
@@ -11,8 +12,8 @@ export default function KullanimSartlariPage() {
     <LegalPageLayout eyebrow="Yasal" title="Kullanım Şartları">
       <p>
         Bu web sitesini kullanarak aşağıdaki şartları kabul etmiş sayılırsınız.
-        On&apos;da 10 Turizm, site içeriğini ve hizmet koşullarını önceden
-        haber vermeksizin güncelleme hakkını saklı tutar.
+        {BRAND_NAME}, site içeriğini ve hizmet koşullarını önceden haber
+        vermeksizin güncelleme hakkını saklı tutar.
       </p>
       <h2>Hizmet Kapsamı</h2>
       <p>
@@ -29,13 +30,13 @@ export default function KullanimSartlariPage() {
       <h2>Sorumluluk Sınırı</h2>
       <p>
         Mücbir sebep halleri, üçüncü taraf hizmet sağlayıcılarından kaynaklanan
-        gecikmeler veya değişikliklerden doğan zararlardan On&apos;da 10 Turizm
-        sorumlu tutulamaz.
+        gecikmeler veya değişikliklerden doğan zararlardan {BRAND_NAME} sorumlu
+        tutulamaz.
       </p>
       <h2>Fikri Mülkiyet</h2>
       <p>
-        Site içeriği, görseller ve marka unsurları On&apos;da 10 Turizm&apos;e
-        aittir; izinsiz kopyalanamaz veya kullanılamaz.
+        Site içeriği, görseller ve marka unsurları {BRAND_NAME}&apos;e aittir;
+        izinsiz kopyalanamaz veya kullanılamaz.
       </p>
     </LegalPageLayout>
   );

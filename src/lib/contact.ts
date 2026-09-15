@@ -1,4 +1,6 @@
-const COMPANY_NAME = "ON'da 10 Turizm Organizasyon Ticaret Limited Şirketi";
+import { BRAND_LEGAL_NAME } from "@/lib/brand";
+
+const COMPANY_NAME = BRAND_LEGAL_NAME;
 const ADDRESS = "Doğu, Ece Sokak No:20, 34890 Pendik/İstanbul";
 const MAP_QUERY = `${COMPANY_NAME}, ${ADDRESS}`;
 

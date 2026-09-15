@@ -7,6 +7,7 @@ import { getCachedManagedTourById } from "@/lib/tours-cache";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
 import { resolveContactFromSettings } from "@/lib/site-settings-shared";
 import { getSiteSettings } from "@/lib/site-settings-store";
+import { brandPageTitle } from "@/lib/brand";
 import { getTourCapacityInfo } from "@/lib/tour-capacity";
 import { computeTourUrgency } from "@/lib/tour-urgency-shared";
 import { ensureToursLoaded } from "@/lib/tours-store";
@@ -27,7 +28,8 @@ export async function generateMetadata({
 
   const detail = getTourDetailContent(tour);
   const managed = getCachedManagedTourById(id);
-  const title = managed?.metaTitle?.trim() || `${tour.title} | On'da 10 Turizm`;
+  const title =
+    managed?.metaTitle?.trim() || brandPageTitle(tour.title);
   const description =
     managed?.metaDescription?.trim() || detail.description.slice(0, 160);
 

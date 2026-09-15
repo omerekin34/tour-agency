@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandWordmark from "@/components/brand/BrandWordmark";
 import { usePathname } from "next/navigation";
 import {
   ClipboardList,
@@ -47,14 +48,10 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
       <header className="sticky top-0 z-40 border-b border-gold-500/10 bg-brand-navy-950/90 text-white backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
           <Link href="/admin" className="group flex items-center gap-3">
-            <span className="flex flex-col leading-none">
-              <span className="text-sm font-semibold tracking-[0.22em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-base">
-                ON&apos;DA
-              </span>
-              <span className="mt-0.5 text-[0.55rem] font-light uppercase tracking-[0.38em] text-white/80 sm:text-[0.6rem]">
-                10 World
-              </span>
-            </span>
+            <BrandWordmark
+              line1ClassName="text-sm font-semibold tracking-[0.22em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-base"
+              line2ClassName="mt-0.5 text-[0.55rem] font-light uppercase tracking-[0.35em] text-white/80 sm:text-[0.6rem]"
+            />
             <span className="hidden h-8 w-px bg-gold-500/20 sm:block" />
             <span className="hidden text-xs font-medium uppercase tracking-[0.22em] text-white/50 sm:block">
               Yönetim Paneli

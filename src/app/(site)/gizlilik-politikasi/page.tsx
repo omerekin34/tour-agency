@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import LegalPageLayout from "@/components/legal/LegalPageLayout";
+import { BRAND_LEGAL_NAME, BRAND_NAME, brandPageTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Gizlilik Politikası | On'da 10 Turizm",
-  description: "On'da 10 Turizm gizlilik politikası ve kişisel verilerin korunması.",
+  title: brandPageTitle("Gizlilik Politikası"),
+  description: `${BRAND_NAME} gizlilik politikası ve kişisel verilerin korunması.`,
 };
 
 export default function GizlilikPolitikasiPage() {
   return (
     <LegalPageLayout eyebrow="Yasal" title="Gizlilik Politikası">
       <p>
-        ON&apos;da 10 Turizm Organizasyon Ticaret Limited Şirketi (&quot;On&apos;da 10
-        Turizm&quot;) olarak kişisel verilerinizin güvenliğine önem veriyoruz. Bu
-        politika, web sitemiz ve hizmetlerimiz kapsamında toplanan verilerin nasıl
-        işlendiğini açıklar.
+        {BRAND_LEGAL_NAME} (&quot;{BRAND_NAME}&quot;) olarak kişisel verilerinizin
+        güvenliğine önem veriyoruz. Bu politika, web sitemiz ve hizmetlerimiz
+        kapsamında toplanan verilerin nasıl işlendiğini açıklar.
       </p>
       <h2>Toplanan Veriler</h2>
       <ul>

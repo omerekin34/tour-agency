@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandWordmark from "@/components/brand/BrandWordmark";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -84,14 +85,10 @@ export default function Footer({ regionLinks = [], siteContact }: FooterProps) {
           {/* Brand & Social */}
           <div className="space-y-5">
             <Link href="/" className="inline-block">
-              <span className="flex flex-col leading-none">
-                <span className="text-xl font-semibold tracking-[0.2em] text-gold-400">
-                  ON&apos;DA
-                </span>
-                <span className="mt-1 text-xs font-light uppercase tracking-[0.45em] text-white/90">
-                  10 World
-                </span>
-              </span>
+              <BrandWordmark
+                line1ClassName="text-xl font-semibold tracking-[0.2em] text-gold-400"
+                line2ClassName="mt-1 text-xs font-light uppercase tracking-[0.35em] text-white/90"
+              />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-white/60">
               Hayallerinizdeki seyahat için buradayız. Güven ve tecrübeyle
@@ -203,7 +200,7 @@ export default function Footer({ regionLinks = [], siteContact }: FooterProps) {
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-center text-xs text-white/50 sm:text-left">
-            © 2026 On&apos;da 10 Turizm. Tüm hakları saklıdır.
+            © 2026 ON&apos;DA 10 Turizm. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-6">
             <Link

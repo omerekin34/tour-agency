@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { faqItems } from "@/lib/faq-data";
+import { brandPageTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Sık Sorulan Sorular | On'da 10 Turizm",
+  title: brandPageTitle("Sık Sorulan Sorular"),
   description:
     "Tur rezervasyonu, ödeme, vize, iptal koşulları ve daha fazlası hakkında sık sorulan sorular.",
 };

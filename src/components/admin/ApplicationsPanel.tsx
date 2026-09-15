@@ -535,7 +535,7 @@ function QuickActions({
 }) {
   const waPhone = formatWhatsAppPhone(app.phone);
   const waText = encodeURIComponent(
-    `Merhaba ${app.name}, On'da 10 Turizm — ${app.tourTitle} başvurunuz hakkında yazıyorum.`,
+    `Merhaba ${app.name}, ON'DA 10 Turizm — ${app.tourTitle} başvurunuz hakkında yazıyorum.`,
   );
 
   return (

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import ContactPageBody from "@/components/contact/ContactPageBody";
+import { BRAND_NAME, brandPageTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "İletişim | On'da 10 Turizm",
-  description:
-    "On'da 10 Turizm ile iletişime geçin. Tur rezervasyonu, bilgi talebi ve özel programlar için bize ulaşın.",
+  title: brandPageTitle("İletişim"),
+  description: `${BRAND_NAME} ile iletişime geçin. Tur rezervasyonu, bilgi talebi ve özel programlar için bize ulaşın.`,
 };
 
 export default function IletisimPage() {

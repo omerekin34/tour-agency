@@ -64,7 +64,7 @@ export default function TrustHighlights() {
           className="mb-8 text-center md:mb-10"
         >
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.35em] text-gold-600">
-            Neden On&apos;da 10?
+            Neden ON&apos;DA 10 Turizm?
           </p>
           <h2 className="text-2xl font-light tracking-tight text-navy-900 sm:text-3xl">
             Güvenle seyahat edin

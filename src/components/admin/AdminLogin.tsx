@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandWordmark from "@/components/brand/BrandWordmark";
 import { Lock, ShieldCheck } from "lucide-react";
 import AdminActionButton from "@/components/admin/AdminActionButton";
 import { Input } from "@/components/ui/input";
@@ -34,14 +35,10 @@ export default function AdminLogin({
       <div className="relative w-full max-w-md">
         <div className="mb-10 flex justify-center">
           <Link href="/" className="group text-center transition-opacity hover:opacity-90">
-            <span className="flex flex-col leading-none">
-              <span className="text-2xl font-semibold tracking-[0.22em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-3xl">
-                ON&apos;DA
-              </span>
-              <span className="mt-1.5 text-[0.7rem] font-light uppercase tracking-[0.42em] text-white/85 sm:text-xs">
-                10 World
-              </span>
-            </span>
+            <BrandWordmark
+              line1ClassName="text-2xl font-semibold tracking-[0.22em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-3xl"
+              line2ClassName="mt-1.5 text-[0.7rem] font-light uppercase tracking-[0.35em] text-white/85 sm:text-xs"
+            />
             <span className="mt-3 block text-[0.6rem] font-medium uppercase tracking-[0.35em] text-gold-500/70">
               Yönetim Paneli
             </span>
@@ -123,7 +120,7 @@ export default function AdminLogin({
         </div>
 
         <p className="mt-6 text-center text-[0.65rem] uppercase tracking-[0.25em] text-white/25">
-          On&apos;da 10 Turizm
+          ON&apos;DA 10 Turizm
         </p>
       </div>
     </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { brandPageTitle } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: "Yönetim | On'da 10 Turizm",
+  title: brandPageTitle("Yönetim"),
   robots: { index: false, follow: false },
 };
 

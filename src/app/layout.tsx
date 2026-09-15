@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
-const siteTitle = "On'da 10 Turizm";
+import { BRAND_NAME } from "@/lib/brand";
+
+const siteTitle = BRAND_NAME;
 const siteDescription =
   "Lüks seyahatin yeni adresi — Umre, yurt dışı ve yurt içi turlar.";
 

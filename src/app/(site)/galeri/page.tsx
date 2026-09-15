@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import GalleryView from "@/components/gallery/GalleryView";
+import { BRAND_NAME, brandPageTitle } from "@/lib/brand";
 import { getAllTours } from "@/lib/data";
 import { getGalleryItems } from "@/lib/gallery";
 import { ensureRegionsLoaded, getPublishedRegions } from "@/lib/regions-store";
@@ -8,9 +9,8 @@ import { ensureToursLoaded } from "@/lib/tours-store";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Galeri | On'da 10 Turizm",
-  description:
-    "On'da 10 Turizm turlarından fotoğraf ve videolar. Umre, yurt dışı ve yurt içi turlarımızı filtreleyerek inceleyin.",
+  title: brandPageTitle("Galeri"),
+  description: `${BRAND_NAME} turlarından fotoğraf ve videolar. Umre, yurt dışı ve yurt içi turlarımızı filtreleyerek inceleyin.`,
 };
 
 export default async function GaleriPage() {

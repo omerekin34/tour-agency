@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import TourApplicationForm from "@/components/tours/TourApplicationForm";
 import { getTourById } from "@/lib/data";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
+import { brandPageTitle } from "@/lib/brand";
 import { getTourCapacityInfo } from "@/lib/tour-capacity";
 import { computeTourUrgency } from "@/lib/tour-urgency-shared";
 import { ensureToursLoaded } from "@/lib/tours-store";
@@ -22,7 +23,7 @@ export async function generateMetadata({
   if (!tour) return { title: "Başvuru Bulunamadı" };
 
   return {
-    title: `Başvuru — ${tour.title} | On'da 10 Turizm`,
+    title: brandPageTitle(`Başvuru — ${tour.title}`),
     description: `${tour.title} turu için online başvuru formu.`,
   };
 }

@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/lib/brand";
 import type { TourCapacityInfo } from "@/lib/tour-capacity-shared";
 import type { Tour } from "@/lib/data";
 
@@ -90,7 +91,7 @@ function buildCombinedBanner(
     remaining <= 1
       ? "kontenjanımızda son yerler"
       : `kontenjanımızda yalnızca ${remaining} kişilik yer`;
-  return `${datePart} ve ${seatPart} bulunuyor. Yerinizi hemen ayırtın; ON'da 10 Turizm ekibi sizinle en kısa sürede iletişime geçsin.`;
+  return `${datePart} ve ${seatPart} bulunuyor. Yerinizi hemen ayırtın; ${BRAND_NAME} ekibi sizinle en kısa sürede iletişime geçsin.`;
 }
 
 export function computeTourUrgency(

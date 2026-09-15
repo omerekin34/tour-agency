@@ -16,7 +16,7 @@ export async function sendAdminNotification({ subject, html }: NotifyPayload) {
   }
 
   const from =
-    process.env.RESEND_FROM ?? "On'da 10 Turizm <onboarding@resend.dev>";
+    process.env.RESEND_FROM ?? "ON'DA 10 Turizm <onboarding@resend.dev>";
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
