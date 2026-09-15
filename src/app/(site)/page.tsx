@@ -5,12 +5,17 @@ import TourCategoryRow from "@/components/home/TourCategoryRow";
 import TrustHighlights from "@/components/home/TrustHighlights";
 import { getCategoryStartingPrice } from "@/lib/data";
 import { ensureRegionsLoaded, getHeroRegions, getHomeRegions } from "@/lib/regions-store";
+import { getTourCapacityBookedMap } from "@/lib/tour-capacity";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  await Promise.all([ensureToursLoaded(), ensureRegionsLoaded()]);
+  const [, , bookedSeatsByTourId] = await Promise.all([
+    ensureToursLoaded(),
+    ensureRegionsLoaded(),
+    getTourCapacityBookedMap(),
+  ]);
 
   const homeRegions = getHomeRegions();
   const heroItems = getHeroRegions().map((region) => {
@@ -43,6 +48,7 @@ export default async function Home() {
             title={region.homeTitle}
             variant={region.homeVariant}
             fadeFrom={index > 0 ? homeRegions[index - 1]?.homeVariant : undefined}
+            bookedSeatsByTourId={bookedSeatsByTourId}
           />
           {index === 0 && <TrustHighlights />}
         </div>

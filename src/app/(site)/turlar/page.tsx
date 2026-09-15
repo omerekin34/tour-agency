@@ -6,8 +6,11 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import {
   formatTourDate,
   getDestinationLabel,
-  toTourCardProps,
 } from "@/lib/data";
+import {
+  getTourCapacityBookedMap,
+  toTourCardPropsWithCapacity,
+} from "@/lib/tour-capacity";
 import {
   filterToursAdvanced,
   getPriceRange,
@@ -39,10 +42,11 @@ function FiltersSkeleton() {
 }
 
 export default async function TurlarPage({ searchParams }: TurlarPageProps) {
-  const [exchangeRates] = await Promise.all([
+  const [exchangeRates, , , bookedSeatsByTourId] = await Promise.all([
     getExchangeRates(),
     ensureToursLoaded(),
     ensureRegionsLoaded(),
+    getTourCapacityBookedMap(),
   ]);
   const params = await searchParams;
   const allTours = getAllTours();
@@ -94,10 +98,9 @@ export default async function TurlarPage({ searchParams }: TurlarPageProps) {
 
             {tours.length > 0 ? (
               <TourCardGrid
-                items={tours.map((tour) => ({
-                  ...toTourCardProps(tour),
-                  id: tour.id,
-                }))}
+                items={tours.map((tour) =>
+                  toTourCardPropsWithCapacity(tour, bookedSeatsByTourId),
+                )}
               />
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-navy-900/15 bg-white px-6 py-16 text-center shadow-sm">

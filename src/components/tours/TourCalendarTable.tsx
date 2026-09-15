@@ -17,16 +17,26 @@ import {
   formatTourPrice,
   type Tour,
 } from "@/lib/data";
+import { computeTourCapacity } from "@/lib/tour-capacity-shared";
 
 type TourCalendarTableProps = {
   tours: Tour[];
+  bookedSeatsByTourId?: Record<string, number>;
 };
 
-export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
+export default function TourCalendarTable({
+  tours,
+  bookedSeatsByTourId = {},
+}: TourCalendarTableProps) {
   return (
     <>
       <div className="space-y-3 md:hidden">
-        {tours.map((tour, index) => (
+        {tours.map((tour, index) => {
+          const capacity = computeTourCapacity(
+            tour.capacity,
+            bookedSeatsByTourId[tour.id] ?? 0,
+          );
+          return (
           <ScrollRevealItem key={tour.id} index={index}>
             <article className="rounded-2xl border border-navy-900/10 bg-white p-4 shadow-sm">
               <div className="mb-3 flex items-start justify-between gap-3">
@@ -38,9 +48,16 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
                 </p>
               </div>
 
-              <h3 className="mb-3 text-base font-medium leading-snug text-navy-900">
-                {tour.title}
-              </h3>
+              <div className="mb-3 flex flex-wrap items-start gap-2">
+                <h3 className="text-base font-medium leading-snug text-navy-900">
+                  {tour.title}
+                </h3>
+                {capacity.isFull && (
+                  <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-white">
+                    Dolu
+                  </span>
+                )}
+              </div>
 
               <div className="mb-4 flex flex-col gap-2 text-sm text-navy-700/80">
                 <p className="flex items-center gap-2">
@@ -53,16 +70,23 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
                 </p>
               </div>
 
-              <Link
-                href={`/turlar/${tour.id}`}
-                className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-navy-900/10 bg-navy-900 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
-              >
-                Detay
-                <ArrowRight className="size-4" />
-              </Link>
+              {capacity.isFull ? (
+                <span className="flex min-h-12 w-full items-center justify-center rounded-full border border-red-200 bg-red-50 text-sm font-semibold uppercase tracking-wider text-red-700">
+                  Kontenjan Dolu
+                </span>
+              ) : (
+                <Link
+                  href={`/turlar/${tour.id}`}
+                  className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-navy-900/10 bg-navy-900 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
+                >
+                  Detay
+                  <ArrowRight className="size-4" />
+                </Link>
+              )}
             </article>
           </ScrollRevealItem>
-        ))}
+          );
+        })}
       </div>
 
       <ScrollReveal className="hidden md:block">
@@ -91,7 +115,12 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tours.map((tour, index) => (
+              {tours.map((tour, index) => {
+                const capacity = computeTourCapacity(
+                  tour.capacity,
+                  bookedSeatsByTourId[tour.id] ?? 0,
+                );
+                return (
                 <TableRow
                   key={tour.id}
                   className="border-navy-900/5 transition-colors hover:bg-gold-50/40"
@@ -100,7 +129,14 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
                     {String(index + 1).padStart(2, "0")}
                   </TableCell>
                   <TableCell className="px-4 py-4 font-medium text-navy-900">
-                    {tour.title}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{tour.title}</span>
+                      {capacity.isFull && (
+                        <span className="rounded-full bg-red-600 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-white">
+                          Dolu
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="px-4 py-4 text-navy-700/80">
                     {formatTourDate(tour.date)}
@@ -112,15 +148,22 @@ export default function TourCalendarTable({ tours }: TourCalendarTableProps) {
                     {formatTourPrice(tour.price, tour.currency)}
                   </TableCell>
                   <TableCell className="px-4 py-4 text-right">
-                    <Link
-                      href={`/turlar/${tour.id}`}
-                      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-navy-900/10 bg-navy-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
-                    >
-                      Detay
-                    </Link>
+                    {capacity.isFull ? (
+                      <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-red-700">
+                        Dolu
+                      </span>
+                    ) : (
+                      <Link
+                        href={`/turlar/${tour.id}`}
+                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-navy-900/10 bg-navy-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
+                      >
+                        Detay
+                      </Link>
+                    )}
                   </TableCell>
                 </TableRow>
-              ))}
+              );
+              })}
             </TableBody>
           </Table>
         </div>

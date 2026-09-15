@@ -4,6 +4,9 @@ import {
   isValidAdminKey,
   saveApplication,
 } from "@/lib/applications";
+import { getTourById } from "@/lib/data";
+import { validateTourApplicationCapacity } from "@/lib/tour-capacity";
+import { ensureToursLoaded } from "@/lib/tours-store";
 import {
   buildApplicationNotificationHtml,
   sendAdminNotification,
@@ -23,8 +26,24 @@ export async function POST(request: Request) {
       }
     }
 
+    await ensureToursLoaded();
+    const tourId = String(body.tourId);
+    const tour = getTourById(tourId);
+    if (!tour) {
+      return NextResponse.json({ error: "Tur bulunamadı." }, { status: 404 });
+    }
+
+    const capacityCheck = await validateTourApplicationCapacity(
+      tourId,
+      tour.capacity,
+      String(body.travelers ?? "1"),
+    );
+    if (!capacityCheck.ok) {
+      return NextResponse.json({ error: capacityCheck.message }, { status: 409 });
+    }
+
     const payload = {
-      tourId: String(body.tourId),
+      tourId,
       tourTitle: String(body.tourTitle),
       tourDate: String(body.tourDate),
       tourPrice: String(body.tourPrice),

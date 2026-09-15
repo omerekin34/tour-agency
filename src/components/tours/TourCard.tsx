@@ -25,6 +25,7 @@ export type TourCardProps = {
   visa?: string;
   price: string;
   href?: string;
+  isFull?: boolean;
 };
 
 export default function TourCard({
@@ -39,6 +40,7 @@ export default function TourCard({
   visa,
   price,
   href = "#",
+  isFull = false,
 }: TourCardProps) {
   return (
     <motion.article
@@ -126,20 +128,30 @@ export default function TourCard({
             </p>
           </div>
 
-          <Link
-            href={href}
-            className={cn(
-              "inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full border border-navy-900/10 bg-navy-900 px-5 py-3 text-xs font-medium uppercase tracking-wider text-white transition-all duration-300 ease-out sm:min-h-11 sm:w-auto sm:py-2.5",
-              "group-hover:border-gold-400/50 group-hover:bg-gradient-to-r group-hover:from-gold-500 group-hover:to-gold-600 group-hover:text-brand-navy-950 group-hover:shadow-md group-hover:shadow-gold-500/25",
-              "hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 active:scale-[0.98]",
-            )}
-          >
-            İncele
-            <ArrowRight
-              className="size-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5"
-              strokeWidth={2}
-            />
-          </Link>
+          {isFull ? (
+            <span
+              className={cn(
+                "inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-red-700 sm:min-h-11 sm:w-auto sm:py-2.5",
+              )}
+            >
+              Kontenjan Dolu
+            </span>
+          ) : (
+            <Link
+              href={href}
+              className={cn(
+                "inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-1.5 rounded-full border border-navy-900/10 bg-navy-900 px-5 py-3 text-xs font-medium uppercase tracking-wider text-white transition-all duration-300 ease-out sm:min-h-11 sm:w-auto sm:py-2.5",
+                "group-hover:border-gold-400/50 group-hover:bg-gradient-to-r group-hover:from-gold-500 group-hover:to-gold-600 group-hover:text-brand-navy-950 group-hover:shadow-md group-hover:shadow-gold-500/25",
+                "hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 active:scale-[0.98]",
+              )}
+            >
+              İncele
+              <ArrowRight
+                className="size-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5"
+                strokeWidth={2}
+              />
+            </Link>
+          )}
         </div>
       </div>
     </motion.article>

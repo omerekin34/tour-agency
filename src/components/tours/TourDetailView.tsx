@@ -34,6 +34,10 @@ import {
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
 import type { TourDetailContent } from "@/lib/tour-details";
+import {
+  formatCapacityDetail,
+  type TourCapacityInfo,
+} from "@/lib/tour-capacity-shared";
 import { contactInfo } from "@/lib/contact";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
@@ -42,6 +46,7 @@ type TourDetailViewProps = {
   tour: Tour;
   detail: TourDetailContent;
   whatsappHref?: string;
+  capacityInfo: TourCapacityInfo;
 };
 
 const GALLERY_AUTO_PLAY_MS = 4500;
@@ -50,6 +55,7 @@ export default function TourDetailView({
   tour,
   detail,
   whatsappHref = contactInfo.whatsapp,
+  capacityInfo,
 }: TourDetailViewProps) {
   const [activeImage, setActiveImage] = useState(0);
   const [galleryPaused, setGalleryPaused] = useState(false);
@@ -164,6 +170,11 @@ export default function TourDetailView({
               <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[0.65rem] font-semibold text-white backdrop-blur-md">
                 {formatTourPrice(tour.price, tour.currency)}
               </span>
+              {capacityInfo.isFull && (
+                <span className="inline-flex rounded-full bg-red-600 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-white shadow-sm">
+                  Dolu
+                </span>
+              )}
             </motion.div>
 
             <motion.h1
@@ -199,7 +210,12 @@ export default function TourDetailView({
               highlight
             />
             <FactItem icon={Plane} label="Ulaşım" value={tour.transport} />
-            <FactItem icon={Users} label="Kontenjan" value={`${tour.capacity} kişi`} />
+            <FactItem
+              icon={Users}
+              label="Kontenjan"
+              value={formatCapacityDetail(capacityInfo)}
+              highlight={capacityInfo.isFull}
+            />
             <FactItem
               icon={MapPin}
               label="Çıkış Noktası"
@@ -218,6 +234,7 @@ export default function TourDetailView({
             tour={tour}
             whatsappMessage={whatsappMessage}
             variant="mobile"
+            isFull={capacityInfo.isFull}
           />
         </ScrollReveal>
 
@@ -422,13 +439,19 @@ export default function TourDetailView({
                 Başvuru formunu doldurun; ekibimiz kontenjan ve ödeme
                 detaylarıyla sizinle iletişime geçsin.
               </p>
-              <Link
-                href={`/turlar/${tour.id}/basvuru`}
-                className="mt-5 inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 transition-all hover:bg-gold-400 active:scale-[0.98] sm:w-auto"
-              >
-                <ClipboardPen className="size-4" />
-                Başvuru Yap
-              </Link>
+              {capacityInfo.isFull ? (
+                <p className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-red-400/30 bg-red-500/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-red-200 sm:w-auto">
+                  Kontenjan Dolu
+                </p>
+              ) : (
+                <Link
+                  href={`/turlar/${tour.id}/basvuru`}
+                  className="mt-5 inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 transition-all hover:bg-gold-400 active:scale-[0.98] sm:w-auto"
+                >
+                  <ClipboardPen className="size-4" />
+                  Başvuru Yap
+                </Link>
+              )}
               </section>
             </ScrollReveal>
           </div>
@@ -436,7 +459,11 @@ export default function TourDetailView({
           <ScrollReveal className="space-y-6 lg:sticky lg:top-28 lg:self-start" delay={0.1}>
             <aside className="space-y-6">
             <div className="hidden lg:block">
-              <TourBookingCard tour={tour} whatsappMessage={whatsappMessage} />
+              <TourBookingCard
+                tour={tour}
+                whatsappMessage={whatsappMessage}
+                isFull={capacityInfo.isFull}
+              />
             </div>
 
             <div className="rounded-2xl border border-navy-900/8 bg-white p-6 shadow-sm">
@@ -482,13 +509,19 @@ export default function TourDetailView({
               Başvuru formunu doldurun; ekibimiz kontenjan ve ödeme
               detaylarıyla sizinle iletişime geçsin.
             </p>
-            <Link
-              href={`/turlar/${tour.id}/basvuru`}
-              className="mt-5 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 transition-all hover:bg-gold-400 active:scale-[0.98]"
-            >
-              <ClipboardPen className="size-4" />
-              Başvuru Yap
-            </Link>
+            {capacityInfo.isFull ? (
+              <p className="mt-5 flex min-h-12 w-full items-center justify-center rounded-full border border-red-400/30 bg-red-500/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-red-200">
+                Kontenjan Dolu
+              </p>
+            ) : (
+              <Link
+                href={`/turlar/${tour.id}/basvuru`}
+                className="mt-5 flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 transition-all hover:bg-gold-400 active:scale-[0.98]"
+              >
+                <ClipboardPen className="size-4" />
+                Başvuru Yap
+              </Link>
+            )}
           </div>
         </section>
       </div>
@@ -501,10 +534,12 @@ function TourBookingCard({
   tour,
   whatsappMessage,
   variant = "sidebar",
+  isFull = false,
 }: {
   tour: Tour;
   whatsappMessage: string;
   variant?: "mobile" | "sidebar";
+  isFull?: boolean;
 }) {
   const isMobile = variant === "mobile";
 
@@ -524,16 +559,27 @@ function TourBookingCard({
           isMobile ? "grid gap-3 grid-cols-2" : "space-y-3",
         )}
       >
-        <Link
-          href={`/turlar/${tour.id}/basvuru`}
-          className={cn(
-            "flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 shadow-md shadow-gold-500/20 transition-all hover:bg-gold-400 active:scale-[0.98]",
-            isMobile && "col-span-2",
-          )}
-        >
-          <ClipboardPen className="size-4" />
-          Başvuru Yap
-        </Link>
+        {isFull ? (
+          <span
+            className={cn(
+              "flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-red-700",
+              isMobile && "col-span-2",
+            )}
+          >
+            Kontenjan Dolu
+          </span>
+        ) : (
+          <Link
+            href={`/turlar/${tour.id}/basvuru`}
+            className={cn(
+              "flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-brand-navy-950 shadow-md shadow-gold-500/20 transition-all hover:bg-gold-400 active:scale-[0.98]",
+              isMobile && "col-span-2",
+            )}
+          >
+            <ClipboardPen className="size-4" />
+            Başvuru Yap
+          </Link>
+        )}
 
         <a
           href={`${contactInfo.whatsapp}?text=${whatsappMessage}`}

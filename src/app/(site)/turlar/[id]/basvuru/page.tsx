@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import TourApplicationForm from "@/components/tours/TourApplicationForm";
 import { getTourById } from "@/lib/data";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
+import { getTourCapacityInfo } from "@/lib/tour-capacity";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
@@ -32,5 +33,7 @@ export default async function BasvuruPage({ params }: BasvuruPageProps) {
 
   if (!tour) notFound();
 
-  return <TourApplicationForm tour={tour} />;
+  const capacityInfo = await getTourCapacityInfo(tour);
+
+  return <TourApplicationForm tour={tour} capacityInfo={capacityInfo} />;
 }

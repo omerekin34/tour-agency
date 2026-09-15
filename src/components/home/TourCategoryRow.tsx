@@ -5,9 +5,9 @@ import { ScrollReveal, ScrollRevealItem } from "@/components/ui/ScrollReveal";
 import TourCard from "@/components/tours/TourCard";
 import {
   getToursByCategory,
-  toTourCardProps,
   type CategoryKey,
 } from "@/lib/data";
+import { toTourCardPropsWithCapacity } from "@/lib/tour-capacity";
 import { cn } from "@/lib/utils";
 
 type TourCategoryRowProps = {
@@ -15,6 +15,7 @@ type TourCategoryRowProps = {
   categoryKey: CategoryKey;
   variant?: "dark" | "light";
   fadeFrom?: "light" | "dark";
+  bookedSeatsByTourId?: Map<string, number>;
 };
 
 export default function TourCategoryRow({
@@ -22,8 +23,10 @@ export default function TourCategoryRow({
   categoryKey,
   variant = "light",
   fadeFrom,
+  bookedSeatsByTourId,
 }: TourCategoryRowProps) {
   const categoryTours = getToursByCategory(categoryKey);
+  const bookedMap = bookedSeatsByTourId ?? new Map<string, number>();
   const isDark = variant === "dark";
 
   return (
@@ -78,7 +81,7 @@ export default function TourCategoryRow({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {categoryTours.map((tour, index) => (
             <ScrollRevealItem key={tour.id} index={index}>
-              <TourCard {...toTourCardProps(tour)} />
+              <TourCard {...toTourCardPropsWithCapacity(tour, bookedMap)} />
             </ScrollRevealItem>
           ))}
         </div>

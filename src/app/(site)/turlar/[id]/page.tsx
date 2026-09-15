@@ -7,6 +7,7 @@ import { getCachedManagedTourById } from "@/lib/tours-cache";
 import { ensureRegionsLoaded } from "@/lib/regions-store";
 import { resolveContactFromSettings } from "@/lib/site-settings-shared";
 import { getSiteSettings } from "@/lib/site-settings-store";
+import { getTourCapacityInfo } from "@/lib/tour-capacity";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
 export const dynamic = "force-dynamic";
@@ -40,13 +41,17 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
   if (!tour) notFound();
 
   const detail = getTourDetailContent(tour);
-  const siteContact = resolveContactFromSettings(await getSiteSettings());
+  const [siteContact, capacityInfo] = await Promise.all([
+    getSiteSettings().then(resolveContactFromSettings),
+    getTourCapacityInfo(tour),
+  ]);
 
   return (
     <TourDetailView
       tour={tour}
       detail={detail}
       whatsappHref={siteContact.whatsapp}
+      capacityInfo={capacityInfo}
     />
   );
 }

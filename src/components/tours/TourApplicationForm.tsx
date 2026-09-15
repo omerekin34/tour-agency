@@ -34,12 +34,20 @@ import {
   formatTourDepartures,
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
+import {
+  formatCapacityDetail,
+  type TourCapacityInfo,
+} from "@/lib/tour-capacity-shared";
 
 type TourApplicationFormProps = {
   tour: Tour;
+  capacityInfo: TourCapacityInfo;
 };
 
-export default function TourApplicationForm({ tour }: TourApplicationFormProps) {
+export default function TourApplicationForm({
+  tour,
+  capacityInfo,
+}: TourApplicationFormProps) {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -79,14 +87,17 @@ export default function TourApplicationForm({ tour }: TourApplicationFormProps) 
         }),
       });
 
+      const result = (await res.json()) as { error?: string };
       if (!res.ok) {
-        throw new Error("Kayıt başarısız");
+        throw new Error(result.error ?? "Kayıt başarısız");
       }
 
       setSent(true);
-    } catch {
+    } catch (err) {
       setSubmitError(
-        "Başvuru gönderilemedi. Lütfen tekrar deneyin veya WhatsApp ile ulaşın.",
+        err instanceof Error
+          ? err.message
+          : "Başvuru gönderilemedi. Lütfen tekrar deneyin veya WhatsApp ile ulaşın.",
       );
     } finally {
       setSubmitting(false);
@@ -144,7 +155,8 @@ export default function TourApplicationForm({ tour }: TourApplicationFormProps) 
           <TourFactItem
             icon={Users}
             label="Kontenjan"
-            value={`${tour.capacity} kişi`}
+            value={formatCapacityDetail(capacityInfo)}
+            highlight={capacityInfo.isFull}
           />
           <TourFactItem
             icon={MapPin}
@@ -167,7 +179,21 @@ export default function TourApplicationForm({ tour }: TourApplicationFormProps) 
             sizinle iletişime geçilecektir.
           </p>
 
-          {sent ? (
+          {capacityInfo.isFull ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-8 text-center">
+              <p className="text-lg font-medium text-red-800">Kontenjan dolmuştur</p>
+              <p className="mt-2 text-sm text-red-700/80">
+                Bu tur için online başvuru kapalıdır. Benzer turlar için bizimle
+                iletişime geçebilirsiniz.
+              </p>
+              <Link
+                href={`/turlar/${tour.id}`}
+                className="mt-6 inline-flex min-h-11 items-center rounded-full border border-navy-900/15 px-6 text-sm font-medium text-navy-800 hover:border-gold-400/40 hover:text-gold-600"
+              >
+                Tur detayına dön
+              </Link>
+            </div>
+          ) : sent ? (
             <div className="rounded-xl border border-gold-400/30 bg-gold-500/10 px-4 py-8 text-center">
               <p className="text-lg font-medium text-navy-900">Başvurunuz alındı!</p>
               <p className="mt-2 text-sm text-navy-700/70">
@@ -225,7 +251,7 @@ export default function TourApplicationForm({ tour }: TourApplicationFormProps) 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {["1", "2", "3", "4", "5", "6+"].map((n) => (
+                      {getTravelerOptions(capacityInfo.remaining).map((n) => (
                         <SelectItem key={n} value={n}>
                           {n === "6+" ? "6 ve üzeri" : `${n} kişi`}
                         </SelectItem>
@@ -290,6 +316,16 @@ export default function TourApplicationForm({ tour }: TourApplicationFormProps) 
       </div>
     </div>
   );
+}
+
+function getTravelerOptions(remaining: number): string[] {
+  const options = ["1", "2", "3", "4", "5", "6+"];
+  if (remaining > 1000) return options;
+  const max = Math.max(1, remaining);
+  return options.filter((option) => {
+    const count = option === "6+" ? 6 : Number(option);
+    return count <= max;
+  });
 }
 
 function Field({
