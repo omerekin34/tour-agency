@@ -35,27 +35,35 @@ export function adminButtonClassName(
     case "primary":
       return cn(
         base,
-        "rounded-full bg-brand-navy-950 text-white hover:bg-brand-navy-900",
+        "rounded-full bg-gradient-to-r from-gold-500 to-gold-600 text-brand-navy-950 shadow-md shadow-gold-500/15 hover:from-gold-400 hover:to-gold-500 hover:text-brand-navy-950",
         className,
       );
     case "secondary":
-      return cn(base, "rounded-full", className);
+      return cn(
+        base,
+        "rounded-full border border-white/15 bg-white/5 text-white/85 hover:border-gold-400/35 hover:bg-white/10 hover:text-gold-300",
+        className,
+      );
     case "danger":
       return cn(
         base,
-        "rounded-full text-red-700 hover:bg-red-50 hover:text-red-800",
+        "rounded-full border border-red-400/20 bg-red-500/10 text-red-200 hover:bg-red-500/15 hover:text-red-100",
         className,
       );
     case "ghost":
-      return cn(base, "rounded-full", className);
+      return cn(
+        base,
+        "rounded-full text-white/75 hover:bg-white/10 hover:text-gold-300",
+        className,
+      );
     case "icon":
       return cn(
-        "inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-gold-300 disabled:pointer-events-none disabled:opacity-50",
         className,
       );
     case "icon-danger":
       return cn(
-        "inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-red-600 transition-colors hover:bg-red-50 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-red-300 transition-colors hover:bg-red-500/10 disabled:pointer-events-none disabled:opacity-50",
         className,
       );
     default:

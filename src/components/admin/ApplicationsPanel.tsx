@@ -15,6 +15,20 @@ import {
 import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminShell from "@/components/admin/AdminShell";
+import AdminStatCard from "@/components/admin/AdminStatCard";
+import {
+  adminCardClass,
+  adminCategoryLabelClass,
+  adminDrawerClass,
+  adminEmptyStateClass,
+  adminFilterPillClass,
+  adminIconButtonClass,
+  adminInputClass,
+  adminSearchIconClass,
+  adminSubCardClass,
+  adminEyebrowClass,
+  adminTitleClass,
+} from "@/components/admin/admin-theme";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import {
@@ -241,12 +255,8 @@ export default function ApplicationsPanel() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-              Başvuru Yönetimi
-            </p>
-            <h1 className="text-2xl font-light text-navy-900 md:text-3xl">
-              Tur Başvuruları
-            </h1>
+            <p className={adminEyebrowClass}>Başvuru Yönetimi</p>
+            <h1 className={adminTitleClass}>Tur Başvuruları</h1>
           </div>
           <div className="flex flex-wrap gap-2">
             <AdminActionButton
@@ -271,25 +281,25 @@ export default function ApplicationsPanel() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Toplam" value={stats.total} />
-          <StatCard label="Yeni" value={stats.yeni} accent="text-amber-600" />
-          <StatCard label="İncelenen" value={stats.incelendi} accent="text-sky-600" />
-          <StatCard
+          <AdminStatCard label="Toplam" value={stats.total} />
+          <AdminStatCard label="Yeni" value={stats.yeni} accent="text-amber-400" />
+          <AdminStatCard label="İncelenen" value={stats.incelendi} accent="text-sky-400" />
+          <AdminStatCard
             label="Tamamlanan"
             value={stats.tamamlandi}
-            accent="text-emerald-600"
+            accent="text-emerald-400"
           />
         </div>
 
-        <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm md:p-5">
+        <div className={adminCardClass}>
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative max-w-md flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-navy-600/40" />
+              <Search className={adminSearchIconClass} />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="İsim, telefon, e-posta veya tur ara..."
-                className="min-h-11 pl-10"
+                className={cn(adminInputClass, "pl-10")}
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -305,12 +315,7 @@ export default function ApplicationsPanel() {
                   key={value}
                   type="button"
                   onClick={() => setStatusFilter(value)}
-                  className={cn(
-                    "rounded-full px-3.5 py-2 text-xs font-medium uppercase tracking-wider transition-colors",
-                    statusFilter === value
-                      ? "bg-brand-navy-950 text-white"
-                      : "bg-zinc-100 text-navy-700 hover:bg-zinc-200",
-                  )}
+                  className={adminFilterPillClass(statusFilter === value)}
                 >
                   {label}
                 </button>
@@ -319,8 +324,8 @@ export default function ApplicationsPanel() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">
-              <p className="text-navy-800">
+            <div className={adminEmptyStateClass}>
+              <p>
                 {applications.length === 0
                   ? "Henüz başvuru yok."
                   : "Arama kriterlerine uygun başvuru bulunamadı."}
@@ -348,7 +353,7 @@ export default function ApplicationsPanel() {
                         className="cursor-pointer"
                         onClick={() => setSelected(app)}
                       >
-                        <TableCell className="text-xs text-navy-600/70">
+                        <TableCell className="text-xs text-white/45">
                           {new Date(app.createdAt).toLocaleString("tr-TR", {
                             day: "2-digit",
                             month: "2-digit",
@@ -358,17 +363,17 @@ export default function ApplicationsPanel() {
                           })}
                         </TableCell>
                         <TableCell className="max-w-[180px]">
-                          <p className="truncate font-medium text-navy-900">
+                          <p className="truncate font-medium text-white">
                             {app.tourTitle}
                           </p>
-                          <p className="text-xs text-navy-600/60">{app.tourPrice}</p>
+                          <p className="text-xs text-white/40">{app.tourPrice}</p>
                         </TableCell>
-                        <TableCell className="font-medium text-navy-900">
+                        <TableCell className="font-medium text-white">
                           {app.name}
                         </TableCell>
                         <TableCell>
                           <p className="text-sm">{app.phone}</p>
-                          <p className="truncate text-xs text-navy-600/60">
+                          <p className="truncate text-xs text-white/40">
                             {app.email}
                           </p>
                         </TableCell>
@@ -399,20 +404,20 @@ export default function ApplicationsPanel() {
                 {filtered.map((app) => (
                   <article
                     key={app.id}
-                    className="rounded-xl border border-navy-900/8 p-4"
+                    className={adminSubCardClass}
                     onClick={() => setSelected(app)}
                   >
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
                         <StatusBadge status={app.status} />
-                        <h2 className="mt-2 font-medium text-navy-900">{app.name}</h2>
-                        <p className="text-sm text-navy-700/70">{app.tourTitle}</p>
+                        <h2 className="mt-2 font-medium text-white">{app.name}</h2>
+                        <p className="text-sm text-white/55">{app.tourTitle}</p>
                       </div>
-                      <p className="text-xs text-navy-600/60">
+                      <p className="text-xs text-white/40">
                         {new Date(app.createdAt).toLocaleDateString("tr-TR")}
                       </p>
                     </div>
-                    <div className="mb-3 space-y-1 text-sm text-navy-700">
+                    <div className="mb-3 space-y-1 text-sm text-white/70">
                       <p>{app.phone}</p>
                       <p className="truncate">{app.email}</p>
                       <p>
@@ -456,25 +461,6 @@ export default function ApplicationsPanel() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number;
-  accent?: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-wider text-navy-600/60">{label}</p>
-      <p className={cn("mt-1 text-2xl font-semibold text-navy-900", accent)}>
-        {value}
-      </p>
-    </div>
-  );
-}
-
 function StatusBadge({ status }: { status: ApplicationStatus }) {
   return (
     <span
@@ -505,7 +491,7 @@ function StatusSelect({
         if (next) onChange(next as ApplicationStatus);
       }}
     >
-      <SelectTrigger className="h-9 min-w-[130px] rounded-full border-navy-900/10 text-xs">
+      <SelectTrigger className="h-9 min-w-[130px] rounded-full border-white/10 bg-white/5 text-xs text-white">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -544,14 +530,14 @@ function QuickActions({
       </a>
       <a
         href={`tel:${app.phone}`}
-        className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
+        className={adminIconButtonClass}
         title="Ara"
       >
         <Phone className="size-4" />
       </a>
       <a
         href={`mailto:${app.email}`}
-        className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
+        className={adminIconButtonClass}
         title="E-posta"
       >
         <Mail className="size-4" />
@@ -585,26 +571,26 @@ function DetailDrawer({
   const waPhone = formatWhatsAppPhone(app.phone);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-navy-950/40 p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 flex justify-end bg-brand-navy-950/70 p-0 backdrop-blur-sm sm:p-4">
       <button
         type="button"
         aria-label="Kapat"
         className="absolute inset-0"
         onClick={onClose}
       />
-      <aside className="relative z-10 flex h-full w-full max-w-md flex-col bg-white shadow-2xl sm:rounded-2xl">
-        <div className="flex items-start justify-between border-b border-navy-900/8 p-5">
+      <aside className={adminDrawerClass}>
+        <div className="flex items-start justify-between border-b border-gold-500/10 p-5">
           <div>
             <StatusBadge status={app.status} />
-            <h2 className="mt-2 text-xl font-medium text-navy-900">{app.name}</h2>
-            <p className="mt-1 text-sm text-navy-600/70">
+            <h2 className="mt-2 text-xl font-medium text-white">{app.name}</h2>
+            <p className="mt-1 text-sm text-white/45">
               {new Date(app.createdAt).toLocaleString("tr-TR")}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex size-9 items-center justify-center rounded-full hover:bg-zinc-100"
+            className={adminIconButtonClass}
           >
             <X className="size-5" />
           </button>
@@ -623,7 +609,7 @@ function DetailDrawer({
           {app.notes && <DetailBlock label="Not" value={app.notes} multiline />}
 
           <div>
-            <p className="mb-2 text-xs uppercase tracking-wider text-navy-600/60">
+            <p className="mb-2 text-xs uppercase tracking-wider text-white/40">
               Durum
             </p>
             <StatusSelect
@@ -634,7 +620,7 @@ function DetailDrawer({
           </div>
         </div>
 
-        <div className="space-y-2 border-t border-navy-900/8 p-5">
+        <div className="space-y-2 border-t border-gold-500/10 p-5">
           <div className="grid grid-cols-2 gap-2">
             <a
               href={`https://wa.me/${waPhone}`}
@@ -647,7 +633,7 @@ function DetailDrawer({
             </a>
             <a
               href={`tel:${app.phone}`}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-navy-900/15 text-sm font-medium text-navy-900 hover:border-gold-400/40"
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-sm font-medium text-white hover:border-gold-400/40 hover:text-gold-300"
             >
               <Phone className="size-4" />
               Ara
@@ -655,7 +641,7 @@ function DetailDrawer({
           </div>
           <Link
             href={`/turlar/${app.tourId}`}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-navy-900/15 text-sm font-medium text-navy-900 hover:border-gold-400/40"
+            className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-full border border-white/15 bg-white/5 text-sm font-medium text-white hover:border-gold-400/40 hover:text-gold-300"
           >
             Turu Görüntüle
           </Link>
@@ -687,10 +673,10 @@ function DetailBlock({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-navy-600/60">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
       <p
         className={cn(
-          "mt-1 text-sm font-medium text-navy-900",
+          "mt-1 text-sm font-medium text-white",
           multiline && "whitespace-pre-wrap font-normal leading-relaxed",
         )}
       >

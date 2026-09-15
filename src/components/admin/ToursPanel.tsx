@@ -41,12 +41,28 @@ import {
   type VisaType,
 } from "@/lib/tour-filters";
 import { Input } from "@/components/ui/input";
+import {
+  adminCardClass,
+  adminCategoryLabelClass,
+  adminEmptyStateClass,
+  adminFieldLabelClass,
+  adminHintClass,
+  adminIconButtonClass,
+  adminInputClass,
+  adminModalClass,
+  adminModalHeaderClass,
+  adminModalOverlayClass,
+  adminNativeSelectClass,
+  adminSearchIconClass,
+  adminSectionTitleClass,
+  adminSubCardClass,
+  adminSubtitleClass,
+  adminTextareaClass,
+  adminTitleClass,
+} from "@/components/admin/admin-theme";
 import { cn } from "@/lib/utils";
 
-const nativeSelectClassName = cn(
-  "min-h-11 w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 text-sm text-navy-900",
-  "outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
-);
+const nativeSelectClassName = adminNativeSelectClass;
 
 type EditorMode = "create" | "edit";
 
@@ -452,8 +468,8 @@ export default function ToursPanel() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-light text-navy-900">Tur Yönetimi</h1>
-            <p className="mt-1 max-w-2xl text-sm text-navy-700/70">
+            <h1 className={adminTitleClass}>Tur Yönetimi</h1>
+            <p className={adminSubtitleClass}>
               Tur ekleyin, kopyalayın, düzenleyin veya silin. Form alanları
               hazır şablonlarla dolar; sadece bilgileri değiştirmeniz yeterli.
             </p>
@@ -479,14 +495,14 @@ export default function ToursPanel() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm sm:p-5">
+        <div className={cn(adminCardClass, "sm:p-5")}>
           <div className="relative mb-4">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-navy-600/40" />
+            <Search className={adminSearchIconClass} />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tur adı veya bölge ara..."
-              className="min-h-11 pl-10"
+              className={cn(adminInputClass, "pl-10")}
             />
           </div>
 
@@ -494,14 +510,14 @@ export default function ToursPanel() {
             {filteredTours.map((tour) => (
               <article
                 key={tour.id}
-                className="rounded-2xl border border-navy-900/8 bg-zinc-50/70 p-4"
+                className={adminSubCardClass}
               >
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
+                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-400">
                       {categoryLabelMap[tour.category] ?? tour.category}
                     </p>
-                    <h2 className="mt-1 line-clamp-2 text-sm font-medium text-navy-900">
+                    <h2 className="mt-1 line-clamp-2 text-sm font-medium text-white">
                       {tour.title}
                     </h2>
                   </div>
@@ -512,7 +528,7 @@ export default function ToursPanel() {
                   )}
                 </div>
 
-                <div className="mb-4 space-y-1 text-xs text-navy-700/70">
+                <div className="mb-4 space-y-1 text-xs text-white/55">
                   <p className="flex items-center gap-1.5">
                     <CalendarDays className="size-3.5 text-gold-500" />
                     {formatTourDate(tour.date)}
@@ -521,7 +537,7 @@ export default function ToursPanel() {
                     <Users className="size-3.5 text-gold-500" />
                     Kontenjan: {tour.capacity} kişi
                   </p>
-                  <p className="font-semibold text-navy-900">
+                  <p className="font-semibold text-white">
                     {formatTourPrice(tour.price, tour.currency)}
                   </p>
                 </div>
@@ -552,26 +568,26 @@ export default function ToursPanel() {
 
       {selected && form && (
         <div
-          className="fixed inset-0 z-[80] flex items-end justify-center bg-brand-navy-950/50 p-0 sm:items-center sm:p-4"
+          className={adminModalOverlayClass}
           onClick={closeEditor}
         >
           <div
-            className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+            className={cn(adminModalClass, "max-w-4xl")}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-navy-900/8 px-5 py-4">
+            <div className={adminModalHeaderClass}>
               <div>
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
+                <p className={adminSectionTitleClass}>
                   {editorMode === "create" ? "Yeni Tur" : "Tur Düzenle"}
                 </p>
-                <h2 className="text-lg font-medium text-navy-900">
+                <h2 className="text-lg font-medium text-white">
                   {editorMode === "create" ? "Tur bilgilerini doldurun" : selected.title}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={closeEditor}
-                className="inline-flex size-10 items-center justify-center rounded-full text-navy-700 hover:bg-zinc-100"
+                className={adminIconButtonClass}
                 aria-label="Kapat"
               >
                 <X className="size-5" />
@@ -593,10 +609,10 @@ export default function ToursPanel() {
                     readOnly={editorMode === "edit"}
                     required
                     placeholder="tour-ornek-tur"
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                   {editorMode === "create" && (
-                    <p className="mt-1 text-xs text-navy-600/60">
+                    <p className="mt-1 text-xs text-white/40">
                       Tur adını yazdıkça otomatik oluşur. İsterseniz elle değiştirebilirsiniz.
                     </p>
                   )}
@@ -607,7 +623,7 @@ export default function ToursPanel() {
                     value={form.title}
                     onChange={(e) => updateTitle(e.target.value)}
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -643,7 +659,7 @@ export default function ToursPanel() {
                       setForm((prev) => prev && { ...prev, date: e.target.value })
                     }
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -656,7 +672,7 @@ export default function ToursPanel() {
                       setForm((prev) => prev && { ...prev, price: e.target.value })
                     }
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -691,7 +707,7 @@ export default function ToursPanel() {
                       setForm((prev) => prev && { ...prev, days: e.target.value })
                     }
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -704,7 +720,7 @@ export default function ToursPanel() {
                       setForm((prev) => prev && { ...prev, capacity: e.target.value })
                     }
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -715,7 +731,7 @@ export default function ToursPanel() {
                       setForm((prev) => prev && { ...prev, transport: e.target.value })
                     }
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -726,12 +742,12 @@ export default function ToursPanel() {
                       setForm((prev) => prev && { ...prev, accommodation: e.target.value })
                     }
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
                 <Field label="Çıkış Noktaları" className="md:col-span-2">
-                  <div className="max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-navy-900/10 p-3">
+                  <div className="max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-white/10 p-3">
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {DEPARTURE_CITIES.map((city) => {
                       const checked = form.departures.includes(city.value);
@@ -741,8 +757,8 @@ export default function ToursPanel() {
                           className={cn(
                             "flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-colors",
                             checked
-                              ? "border-gold-400/50 bg-gold-500/10 text-navy-900"
-                              : "border-navy-900/10 text-navy-700 hover:border-gold-400/30",
+                              ? "border-gold-400/50 bg-gold-500/10 text-white"
+                              : "border-white/10 text-white/70 hover:border-gold-400/30",
                           )}
                         >
                           <input
@@ -768,7 +784,7 @@ export default function ToursPanel() {
                     })}
                     </div>
                   </div>
-                  <p className="mt-2 text-xs text-navy-600/70">
+                  <p className="mt-2 text-xs text-white/45">
                     Filtrelemede görünür. En az bir çıkış noktası seçilmelidir.
                   </p>
                 </Field>
@@ -783,8 +799,8 @@ export default function ToursPanel() {
                           className={cn(
                             "flex min-h-10 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm transition-colors",
                             checked
-                              ? "border-gold-400/50 bg-gold-500/10 text-navy-900"
-                              : "border-navy-900/10 text-navy-700 hover:border-gold-400/30",
+                              ? "border-gold-400/50 bg-gold-500/10 text-white"
+                              : "border-white/10 text-white/70 hover:border-gold-400/30",
                           )}
                         >
                           <input
@@ -806,7 +822,7 @@ export default function ToursPanel() {
                       );
                     })}
                   </div>
-                  <p className="mt-2 text-xs text-navy-600/70">
+                  <p className="mt-2 text-xs text-white/45">
                     Vize filtresinde ve tur detayında gösterilir.
                   </p>
                 </Field>
@@ -845,7 +861,7 @@ export default function ToursPanel() {
                     }
                     rows={4}
                     required
-                    className="w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 py-3 text-sm outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20"
                   />
                 </Field>
 
@@ -881,7 +897,7 @@ export default function ToursPanel() {
                     }
                     rows={4}
                     className={cn(
-                      "mb-2 w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 py-3 text-sm outline-none",
+                      "mb-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm outline-none",
                       "focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
                     )}
                   />
@@ -911,7 +927,7 @@ export default function ToursPanel() {
                   onUpdateDay={updateItineraryDay}
                 />
 
-                <label className="flex items-center gap-2 text-sm text-navy-800">
+                <label className="flex items-center gap-2 text-sm text-white/75">
                   <input
                     type="checkbox"
                     checked={form.featured}
@@ -922,7 +938,7 @@ export default function ToursPanel() {
                   Öne çıkan tur
                 </label>
 
-                <label className="flex items-center gap-2 text-sm text-navy-800">
+                <label className="flex items-center gap-2 text-sm text-white/75">
                   <input
                     type="checkbox"
                     checked={form.published}
@@ -934,7 +950,7 @@ export default function ToursPanel() {
                 </label>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3 border-t border-navy-900/8 pt-5">
+              <div className="mt-6 flex flex-wrap gap-3 border-t border-gold-500/10 pt-5">
                 <AdminActionButton
                   type="submit"
                   intent="primary"
@@ -991,9 +1007,7 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
-        {label}
-      </label>
+      <label className={adminFieldLabelClass}>{label}</label>
       {children}
     </div>
   );
@@ -1014,10 +1028,7 @@ function TextAreaField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        className={cn(
-          "w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 py-3 text-sm outline-none",
-          "focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
-        )}
+        className={adminTextareaClass}
       />
     </Field>
   );
@@ -1067,10 +1078,10 @@ function ItineraryEditor({
         {itinerary.map((day, index) => (
           <div
             key={`${day.day}-${index}`}
-            className="rounded-2xl border border-navy-900/8 bg-zinc-50/70 p-4"
+            className="rounded-2xl border border-gold-500/10 bg-brand-navy-950/35 p-4"
           >
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-navy-900">{index + 1}. Gün</p>
+              <p className="text-sm font-medium text-white">{index + 1}. Gün</p>
               {itinerary.length > 1 && (
                 <AdminActionButton
                   type="button"
@@ -1097,7 +1108,7 @@ function ItineraryEditor({
                 rows={3}
                 placeholder="O günün program detayı"
                 className={cn(
-                  "w-full rounded-xl border border-navy-900/10 bg-white px-3 py-3 text-sm outline-none",
+                  "w-full rounded-xl border border-white/10 bg-white/5 px-3 text-white py-3 text-sm outline-none",
                   "focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
                 )}
               />

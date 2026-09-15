@@ -6,70 +6,62 @@ import {
   ClipboardList,
   ExternalLink,
   Images,
-  LayoutDashboard,
   LogOut,
   Mail,
   Map,
   MapPinned,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-
+import {
+  adminNavPillClass,
+  adminSidebarLinkClass,
+} from "@/components/admin/admin-theme";
 type AdminShellProps = {
   children: React.ReactNode;
   onLogout?: () => void;
 };
 
 const navItems = [
-  {
-    href: "/admin/turlar",
-    label: "Turlar",
-    icon: Map,
-  },
-  {
-    href: "/admin/bolgeler",
-    label: "Bölgeler",
-    icon: MapPinned,
-  },
-  {
-    href: "/admin/basvurular",
-    label: "Başvurular",
-    icon: ClipboardList,
-  },
-  {
-    href: "/admin/mesajlar",
-    label: "İletişim Mesajları",
-    icon: Mail,
-  },
-  {
-    href: "/admin/galeri",
-    label: "Galeri",
-    icon: Images,
-  },
+  { href: "/admin/turlar", label: "Turlar", icon: Map },
+  { href: "/admin/bolgeler", label: "Bölgeler", icon: MapPinned },
+  { href: "/admin/basvurular", label: "Başvurular", icon: ClipboardList },
+  { href: "/admin/mesajlar", label: "İletişim Mesajları", icon: Mail },
+  { href: "/admin/galeri", label: "Galeri", icon: Images },
 ];
 
 export default function AdminShell({ children, onLogout }: AdminShellProps) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-zinc-100">
-      <header className="sticky top-0 z-40 border-b border-navy-900/10 bg-brand-navy-950 text-white">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-gold-500/20">
-              <LayoutDashboard className="size-4 text-gold-400" />
-            </div>
-            <div>
-              <p className="text-[0.65rem] font-medium uppercase tracking-[0.25em] text-gold-400/80">
-                On&apos;da 10 Turizm
-              </p>
-              <p className="text-sm font-medium">Yönetim Paneli</p>
-            </div>
-          </div>
+    <div className="admin-panel relative min-h-screen overflow-hidden bg-brand-navy-950 text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-32 top-0 size-[30rem] rounded-full bg-gold-500/8 blur-3xl" />
+        <div className="absolute -right-24 bottom-0 size-96 rounded-full bg-gold-400/6 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.08),transparent_50%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-500/35 to-transparent" />
+      </div>
+
+      <header className="sticky top-0 z-40 border-b border-gold-500/10 bg-brand-navy-950/90 text-white backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
+          <Link href="/admin/turlar" className="group flex items-center gap-3">
+            <span className="flex flex-col leading-none">
+              <span className="text-sm font-semibold tracking-[0.22em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-base">
+                ON&apos;DA
+              </span>
+              <span className="mt-0.5 text-[0.55rem] font-light uppercase tracking-[0.38em] text-white/80 sm:text-[0.6rem]">
+                10 World
+              </span>
+            </span>
+            <span className="hidden h-8 w-px bg-gold-500/20 sm:block" />
+            <span className="hidden text-xs font-medium uppercase tracking-[0.22em] text-white/50 sm:block">
+              Yönetim Paneli
+            </span>
+          </Link>
+
           <div className="flex items-center gap-2">
             <Link
               href="/"
               target="_blank"
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/15 px-3 text-xs font-medium text-white/80 transition-colors hover:border-gold-400/40 hover:text-gold-300"
+              className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full border border-white/15 px-3 text-xs font-medium text-white/80 transition-colors hover:border-gold-400/40 hover:text-gold-300"
             >
               Siteyi Aç
               <ExternalLink className="size-3.5" />
@@ -78,7 +70,7 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
               <button
                 type="button"
                 onClick={onLogout}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/15 px-3 text-xs font-medium text-white/80 transition-colors hover:border-red-400/40 hover:text-red-300"
+                className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full border border-white/15 px-3 text-xs font-medium text-white/80 transition-colors hover:border-red-400/40 hover:text-red-300"
               >
                 <LogOut className="size-3.5" />
                 Çıkış
@@ -88,8 +80,8 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
         </div>
       </header>
 
-      <div className="border-b border-navy-900/8 bg-white md:hidden">
-        <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 py-2">
+      <div className="relative border-b border-gold-500/10 md:hidden">
+        <nav className="mx-auto flex max-w-7xl gap-1.5 overflow-x-auto px-4 py-3">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
@@ -98,12 +90,7 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  "inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium transition-colors",
-                  active
-                    ? "bg-brand-navy-950 text-white"
-                    : "bg-zinc-100 text-navy-700",
-                )}
+                className={adminNavPillClass(active)}
               >
                 <Icon className="size-3.5" strokeWidth={1.75} />
                 {item.label}
@@ -113,9 +100,9 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
         </nav>
       </div>
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 md:px-6">
-        <aside className="hidden w-52 shrink-0 md:block">
-          <nav className="sticky top-20 space-y-1 rounded-2xl border border-navy-900/8 bg-white p-2 shadow-sm">
+      <div className="relative mx-auto flex max-w-7xl gap-6 px-4 py-6 md:px-6 md:py-8">
+        <aside className="hidden w-56 shrink-0 md:block">
+          <nav className="sticky top-24 space-y-1 rounded-2xl border border-gold-500/10 bg-brand-navy-900/50 p-2 shadow-lg shadow-black/20 backdrop-blur-md">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -124,12 +111,7 @@ export default function AdminShell({ children, onLogout }: AdminShellProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-brand-navy-950 text-white"
-                      : "text-navy-700 hover:bg-zinc-50",
-                  )}
+                  className={adminSidebarLinkClass(active)}
                 >
                   <Icon className="size-4 shrink-0" strokeWidth={1.75} />
                   {item.label}

@@ -27,6 +27,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  adminCardClass,
+  adminFieldLabelClass,
+  adminInputClass,
+  adminSearchIconClass,
+  adminSectionTitleClass,
+  adminSubtitleClass,
+  adminTitleClass,
+} from "@/components/admin/admin-theme";
 import { cn } from "@/lib/utils";
 
 const tours = getAllTours();
@@ -173,8 +182,8 @@ export default function GalleryPanel() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-light text-navy-900">Galeri Yönetimi</h1>
-            <p className="mt-1 text-sm text-navy-700/70">
+            <h1 className={adminTitleClass}>Galeri Yönetimi</h1>
+            <p className={adminSubtitleClass}>
               Her tura fotoğraf veya video ekleyin. YouTube linki veya doğrudan
               görsel/video URL&apos;si kullanabilirsiniz.
             </p>
@@ -192,14 +201,14 @@ export default function GalleryPanel() {
 
         <form
           onSubmit={addItem}
-          className="rounded-2xl border border-navy-900/8 bg-white p-5 shadow-sm"
+          className={adminCardClass}
         >
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gold-600">
+          <h2 className={cn(adminSectionTitleClass, "mb-4")}>
             Yeni Medya Ekle
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
+              <label className={adminFieldLabelClass}>
                 Tur
               </label>
               <Select
@@ -223,7 +232,7 @@ export default function GalleryPanel() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
+              <label className={adminFieldLabelClass}>
                 Medya Tipi
               </label>
               <Select
@@ -246,7 +255,7 @@ export default function GalleryPanel() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
+              <label className={adminFieldLabelClass}>
                 URL
               </label>
               <MediaUrlInput
@@ -260,7 +269,7 @@ export default function GalleryPanel() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
+              <label className={adminFieldLabelClass}>
                 Başlık
               </label>
               <Input
@@ -287,15 +296,15 @@ export default function GalleryPanel() {
           </AdminActionButton>
         </form>
 
-        <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm sm:p-5">
+        <div className={cn(adminCardClass, "sm:p-5")}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-navy-600/40" />
+              <Search className={adminSearchIconClass} />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Başlık, tur veya URL ara..."
-                className="min-h-11 pl-10"
+                className={cn(adminInputClass, "pl-10")}
               />
             </div>
             <Select
@@ -345,7 +354,7 @@ export default function GalleryPanel() {
               <TableBody>
                 {filteredItems.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-10 text-center text-sm text-navy-700/60">
+                    <TableCell colSpan={5} className="py-10 text-center text-sm text-white/45">
                       Kayıt bulunamadı.
                     </TableCell>
                   </TableRow>

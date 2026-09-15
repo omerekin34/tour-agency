@@ -14,6 +14,19 @@ import {
   slugifyRegionId,
 } from "@/lib/regions-shared";
 import { Input } from "@/components/ui/input";
+import {
+  adminFieldLabelClass,
+  adminIconButtonClass,
+  adminInputClass,
+  adminModalClass,
+  adminModalHeaderClass,
+  adminModalOverlayClass,
+  adminNativeSelectClass,
+  adminSectionTitleClass,
+  adminSubCardClass,
+  adminSubtitleClass,
+  adminTitleClass,
+} from "@/components/admin/admin-theme";
 import { cn } from "@/lib/utils";
 
 type EditorMode = "create" | "edit";
@@ -37,10 +50,7 @@ type RegionFormState = {
   icon: string;
 };
 
-const nativeSelectClassName = cn(
-  "min-h-11 w-full rounded-xl border border-navy-900/10 bg-zinc-50/50 px-3 text-sm text-navy-900",
-  "outline-none focus-visible:border-gold-400/50 focus-visible:ring-2 focus-visible:ring-gold-400/20",
-);
+const nativeSelectClassName = adminNativeSelectClass;
 
 function regionToForm(region: TourRegion): RegionFormState {
   return {
@@ -259,8 +269,8 @@ export default function RegionsPanel() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-light text-navy-900">Bölge Yönetimi</h1>
-            <p className="mt-1 max-w-2xl text-sm text-navy-700/70">
+            <h1 className={adminTitleClass}>Bölge Yönetimi</h1>
+            <p className={adminSubtitleClass}>
               Umre, Mısır, Balkanlar gibi bölgeleri ekleyin, düzenleyin veya gizleyin.
               Değişiklikler ana sayfa, arama ve tur filtrelerine yansır.
             </p>
@@ -290,15 +300,15 @@ export default function RegionsPanel() {
           {sortedRegions.map((region) => (
             <article
               key={region.id}
-              className="rounded-2xl border border-navy-900/8 bg-zinc-50/70 p-4"
+              className={adminSubCardClass}
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-400">
                     {region.cardLabel}
                   </p>
-                  <h2 className="mt-1 text-sm font-medium text-navy-900">{region.name}</h2>
-                  <p className="mt-1 text-xs text-navy-600/70">Kod: {region.id}</p>
+                  <h2 className="mt-1 text-sm font-medium text-white">{region.name}</h2>
+                  <p className="mt-1 text-xs text-white/45">Kod: {region.id}</p>
                 </div>
                 {!region.published && (
                   <span className="rounded-full bg-amber-100 px-2 py-1 text-[0.6rem] font-semibold uppercase text-amber-800">
@@ -307,7 +317,7 @@ export default function RegionsPanel() {
                 )}
               </div>
 
-              <p className="mb-4 line-clamp-2 text-xs text-navy-700/70">{region.homeTitle}</p>
+              <p className="mb-4 line-clamp-2 text-xs text-white/55">{region.homeTitle}</p>
 
               <AdminActionButton
                 type="button"
@@ -325,21 +335,21 @@ export default function RegionsPanel() {
 
       {selected && form && (
         <div
-          className="fixed inset-0 z-[80] flex items-end justify-center bg-brand-navy-950/50 p-0 sm:items-center sm:p-4"
+          className={adminModalOverlayClass}
           onClick={closeEditor}
         >
           <div
-            className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+            className={cn(adminModalClass, "max-w-3xl")}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-navy-900/8 px-5 py-4">
+            <div className={adminModalHeaderClass}>
               <div>
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-600">
+                <p className={adminSectionTitleClass}>
                   {editorMode === "create" ? "Yeni Bölge" : "Bölge Düzenle"}
                 </p>
-                <h2 className="text-lg font-medium text-navy-900">{form.name}</h2>
+                <h2 className="text-lg font-medium text-white">{form.name}</h2>
               </div>
-              <button type="button" onClick={closeEditor} className="inline-flex size-10 items-center justify-center rounded-full hover:bg-zinc-100">
+              <button type="button" onClick={closeEditor} className={adminIconButtonClass}>
                 <X className="size-5" />
               </button>
             </div>
@@ -355,12 +365,12 @@ export default function RegionsPanel() {
                     }}
                     readOnly={editorMode === "edit"}
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
                 <Field label="Bölge Adı">
-                  <Input value={form.name} onChange={(e) => updateName(e.target.value)} required className="min-h-11" />
+                  <Input value={form.name} onChange={(e) => updateName(e.target.value)} required className={adminInputClass} />
                 </Field>
 
                 <Field label="Kart Etiketi">
@@ -368,7 +378,7 @@ export default function RegionsPanel() {
                     value={form.cardLabel}
                     onChange={(e) => setForm((prev) => prev && { ...prev, cardLabel: e.target.value })}
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -377,7 +387,7 @@ export default function RegionsPanel() {
                     value={form.homeTitle}
                     onChange={(e) => setForm((prev) => prev && { ...prev, homeTitle: e.target.value })}
                     required
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -386,7 +396,7 @@ export default function RegionsPanel() {
                     type="number"
                     value={form.sortOrder}
                     onChange={(e) => setForm((prev) => prev && { ...prev, sortOrder: e.target.value })}
-                    className="min-h-11"
+                    className={adminInputClass}
                   />
                 </Field>
 
@@ -407,44 +417,44 @@ export default function RegionsPanel() {
                 </Field>
 
                 <Field label="Hero Başlık">
-                  <Input value={form.heroTitle} onChange={(e) => setForm((prev) => prev && { ...prev, heroTitle: e.target.value })} className="min-h-11" />
+                  <Input value={form.heroTitle} onChange={(e) => setForm((prev) => prev && { ...prev, heroTitle: e.target.value })} className={adminInputClass} />
                 </Field>
 
                 <Field label="Hero Alt Başlık">
-                  <Input value={form.heroSubtitle} onChange={(e) => setForm((prev) => prev && { ...prev, heroSubtitle: e.target.value })} className="min-h-11" />
+                  <Input value={form.heroSubtitle} onChange={(e) => setForm((prev) => prev && { ...prev, heroSubtitle: e.target.value })} className={adminInputClass} />
                 </Field>
 
                 <Field label="Hero Fiyat">
-                  <Input value={form.heroPrice} onChange={(e) => setForm((prev) => prev && { ...prev, heroPrice: e.target.value })} className="min-h-11" />
+                  <Input value={form.heroPrice} onChange={(e) => setForm((prev) => prev && { ...prev, heroPrice: e.target.value })} className={adminInputClass} />
                 </Field>
 
                 <Field label="Hero Süre">
-                  <Input value={form.heroPeriod} onChange={(e) => setForm((prev) => prev && { ...prev, heroPeriod: e.target.value })} className="min-h-11" />
+                  <Input value={form.heroPeriod} onChange={(e) => setForm((prev) => prev && { ...prev, heroPeriod: e.target.value })} className={adminInputClass} />
                 </Field>
 
                 <Field label="Hero Görsel URL" className="md:col-span-2">
-                  <Input value={form.heroImage} onChange={(e) => setForm((prev) => prev && { ...prev, heroImage: e.target.value })} className="min-h-11" />
+                  <Input value={form.heroImage} onChange={(e) => setForm((prev) => prev && { ...prev, heroImage: e.target.value })} className={adminInputClass} />
                 </Field>
 
-                <label className="flex items-center gap-2 text-sm text-navy-800">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
                   <input type="checkbox" checked={form.published} onChange={(e) => setForm((prev) => prev && { ...prev, published: e.target.checked })} />
                   Yayında
                 </label>
-                <label className="flex items-center gap-2 text-sm text-navy-800">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
                   <input type="checkbox" checked={form.showOnHome} onChange={(e) => setForm((prev) => prev && { ...prev, showOnHome: e.target.checked })} />
                   Ana sayfada göster
                 </label>
-                <label className="flex items-center gap-2 text-sm text-navy-800">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
                   <input type="checkbox" checked={form.showInSearch} onChange={(e) => setForm((prev) => prev && { ...prev, showInSearch: e.target.checked })} />
                   Arama kutusunda göster
                 </label>
-                <label className="flex items-center gap-2 text-sm text-navy-800">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
                   <input type="checkbox" checked={form.showInHero} onChange={(e) => setForm((prev) => prev && { ...prev, showInHero: e.target.checked })} />
                   Hero slider&apos;da göster
                 </label>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3 border-t border-navy-900/8 pt-5">
+              <div className="mt-6 flex flex-wrap gap-3 border-t border-gold-500/10 pt-5">
                 <AdminActionButton
                   type="submit"
                   intent="primary"
@@ -497,7 +507,7 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-navy-600/70">
+      <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/45">
         {label}
       </label>
       {children}

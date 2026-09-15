@@ -14,6 +14,19 @@ import {
 import AdminActionButton, { AdminIconButton } from "@/components/admin/AdminActionButton";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminLogin from "@/components/admin/AdminLogin";
+import AdminStatCard from "@/components/admin/AdminStatCard";
+import {
+  adminCardClass,
+  adminDrawerClass,
+  adminEmptyStateClass,
+  adminEyebrowClass,
+  adminFilterPillClass,
+  adminIconButtonClass,
+  adminInputClass,
+  adminSearchIconClass,
+  adminSubCardClass,
+  adminTitleClass,
+} from "@/components/admin/admin-theme";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useAdminSession } from "@/components/admin/useAdminSession";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
@@ -213,12 +226,8 @@ export default function MessagesPanel() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-1 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-              İletişim Yönetimi
-            </p>
-            <h1 className="text-2xl font-light text-navy-900 md:text-3xl">
-              İletişim Mesajları
-            </h1>
+            <p className={adminEyebrowClass}>İletişim Yönetimi</p>
+            <h1 className={adminTitleClass}>İletişim Mesajları</h1>
           </div>
           <div className="flex flex-wrap gap-2">
             <AdminActionButton
@@ -243,21 +252,21 @@ export default function MessagesPanel() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Toplam" value={stats.total} />
-          <StatCard label="Yeni" value={stats.yeni} accent="text-amber-600" />
-          <StatCard label="Okundu" value={stats.okundu} accent="text-sky-600" />
-          <StatCard label="Yanıtlandı" value={stats.yanitlandi} accent="text-emerald-600" />
+          <AdminStatCard label="Toplam" value={stats.total} />
+          <AdminStatCard label="Yeni" value={stats.yeni} accent="text-amber-400" />
+          <AdminStatCard label="Okundu" value={stats.okundu} accent="text-sky-400" />
+          <AdminStatCard label="Yanıtlandı" value={stats.yanitlandi} accent="text-emerald-400" />
         </div>
 
-        <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm md:p-5">
+        <div className={adminCardClass}>
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative max-w-md flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-navy-600/40" />
+              <Search className={adminSearchIconClass} />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="İsim, konu veya mesaj ara..."
-                className="min-h-11 pl-10"
+                className={cn(adminInputClass, "pl-10")}
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -273,12 +282,7 @@ export default function MessagesPanel() {
                   key={value}
                   type="button"
                   onClick={() => setStatusFilter(value)}
-                  className={cn(
-                    "rounded-full px-3.5 py-2 text-xs font-medium uppercase tracking-wider transition-colors",
-                    statusFilter === value
-                      ? "bg-brand-navy-950 text-white"
-                      : "bg-zinc-100 text-navy-700 hover:bg-zinc-200",
-                  )}
+                  className={adminFilterPillClass(statusFilter === value)}
                 >
                   {label}
                 </button>
@@ -287,8 +291,8 @@ export default function MessagesPanel() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-navy-900/15 px-6 py-16 text-center">
-              <p className="text-navy-800">
+            <div className={adminEmptyStateClass}>
+              <p>
                 {messages.length === 0
                   ? "Henüz iletişim mesajı yok."
                   : "Arama kriterlerine uygun mesaj bulunamadı."}
@@ -315,7 +319,7 @@ export default function MessagesPanel() {
                         className="cursor-pointer"
                         onClick={() => setSelected(item)}
                       >
-                        <TableCell className="text-xs text-navy-600/70">
+                        <TableCell className="text-xs text-white/45">
                           {new Date(item.createdAt).toLocaleString("tr-TR", {
                             day: "2-digit",
                             month: "2-digit",
@@ -325,11 +329,11 @@ export default function MessagesPanel() {
                           })}
                         </TableCell>
                         <TableCell>
-                          <p className="font-medium text-navy-900">{item.name}</p>
-                          <p className="text-xs text-navy-600/60">{item.email}</p>
+                          <p className="font-medium text-white">{item.name}</p>
+                          <p className="text-xs text-white/40">{item.email}</p>
                         </TableCell>
                         <TableCell className="max-w-[160px] truncate">{item.subject}</TableCell>
-                        <TableCell className="max-w-[220px] truncate text-sm text-navy-700">
+                        <TableCell className="max-w-[220px] truncate text-sm text-white/70">
                           {item.message}
                         </TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
@@ -356,20 +360,20 @@ export default function MessagesPanel() {
                 {filtered.map((item) => (
                   <article
                     key={item.id}
-                    className="rounded-xl border border-navy-900/8 p-4"
+                    className={adminSubCardClass}
                     onClick={() => setSelected(item)}
                   >
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
                         <StatusBadge status={item.status} />
-                        <h2 className="mt-2 font-medium text-navy-900">{item.name}</h2>
-                        <p className="text-sm text-navy-700/70">{item.subject}</p>
+                        <h2 className="mt-2 font-medium text-white">{item.name}</h2>
+                        <p className="text-sm text-white/70/70">{item.subject}</p>
                       </div>
-                      <p className="text-xs text-navy-600/60">
+                      <p className="text-xs text-white/40">
                         {new Date(item.createdAt).toLocaleDateString("tr-TR")}
                       </p>
                     </div>
-                    <p className="mb-3 line-clamp-2 text-sm text-navy-700">{item.message}</p>
+                    <p className="mb-3 line-clamp-2 text-sm text-white/70">{item.message}</p>
                     <div
                       className="flex items-center justify-between gap-2"
                       onClick={(e) => e.stopPropagation()}
@@ -407,23 +411,6 @@ export default function MessagesPanel() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number;
-  accent?: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-navy-900/8 bg-white p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-wider text-navy-600/60">{label}</p>
-      <p className={cn("mt-1 text-2xl font-semibold text-navy-900", accent)}>{value}</p>
-    </div>
-  );
-}
-
 function StatusBadge({ status }: { status: MessageStatus }) {
   return (
     <span
@@ -454,7 +441,7 @@ function StatusSelect({
         if (next) onChange(next as MessageStatus);
       }}
     >
-      <SelectTrigger className="h-9 min-w-[130px] rounded-full border-navy-900/10 text-xs">
+      <SelectTrigger className="h-9 min-w-[130px] rounded-full border-white/10 bg-white/5 text-xs text-white">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -496,7 +483,7 @@ function QuickActions({
       {item.phone && (
         <a
           href={`tel:${item.phone}`}
-          className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
+          className={adminIconButtonClass}
           title="Ara"
         >
           <Phone className="size-4" />
@@ -504,7 +491,7 @@ function QuickActions({
       )}
       <a
         href={`mailto:${item.email}?subject=${encodeURIComponent(`Re: ${item.subject}`)}`}
-        className="inline-flex size-9 items-center justify-center rounded-full text-navy-700 transition-colors hover:bg-zinc-100"
+        className={adminIconButtonClass}
         title="E-posta"
       >
         <Mail className="size-4" />
@@ -538,21 +525,21 @@ function DetailDrawer({
   const waPhone = item.phone ? formatWhatsAppPhone(item.phone) : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-navy-950/40 p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 flex justify-end bg-brand-navy-950/70 p-0 backdrop-blur-sm sm:p-4">
       <button type="button" aria-label="Kapat" className="absolute inset-0" onClick={onClose} />
-      <aside className="relative z-10 flex h-full w-full max-w-md flex-col bg-white shadow-2xl sm:rounded-2xl">
-        <div className="flex items-start justify-between border-b border-navy-900/8 p-5">
+      <aside className={adminDrawerClass}>
+        <div className="flex items-start justify-between border-b border-gold-500/10 p-5">
           <div>
             <StatusBadge status={item.status} />
-            <h2 className="mt-2 text-xl font-medium text-navy-900">{item.name}</h2>
-            <p className="mt-1 text-sm text-navy-600/70">
+            <h2 className="mt-2 text-xl font-medium text-white">{item.name}</h2>
+            <p className="mt-1 text-sm text-white/45">
               {new Date(item.createdAt).toLocaleString("tr-TR")}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex size-9 items-center justify-center rounded-full hover:bg-zinc-100"
+            className={adminIconButtonClass}
           >
             <X className="size-5" />
           </button>
@@ -564,12 +551,12 @@ function DetailDrawer({
           {item.phone && <DetailBlock label="Telefon" value={item.phone} />}
           <DetailBlock label="Mesaj" value={item.message} multiline />
           <div>
-            <p className="mb-2 text-xs uppercase tracking-wider text-navy-600/60">Durum</p>
+            <p className="mb-2 text-xs uppercase tracking-wider text-white/40">Durum</p>
             <StatusSelect value={item.status} disabled={updating} onChange={onStatusChange} />
           </div>
         </div>
 
-        <div className="space-y-2 border-t border-navy-900/8 p-5">
+        <div className="space-y-2 border-t border-gold-500/10 p-5">
           <div className="grid grid-cols-2 gap-2">
             {waPhone && (
               <a
@@ -584,7 +571,7 @@ function DetailDrawer({
             )}
             <a
               href={`mailto:${item.email}?subject=${encodeURIComponent(`Re: ${item.subject}`)}&body=${encodeURIComponent(`Merhaba ${item.name},\n\n`)}`}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-navy-900/15 text-sm font-medium text-navy-900 hover:border-gold-400/40"
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-sm font-medium text-white hover:border-gold-400/40 hover:text-gold-300"
             >
               <Mail className="size-4" />
               Yanıtla
@@ -618,10 +605,10 @@ function DetailBlock({
 }) {
   return (
     <div>
-      <p className="text-xs uppercase tracking-wider text-navy-600/60">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-white/40">{label}</p>
       <p
         className={cn(
-          "mt-1 text-sm font-medium text-navy-900",
+          "mt-1 text-sm font-medium text-white",
           multiline && "whitespace-pre-wrap font-normal leading-relaxed",
         )}
       >

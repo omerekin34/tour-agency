@@ -167,4 +167,16 @@
   .pb-safe {
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   }
+
+  .admin-panel [data-slot="table-head"] {
+    @apply text-xs font-semibold uppercase tracking-wider text-gold-400/75;
+  }
+
+  .admin-panel [data-slot="table-row"] {
+    @apply border-white/10 hover:bg-white/5;
+  }
+
+  .admin-panel [data-slot="table-cell"] {
+    @apply text-white/85;
+  }
 }
