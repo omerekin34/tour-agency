@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import UrgencyAlertIcon from "@/components/tours/UrgencyAlertIcon";
 import type { TourUrgencyInfo } from "@/lib/tour-urgency-shared";
 import { cn } from "@/lib/utils";
 
@@ -28,16 +28,7 @@ export default function TourUrgencyBanner({
         className,
       )}
     >
-      <div
-        className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-xl",
-          isCapacityLed
-            ? "bg-amber-500/15 text-amber-700"
-            : "bg-gold-500/15 text-gold-700",
-        )}
-      >
-        <Sparkles className="size-5" strokeWidth={1.5} />
-      </div>
+      <UrgencyAlertIcon tone={isCapacityLed ? "amber" : "gold"} />
       <div className="min-w-0">
         <p
           className={cn(
