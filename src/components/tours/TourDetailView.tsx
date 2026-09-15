@@ -70,6 +70,8 @@ export default function TourDetailView({
   const [videoFailed, setVideoFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const galleryLength = detail.gallery.length;
+  const videoUrl = detail.videoUrl?.trim() ?? "";
+  const hasTourVideo = videoUrl.length > 0;
 
   const goToGalleryImage = useCallback(
     (index: number) => {
@@ -272,49 +274,54 @@ export default function TourDetailView({
               </section>
             </ScrollReveal>
 
-            <ScrollReveal delay={0.05}>
-              <section>
-              <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
-                Tur Videosu
-              </h2>
-              <div className="relative aspect-video overflow-hidden rounded-2xl bg-navy-950 shadow-md">
-                {!videoFailed ? (
-                  <>
-                    <video
-                      ref={videoRef}
-                      src={detail.videoUrl}
-                      poster={detail.gallery[0]}
-                      className="size-full object-cover"
-                      playsInline
-                      onEnded={() => setIsPlaying(false)}
-                      onError={() => setVideoFailed(true)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => void toggleVideo()}
-                      className="absolute inset-0 flex items-center justify-center bg-navy-950/20 transition-colors hover:bg-navy-950/30"
-                      aria-label={isPlaying ? "Videoyu durdur" : "Videoyu oynat"}
-                    >
-                      <span className="flex size-16 items-center justify-center rounded-full bg-white/95 text-navy-900 shadow-lg transition-transform hover:scale-105">
-                        {isPlaying ? (
-                          <Pause className="size-7" />
-                        ) : (
-                          <Play className="size-7 translate-x-0.5" />
-                        )}
-                      </span>
-                    </button>
-                  </>
-                ) : (
-                  <FlexibleImage
-                    src={detail.gallery[0]}
-                    alt={tour.title}
-                    fill
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              </section>
-            </ScrollReveal>
+            {hasTourVideo && (
+              <ScrollReveal delay={0.05}>
+                <section>
+                  <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-gold-600">
+                    Tur Videosu
+                  </h2>
+                  <div className="relative aspect-video overflow-hidden rounded-2xl bg-navy-950 shadow-md">
+                    {!videoFailed ? (
+                      <>
+                        <video
+                          ref={videoRef}
+                          src={videoUrl}
+                          poster={detail.gallery[0]}
+                          className="size-full object-cover"
+                          playsInline
+                          preload="metadata"
+                          onEnded={() => setIsPlaying(false)}
+                          onError={() => setVideoFailed(true)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => void toggleVideo()}
+                          className="absolute inset-0 flex items-center justify-center bg-navy-950/20 transition-colors hover:bg-navy-950/30"
+                          aria-label={
+                            isPlaying ? "Videoyu durdur" : "Videoyu oynat"
+                          }
+                        >
+                          <span className="flex size-16 items-center justify-center rounded-full bg-white/95 text-navy-900 shadow-lg transition-transform hover:scale-105">
+                            {isPlaying ? (
+                              <Pause className="size-7" />
+                            ) : (
+                              <Play className="size-7 translate-x-0.5" />
+                            )}
+                          </span>
+                        </button>
+                      </>
+                    ) : (
+                      <FlexibleImage
+                        src={detail.gallery[0]}
+                        alt={tour.title}
+                        fill
+                        className="object-cover"
+                      />
+                    )}
+                  </div>
+                </section>
+              </ScrollReveal>
+            )}
 
             <ScrollReveal delay={0.05}>
               <section>

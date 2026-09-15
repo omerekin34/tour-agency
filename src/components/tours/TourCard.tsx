@@ -65,27 +65,36 @@ export default function TourCard({
             }
       }
       whileTap={reduceMotion ? undefined : { scale: 0.992 }}
-      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-md shadow-navy-950/5 ring-1 ring-navy-950/5 transition-[box-shadow,ring-color] duration-300 ease-out hover:shadow-xl hover:shadow-gold-500/10 hover:ring-gold-400/40"
+      className={cn(
+        "group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-md shadow-navy-950/5 ring-1 ring-navy-950/5 transition-[box-shadow,ring-color] duration-300 ease-out hover:shadow-xl hover:shadow-gold-500/10 hover:ring-gold-400/40",
+        urgencyBadgeLabel &&
+          !status &&
+          "ring-amber-400/25 hover:ring-amber-400/40",
+      )}
     >
-      {/* Image */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
+      {/* Image — hafif soluk; hover’da canlanır; rozetler okunaklı kalır */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-navy-950/10">
         <FlexibleImage
           src={image}
           alt={title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover saturate-[0.78] brightness-[0.9] contrast-[0.96] transition-[transform,filter] duration-500 group-hover:saturate-[0.92] group-hover:brightness-[0.96] group-hover:scale-[1.03]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-950/30 to-transparent" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-navy-950/20 mix-blend-multiply"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/15 to-navy-950/45" />
 
-        <span className="absolute left-3 top-3 rounded-full bg-brand-navy-950/85 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-gold-400 backdrop-blur-sm">
-          {category}
-        </span>
+        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
+          <span className="shrink-0 rounded-full bg-brand-navy-950 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-wider text-gold-400 shadow-md ring-1 ring-white/15">
+            {category}
+          </span>
 
-        {(status || (urgencyBadgeLabel && urgencyBadgeTone)) && (
-          <div className="absolute right-3 top-3 flex max-w-[55%] flex-col items-end gap-1.5">
+          <div className="flex max-w-[58%] flex-col items-end gap-1.5">
             {status && (
-              <span className="rounded-full bg-red-600 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider text-white shadow-sm">
+              <span className="rounded-full bg-red-600 px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.1em] text-white shadow-lg ring-2 ring-white/80">
                 {status}
               </span>
             )}
@@ -93,10 +102,11 @@ export default function TourCard({
               <TourUrgencyBadge
                 label={urgencyBadgeLabel}
                 tone={urgencyBadgeTone}
+                variant="card"
               />
             )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Content */}
@@ -105,9 +115,25 @@ export default function TourCard({
           {title}
         </h3>
         {urgencyHint && (
-          <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-navy-700/75">
-            {urgencyHint}
-          </p>
+          <div
+            className={cn(
+              "mb-3 rounded-xl border px-3 py-2.5",
+              urgencyBadgeTone === "amber"
+                ? "border-amber-300/70 bg-gradient-to-r from-amber-50 to-amber-50/40"
+                : "border-gold-300/60 bg-gradient-to-r from-gold-50/90 to-white",
+            )}
+          >
+            <p
+              className={cn(
+                "line-clamp-3 text-xs font-medium leading-relaxed",
+                urgencyBadgeTone === "amber"
+                  ? "text-amber-950/90"
+                  : "text-navy-800/90",
+              )}
+            >
+              {urgencyHint}
+            </p>
+          </div>
         )}
         {!urgencyHint && <div className="mb-4" />}
 

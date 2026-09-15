@@ -58,19 +58,30 @@ export default function TourUrgencyBanner({
 export function TourUrgencyBadge({
   label,
   tone,
+  variant = "default",
   className,
 }: {
   label: string;
   tone: "gold" | "amber";
+  variant?: "default" | "card";
   className?: string;
 }) {
+  const isCard = variant === "card";
+
   return (
     <span
       className={cn(
-        "rounded-full px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider shadow-sm",
+        "rounded-full uppercase tracking-wider",
+        isCard
+          ? "px-3 py-1.5 text-[0.6rem] font-bold tracking-[0.12em] shadow-lg ring-2 ring-white/90"
+          : "px-3 py-1 text-[0.65rem] font-semibold tracking-wider shadow-sm",
         tone === "amber"
-          ? "bg-amber-600 text-white"
-          : "bg-brand-navy-950/90 text-gold-300 ring-1 ring-gold-400/30 backdrop-blur-sm",
+          ? isCard
+            ? "bg-amber-500 text-white shadow-amber-500/35 animate-pulse"
+            : "bg-amber-600 text-white"
+          : isCard
+            ? "bg-gradient-to-r from-gold-400 to-gold-500 text-brand-navy-950 shadow-gold-500/40"
+            : "bg-brand-navy-950/90 text-gold-300 ring-1 ring-gold-400/30 backdrop-blur-sm",
         className,
       )}
     >
