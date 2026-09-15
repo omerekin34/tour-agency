@@ -122,27 +122,6 @@ export default function ContactPageBody() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.14}>
-            <div className="overflow-hidden rounded-2xl border border-navy-900/8 bg-brand-navy-950 p-6 text-white shadow-sm">
-              <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-gold-400">
-                Hızlı Destek
-              </h3>
-              <p className="mb-5 text-sm leading-relaxed text-white/65">
-                Acil tur talepleriniz ve anlık sorularınız için WhatsApp hattımız
-                7/24 aktiftir.
-              </p>
-              <a
-                href={contactInfo.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-[#20BD5A] active:scale-[0.98]"
-              >
-                <MessageCircle className="size-4" />
-                WhatsApp ile Sor
-              </a>
-            </div>
-          </ScrollReveal>
-
-          <ScrollReveal delay={0.2}>
             <div className="rounded-2xl border border-navy-900/8 bg-white p-2 shadow-sm">
               <iframe
                 title="On'da 10 Turizm konum"
