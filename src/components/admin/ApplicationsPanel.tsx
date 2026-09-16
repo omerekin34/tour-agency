@@ -24,11 +24,13 @@ import {
   adminFilterPillClass,
   adminIconButtonClass,
   adminInputClass,
+  adminNativeSelectClass,
   adminSearchIconClass,
   adminSubCardClass,
   adminEyebrowClass,
   adminTitleClass,
 } from "@/components/admin/admin-theme";
+import type { ManagedTour } from "@/lib/tours-shared";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
 import {
@@ -77,6 +79,8 @@ export default function ApplicationsPanel() {
   const [authed, setAuthed] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [tourFilter, setTourFilter] = useState<string>("all");
+  const [tours, setTours] = useState<ManagedTour[]>([]);
   const [selected, setSelected] = useState<TourApplication | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -88,6 +92,8 @@ export default function ApplicationsPanel() {
       setAdminKey(saved);
       setAuthed(true);
     }
+    const tourId = new URLSearchParams(window.location.search).get("tourId");
+    if (tourId) setTourFilter(tourId);
   }, []);
 
   const loadApplications = useCallback(
@@ -96,17 +102,31 @@ export default function ApplicationsPanel() {
       else setRefreshing(true);
       setError("");
       try {
-        const res = await fetch("/api/basvuru", {
-          headers: { "x-admin-key": key },
-          cache: "no-store",
-        });
-        if (!res.ok) {
+        const [appsRes, toursRes] = await Promise.all([
+          fetch("/api/basvuru", {
+            headers: { "x-admin-key": key },
+            cache: "no-store",
+          }),
+          fetch("/api/turlar/admin", {
+            headers: { "x-admin-key": key },
+            cache: "no-store",
+          }),
+        ]);
+        if (!appsRes.ok) {
           if (mode === "login") throw new Error("unauthorized");
           setError("Başvurular yenilenemedi.");
           return;
         }
-        const data = (await res.json()) as { applications: TourApplication[] };
+        const data = (await appsRes.json()) as {
+          applications: TourApplication[];
+        };
         setApplications(data.applications);
+        if (toursRes.ok) {
+          const toursData = (await toursRes.json()) as { tours: ManagedTour[] };
+          setTours(toursData.tours ?? []);
+        } else {
+          setTours([]);
+        }
         setAuthed(true);
       } catch {
         if (mode === "login") {
@@ -199,10 +219,19 @@ export default function ApplicationsPanel() {
     }
   };
 
+  const tourFilterOptions = useMemo(
+    () =>
+      [...tours]
+        .sort((a, b) => a.title.localeCompare(b.title, "tr"))
+        .map((tour) => ({ id: tour.id, title: tour.title })),
+    [tours],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return applications.filter((app) => {
       if (statusFilter !== "all" && app.status !== statusFilter) return false;
+      if (tourFilter !== "all" && app.tourId !== tourFilter) return false;
       if (!q) return true;
       return (
         app.name.toLowerCase().includes(q) ||
@@ -211,7 +240,7 @@ export default function ApplicationsPanel() {
         app.tourTitle.toLowerCase().includes(q)
       );
     });
-  }, [applications, search, statusFilter]);
+  }, [applications, search, statusFilter, tourFilter]);
 
   const stats = useMemo(() => getApplicationStats(applications), [applications]);
 
@@ -314,14 +343,29 @@ export default function ApplicationsPanel() {
 
         <div className={adminCardClass}>
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="relative max-w-md flex-1">
-              <Search className={adminSearchIconClass} />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="İsim, telefon, e-posta veya tur ara..."
-                className={cn(adminInputClass, "pl-10")}
-              />
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:flex-1">
+              <div className="relative min-w-0 flex-1">
+                <Search className={adminSearchIconClass} />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="İsim, telefon, e-posta veya tur ara..."
+                  className={cn(adminInputClass, "pl-10")}
+                />
+              </div>
+              <select
+                value={tourFilter}
+                onChange={(e) => setTourFilter(e.target.value)}
+                className={cn(adminNativeSelectClass, "min-h-11 w-full sm:max-w-xs")}
+                aria-label="Tur filtresi"
+              >
+                <option value="all">Tüm turlar</option>
+                {tourFilterOptions.map((tour) => (
+                  <option key={tour.id} value={tour.id}>
+                    {tour.title}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex flex-wrap gap-2">
               {(
@@ -349,7 +393,9 @@ export default function ApplicationsPanel() {
               <p>
                 {applications.length === 0
                   ? "Henüz başvuru yok."
-                  : "Arama kriterlerine uygun başvuru bulunamadı."}
+                  : tourFilter !== "all"
+                    ? "Seçilen tur için başvuru bulunamadı."
+                    : "Arama kriterlerine uygun başvuru bulunamadı."}
               </p>
             </div>
           ) : (

@@ -61,6 +61,12 @@ import {
   adminTextareaClass,
   adminTitleClass,
 } from "@/components/admin/admin-theme";
+import type { TourApplication } from "@/lib/applications-shared";
+import {
+  buildBookedSeatsMap,
+  formatCapacityDetail,
+  getTourCapacityFromMap,
+} from "@/lib/tour-capacity-shared";
 import {
   getTourEndDateIso,
   isTourCompleted,
@@ -175,6 +181,7 @@ function formToManagedTour(form: TourFormState): ManagedTour {
 export default function ToursPanel() {
   const session = useAdminSession();
   const [tours, setTours] = useState<ManagedTour[]>([]);
+  const [applications, setApplications] = useState<TourApplication[]>([]);
   const [categoryOptions, setCategoryOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -196,13 +203,27 @@ export default function ToursPanel() {
   const fetchTours = useCallback(async (key: string) => {
     setError("");
     try {
-      const res = await fetch("/api/turlar/admin", {
-        headers: { "x-admin-key": key },
-        cache: "no-store",
-      });
-      if (!res.ok) throw new Error("unauthorized");
-      const data = (await res.json()) as { tours: ManagedTour[] };
-      setTours(data.tours);
+      const [toursRes, appsRes] = await Promise.all([
+        fetch("/api/turlar/admin", {
+          headers: { "x-admin-key": key },
+          cache: "no-store",
+        }),
+        fetch("/api/basvuru", {
+          headers: { "x-admin-key": key },
+          cache: "no-store",
+        }),
+      ]);
+      if (!toursRes.ok) throw new Error("unauthorized");
+      const toursData = (await toursRes.json()) as { tours: ManagedTour[] };
+      setTours(toursData.tours);
+      if (appsRes.ok) {
+        const appsData = (await appsRes.json()) as {
+          applications: TourApplication[];
+        };
+        setApplications(appsData.applications);
+      } else {
+        setApplications([]);
+      }
     } catch {
       setError("Turlar yüklenemedi.");
     }
@@ -240,6 +261,11 @@ export default function ToursPanel() {
   const categoryLabelMap = useMemo(
     () => Object.fromEntries(categoryOptions.map((option) => [option.value, option.label])),
     [categoryOptions],
+  );
+
+  const bookedMap = useMemo(
+    () => buildBookedSeatsMap(applications),
+    [applications],
   );
 
   useEffect(() => {
@@ -600,6 +626,7 @@ export default function ToursPanel() {
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {displayTours.map((tour) => {
                 const completed = isTourCompleted(tour);
+                const capacityInfo = getTourCapacityFromMap(tour, bookedMap);
                 return (
                   <article key={tour.id} className={adminSubCardClass}>
                     <div className="mb-2 flex items-start justify-between gap-3">
@@ -617,6 +644,13 @@ export default function ToursPanel() {
                             Tamamlandı
                           </span>
                         )}
+                        {!completed &&
+                          capacityInfo.isFull &&
+                          capacityInfo.capacity > 0 && (
+                            <span className="rounded-full bg-red-500/20 px-2 py-1 text-[0.6rem] font-semibold uppercase text-red-200 ring-1 ring-red-400/30">
+                              Dolu
+                            </span>
+                          )}
                         {!tour.published && (
                           <span className="rounded-full bg-amber-100 px-2 py-1 text-[0.6rem] font-semibold uppercase text-amber-800">
                             Gizli
@@ -636,7 +670,22 @@ export default function ToursPanel() {
                       </p>
                       <p className="flex items-center gap-1.5">
                         <Users className="size-3.5 text-gold-500" />
-                        Kontenjan: {tour.capacity} kişi · {tour.days} gün
+                        Kontenjan:{" "}
+                        <span
+                          className={cn(
+                            capacityInfo.isFull &&
+                              capacityInfo.capacity > 0 &&
+                              "font-semibold text-red-200",
+                          )}
+                        >
+                          {formatCapacityDetail(capacityInfo)}
+                        </span>
+                        {capacityInfo.capacity > 0 && !capacityInfo.isFull && (
+                          <span className="text-white/40">
+                            · {capacityInfo.remaining} boş
+                          </span>
+                        )}
+                        <span className="text-white/40">· {tour.days} gün</span>
                       </p>
                       <p className="font-semibold text-white">
                         {formatTourPrice(tour.price, tour.currency)}

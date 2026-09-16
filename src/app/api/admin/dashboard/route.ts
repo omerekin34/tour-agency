@@ -4,6 +4,7 @@ import { isValidAdminKey } from "@/lib/admin-auth";
 import { getMessages } from "@/lib/messages";
 import { getApplicationStats } from "@/lib/applications-shared";
 import { getMessageStats } from "@/lib/messages-shared";
+import { buildAdminTourOpsSummary } from "@/lib/admin-tour-insights-shared";
 import { getManagedTours } from "@/lib/tours-store";
 import { ensureRegionsLoaded, getPublishedRegions } from "@/lib/regions-store";
 
@@ -38,6 +39,8 @@ export async function GET(request: Request) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 5);
 
+  const tourOps = buildAdminTourOpsSummary(tours, applications);
+
   return NextResponse.json({
     applications: appStats,
     messages: msgStats,
@@ -45,7 +48,10 @@ export async function GET(request: Request) {
       total: tours.length,
       published: publishedTours,
       draft: draftTours,
+      completed: tourOps.completedCount,
+      upcoming: tourOps.upcomingCount,
     },
+    tourOps,
     regions: regions.length,
     recentApplications,
     recentMessages,
