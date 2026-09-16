@@ -61,11 +61,17 @@ import {
   adminTextareaClass,
   adminTitleClass,
 } from "@/components/admin/admin-theme";
+import {
+  getTourEndDateIso,
+  isTourCompleted,
+  partitionToursByCompletion,
+} from "@/lib/tour-lifecycle-shared";
 import { cn } from "@/lib/utils";
 
 const nativeSelectClassName = adminNativeSelectClass;
 
 type EditorMode = "create" | "edit";
+type LifecycleFilter = "upcoming" | "completed" | "all";
 
 type TourFormState = {
   id: string;
@@ -173,6 +179,8 @@ export default function ToursPanel() {
     { value: string; label: string }[]
   >([]);
   const [search, setSearch] = useState("");
+  const [lifecycleFilter, setLifecycleFilter] =
+    useState<LifecycleFilter>("upcoming");
   const [selected, setSelected] = useState<ManagedTour | null>(null);
   const [form, setForm] = useState<TourFormState | null>(null);
   const [editorMode, setEditorMode] = useState<EditorMode>("edit");
@@ -248,7 +256,7 @@ export default function ToursPanel() {
     }
   };
 
-  const filteredTours = useMemo(() => {
+  const searchFilteredTours = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return tours;
     return tours.filter(
@@ -258,6 +266,24 @@ export default function ToursPanel() {
         (categoryLabelMap[tour.category] ?? tour.category).toLowerCase().includes(q),
     );
   }, [tours, search, categoryLabelMap]);
+
+  const lifecycleCounts = useMemo(() => {
+    const { upcoming, completed } =
+      partitionToursByCompletion(searchFilteredTours);
+    return {
+      upcoming: upcoming.length,
+      completed: completed.length,
+      all: searchFilteredTours.length,
+    };
+  }, [searchFilteredTours]);
+
+  const displayTours = useMemo(() => {
+    const { upcoming, completed } =
+      partitionToursByCompletion(searchFilteredTours);
+    if (lifecycleFilter === "upcoming") return upcoming;
+    if (lifecycleFilter === "completed") return completed;
+    return searchFilteredTours;
+  }, [searchFilteredTours, lifecycleFilter]);
 
   const openEditor = (tour: ManagedTour, mode: EditorMode = "edit") => {
     setSelected(tour);
@@ -479,8 +505,8 @@ export default function ToursPanel() {
             <p className={adminEyebrowClass}>Tur Yönetimi</p>
             <h1 className={adminTitleClass}>Turlar</h1>
             <p className={adminSubtitleClass}>
-              Tur ekleyin, kopyalayın, düzenleyin veya silin. Form alanları
-              hazır şablonlarla dolar; sadece bilgileri değiştirmeniz yeterli.
+              Tur ekleyin, kopyalayın, düzenleyin veya silin. Sona eren turlar
+              &quot;Tamamlanan&quot; sekmesinde listelenir; sitede arşivde kalır.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -516,63 +542,130 @@ export default function ToursPanel() {
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {filteredTours.map((tour) => (
-              <article
-                key={tour.id}
-                className={adminSubCardClass}
+          <div className="mb-5 flex flex-wrap gap-2">
+            {(
+              [
+                {
+                  id: "upcoming" as const,
+                  label: "Yaklaşan",
+                  count: lifecycleCounts.upcoming,
+                },
+                {
+                  id: "completed" as const,
+                  label: "Tamamlanan",
+                  count: lifecycleCounts.completed,
+                },
+                {
+                  id: "all" as const,
+                  label: "Tümü",
+                  count: lifecycleCounts.all,
+                },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setLifecycleFilter(tab.id)}
+                className={cn(
+                  "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase tracking-wider transition-colors",
+                  lifecycleFilter === tab.id
+                    ? "border-gold-400/50 bg-gold-500/15 text-gold-300"
+                    : "border-white/10 bg-white/[0.03] text-white/60 hover:border-gold-400/30 hover:text-white/85",
+                )}
               >
-                <div className="mb-2 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-400">
-                      {categoryLabelMap[tour.category] ?? tour.category}
-                    </p>
-                    <h2 className="mt-1 line-clamp-2 text-sm font-medium text-white">
-                      {tour.title}
-                    </h2>
-                  </div>
-                  {!tour.published && (
-                    <span className="rounded-full bg-amber-100 px-2 py-1 text-[0.6rem] font-semibold uppercase text-amber-800">
-                      Gizli
-                    </span>
+                {tab.label}
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-0.5 text-[0.65rem]",
+                    lifecycleFilter === tab.id
+                      ? "bg-gold-500/25 text-gold-100"
+                      : "bg-white/10 text-white/50",
                   )}
-                </div>
-
-                <div className="mb-4 space-y-1 text-xs text-white/55">
-                  <p className="flex items-center gap-1.5">
-                    <CalendarDays className="size-3.5 text-gold-500" />
-                    {formatTourDate(tour.date)}
-                  </p>
-                  <p className="flex items-center gap-1.5">
-                    <Users className="size-3.5 text-gold-500" />
-                    Kontenjan: {tour.capacity} kişi
-                  </p>
-                  <p className="font-semibold text-white">
-                    {formatTourPrice(tour.price, tour.currency)}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <AdminActionButton
-                    type="button"
-                    intent="secondary"
-                    icon={Pencil}
-                    onClick={() => openEditor(tour)}
-                  >
-                    Düzenle
-                  </AdminActionButton>
-                  <AdminActionButton
-                    type="button"
-                    intent="secondary"
-                    icon={Copy}
-                    onClick={() => openDuplicateEditor(tour)}
-                  >
-                    Kopyala
-                  </AdminActionButton>
-                </div>
-              </article>
+                >
+                  {tab.count}
+                </span>
+              </button>
             ))}
           </div>
+
+          {displayTours.length === 0 ? (
+            <p className={adminEmptyStateClass}>
+              {lifecycleFilter === "completed"
+                ? "Tamamlanmış tur bulunmuyor."
+                : lifecycleFilter === "upcoming"
+                  ? "Yaklaşan tur bulunmuyor."
+                  : "Aramanızla eşleşen tur yok."}
+            </p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {displayTours.map((tour) => {
+                const completed = isTourCompleted(tour);
+                return (
+                  <article key={tour.id} className={adminSubCardClass}>
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gold-400">
+                          {categoryLabelMap[tour.category] ?? tour.category}
+                        </p>
+                        <h2 className="mt-1 line-clamp-2 text-sm font-medium text-white">
+                          {tour.title}
+                        </h2>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-end gap-1">
+                        {completed && (
+                          <span className="rounded-full bg-navy-700 px-2 py-1 text-[0.6rem] font-semibold uppercase text-white/90 ring-1 ring-white/10">
+                            Tamamlandı
+                          </span>
+                        )}
+                        {!tour.published && (
+                          <span className="rounded-full bg-amber-100 px-2 py-1 text-[0.6rem] font-semibold uppercase text-amber-800">
+                            Gizli
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mb-4 space-y-1 text-xs text-white/55">
+                      <p className="flex items-start gap-1.5">
+                        <CalendarDays className="mt-0.5 size-3.5 shrink-0 text-gold-500" />
+                        <span>
+                          {completed
+                            ? `Bitti: ${formatTourDate(getTourEndDateIso(tour))} · Kalkış ${formatTourDate(tour.date)}`
+                            : formatTourDate(tour.date)}
+                        </span>
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <Users className="size-3.5 text-gold-500" />
+                        Kontenjan: {tour.capacity} kişi · {tour.days} gün
+                      </p>
+                      <p className="font-semibold text-white">
+                        {formatTourPrice(tour.price, tour.currency)}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <AdminActionButton
+                        type="button"
+                        intent="secondary"
+                        icon={Pencil}
+                        onClick={() => openEditor(tour)}
+                      >
+                        Düzenle
+                      </AdminActionButton>
+                      <AdminActionButton
+                        type="button"
+                        intent="secondary"
+                        icon={Copy}
+                        onClick={() => openDuplicateEditor(tour)}
+                      >
+                        Kopyala
+                      </AdminActionButton>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -605,6 +698,14 @@ export default function ToursPanel() {
             </div>
 
             <form onSubmit={saveTour} className="overflow-y-auto px-5 py-5">
+              {editorMode === "edit" && selected && isTourCompleted(selected) && (
+                <p className="mb-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+                  Bu tur program tarihi geçmiş; sitede{" "}
+                  <span className="font-medium text-white">tamamlanan / arşiv</span>{" "}
+                  bölümünde görünür, yeni başvuru alınmaz. Düzenleyerek arşiv
+                  içeriğini güncelleyebilirsiniz.
+                </p>
+              )}
               <div className="grid gap-4 md:grid-cols-2">
                 <Field
                   label={editorMode === "create" ? "Tur Kodu (benzersiz)" : "Tur Kodu"}
