@@ -34,8 +34,7 @@ export async function POST(request: Request) {
     }
 
     const capacityCheck = await validateTourApplicationCapacity(
-      tourId,
-      tour.capacity,
+      tour,
       String(body.travelers ?? "1"),
     );
     if (!capacityCheck.ok) {

@@ -29,6 +29,7 @@ export type TourCardProps = {
   price: string;
   href?: string;
   isFull?: boolean;
+  isCompleted?: boolean;
   urgencyBadgeLabel?: string | null;
   urgencyBadgeTone?: TourUrgencyBadgeTone | null;
   urgencyHint?: string | null;
@@ -47,6 +48,7 @@ export default function TourCard({
   price,
   href = "#",
   isFull = false,
+  isCompleted = false,
   urgencyBadgeLabel,
   urgencyBadgeTone,
   urgencyHint,
@@ -94,7 +96,14 @@ export default function TourCard({
 
           <div className="flex max-w-[58%] flex-col items-end gap-1.5">
             {status && (
-              <span className="rounded-full bg-red-600 px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.1em] text-white shadow-lg ring-2 ring-white/80">
+              <span
+                className={cn(
+                  "rounded-full px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.1em] shadow-lg ring-2 ring-white/80",
+                  status === "Tamamlandı"
+                    ? "bg-navy-800 text-white"
+                    : "bg-red-600 text-white",
+                )}
+              >
                 {status}
               </span>
             )}
@@ -189,7 +198,14 @@ export default function TourCard({
             </p>
           </div>
 
-          {isFull ? (
+          {isCompleted ? (
+            <Link
+              href={href}
+              className="inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-full border border-navy-900/15 bg-zinc-100 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-navy-800 sm:min-h-11 sm:w-auto sm:py-2.5 hover:bg-zinc-200/80"
+            >
+              Arşiv — İncele
+            </Link>
+          ) : isFull ? (
             <span
               className={cn(
                 "inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-red-700 sm:min-h-11 sm:w-auto sm:py-2.5",

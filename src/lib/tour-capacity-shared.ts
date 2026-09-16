@@ -1,6 +1,7 @@
 import type { TourApplication } from "@/lib/applications-shared";
 import type { TourCardProps } from "@/components/tours/TourCard";
 import { toTourCardProps, type Tour } from "@/lib/data";
+import { isTourCompleted } from "@/lib/tour-lifecycle-shared";
 import {
   computeTourUrgency,
   type TourUrgencyBadgeTone,
@@ -88,6 +89,7 @@ export function formatCapacityDetail(info: TourCapacityInfo): string {
 export type TourCardWithCapacity = TourCardProps & {
   id?: string;
   isFull?: boolean;
+  isCompleted?: boolean;
   remaining?: number;
   urgencyBadgeLabel?: string | null;
   urgencyBadgeTone?: TourUrgencyBadgeTone | null;
@@ -98,16 +100,18 @@ export function toTourCardPropsWithCapacity(
   tour: Tour,
   bookedMap: Map<string, number>,
 ): TourCardWithCapacity {
+  const completed = isTourCompleted(tour);
   const info = getTourCapacityFromMap(tour, bookedMap);
-  const urgency = computeTourUrgency(tour, info);
+  const urgency = completed ? null : computeTourUrgency(tour, info);
   return {
     ...toTourCardProps(tour),
     id: tour.id,
-    isFull: info.isFull,
+    isCompleted: completed,
+    isFull: completed || info.isFull,
     remaining: info.remaining,
-    status: info.isFull ? "Dolu" : undefined,
-    urgencyBadgeLabel: urgency.badgeLabel,
-    urgencyBadgeTone: urgency.badgeTone,
-    urgencyHint: urgency.hint,
+    status: completed ? "Tamamlandı" : info.isFull ? "Dolu" : undefined,
+    urgencyBadgeLabel: urgency?.badgeLabel ?? null,
+    urgencyBadgeTone: urgency?.badgeTone ?? null,
+    urgencyHint: urgency?.hint ?? null,
   };
 }

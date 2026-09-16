@@ -43,6 +43,7 @@ import {
 } from "@/lib/tour-capacity-shared";
 import type { TourUrgencyInfo } from "@/lib/tour-urgency-shared";
 import ItineraryCopyActions from "@/components/tours/ItineraryCopyActions";
+import TourCompletedBanner from "@/components/tours/TourCompletedBanner";
 import { contactInfo } from "@/lib/contact";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,7 @@ type TourDetailViewProps = {
   whatsappHref?: string;
   capacityInfo: TourCapacityInfo;
   urgency: TourUrgencyInfo;
+  isCompleted?: boolean;
 };
 
 const GALLERY_AUTO_PLAY_MS = 4500;
@@ -63,7 +65,9 @@ export default function TourDetailView({
   whatsappHref = contactInfo.whatsapp,
   capacityInfo,
   urgency,
+  isCompleted = false,
 }: TourDetailViewProps) {
+  const bookingsClosed = capacityInfo.isFull || isCompleted;
   const [activeImage, setActiveImage] = useState(0);
   const [galleryPaused, setGalleryPaused] = useState(false);
   const [autoPlayTick, setAutoPlayTick] = useState(0);
@@ -179,12 +183,17 @@ export default function TourDetailView({
               <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[0.65rem] font-semibold text-white backdrop-blur-md">
                 {formatTourPrice(tour.price, tour.currency)}
               </span>
-              {capacityInfo.isFull && (
+              {isCompleted && (
+                <span className="inline-flex rounded-full bg-navy-800 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-white shadow-sm">
+                  Tamamlandı
+                </span>
+              )}
+              {!isCompleted && capacityInfo.isFull && (
                 <span className="inline-flex rounded-full bg-red-600 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-white shadow-sm">
                   Dolu
                 </span>
               )}
-              {!capacityInfo.isFull &&
+              {!bookingsClosed &&
                 urgency.badgeLabel &&
                 urgency.badgeTone && (
                   <TourUrgencyBadge
@@ -247,7 +256,13 @@ export default function TourDetailView({
           </div>
         </ScrollReveal>
 
-        {urgency.showBanner && (
+        {isCompleted && (
+          <ScrollReveal className="mb-8">
+            <TourCompletedBanner />
+          </ScrollReveal>
+        )}
+
+        {!isCompleted && urgency.showBanner && (
           <ScrollReveal className="mb-8">
             <TourUrgencyBanner urgency={urgency} />
           </ScrollReveal>
@@ -258,7 +273,8 @@ export default function TourDetailView({
             tour={tour}
             whatsappMessage={whatsappMessage}
             variant="mobile"
-            isFull={capacityInfo.isFull}
+            isFull={bookingsClosed}
+            isCompleted={isCompleted}
           />
         </ScrollReveal>
 
@@ -473,9 +489,9 @@ export default function TourDetailView({
                 Başvuru formunu doldurun; ekibimiz kontenjan ve ödeme
                 detaylarıyla sizinle iletişime geçsin.
               </p>
-              {capacityInfo.isFull ? (
-                <p className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-red-400/30 bg-red-500/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-red-200 sm:w-auto">
-                  Kontenjan Dolu
+              {bookingsClosed ? (
+                <p className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/20 bg-white/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white/90 sm:w-auto">
+                  {isCompleted ? "Tur Tamamlandı" : "Kontenjan Dolu"}
                 </p>
               ) : (
                 <Link
@@ -496,7 +512,8 @@ export default function TourDetailView({
               <TourBookingCard
                 tour={tour}
                 whatsappMessage={whatsappMessage}
-                isFull={capacityInfo.isFull}
+                isFull={bookingsClosed}
+                isCompleted={isCompleted}
               />
             </div>
 
@@ -543,9 +560,9 @@ export default function TourDetailView({
               Başvuru formunu doldurun; ekibimiz kontenjan ve ödeme
               detaylarıyla sizinle iletişime geçsin.
             </p>
-            {capacityInfo.isFull ? (
-              <p className="mt-5 flex min-h-12 w-full items-center justify-center rounded-full border border-red-400/30 bg-red-500/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-red-200">
-                Kontenjan Dolu
+            {bookingsClosed ? (
+              <p className="mt-5 flex min-h-12 w-full items-center justify-center rounded-full border border-white/20 bg-white/10 px-8 py-3.5 text-sm font-semibold uppercase tracking-wider text-white/90">
+                {isCompleted ? "Tur Tamamlandı" : "Kontenjan Dolu"}
               </p>
             ) : (
               <Link
@@ -569,11 +586,13 @@ function TourBookingCard({
   whatsappMessage,
   variant = "sidebar",
   isFull = false,
+  isCompleted = false,
 }: {
   tour: Tour;
   whatsappMessage: string;
   variant?: "mobile" | "sidebar";
   isFull?: boolean;
+  isCompleted?: boolean;
 }) {
   const isMobile = variant === "mobile";
 
@@ -596,11 +615,14 @@ function TourBookingCard({
         {isFull ? (
           <span
             className={cn(
-              "flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-6 py-3.5 text-sm font-semibold uppercase tracking-wider text-red-700",
+              "flex min-h-12 w-full items-center justify-center gap-2 rounded-full border px-6 py-3.5 text-sm font-semibold uppercase tracking-wider",
+              isCompleted
+                ? "border-navy-900/15 bg-zinc-100 text-navy-800"
+                : "border-red-200 bg-red-50 text-red-700",
               isMobile && "col-span-2",
             )}
           >
-            Kontenjan Dolu
+            {isCompleted ? "Tur Tamamlandı" : "Kontenjan Dolu"}
           </span>
         ) : (
           <Link

@@ -1,6 +1,7 @@
 import { BRAND_NAME } from "@/lib/brand";
 import type { TourCapacityInfo } from "@/lib/tour-capacity-shared";
 import type { Tour } from "@/lib/data";
+import { isTourCompleted } from "@/lib/tour-lifecycle-shared";
 
 /** Kalkışa bu kadar gün veya daha az kaldıysa "yaklaşıyor" sayılır */
 export const DEPARTING_SOON_DAYS = 30;
@@ -95,7 +96,7 @@ function buildCombinedBanner(
 }
 
 export function computeTourUrgency(
-  tour: Pick<Tour, "date">,
+  tour: Pick<Tour, "date" | "days">,
   capacityInfo: TourCapacityInfo,
   now: Date = new Date(),
 ): TourUrgencyInfo {
@@ -110,7 +111,7 @@ export function computeTourUrgency(
     showBanner: false,
   };
 
-  if (capacityInfo.isFull) return empty;
+  if (capacityInfo.isFull || isTourCompleted(tour, now)) return empty;
 
   const days = getDaysUntilTourDeparture(tour.date, now);
   const departingSoon =

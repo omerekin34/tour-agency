@@ -1,4 +1,5 @@
 import { getAllTours, type CategoryKey, type Tour } from "@/lib/data";
+import { isTourBookable } from "@/lib/tour-lifecycle-shared";
 import type { ExchangeRates } from "@/lib/exchange-rates";
 import { getFallbackExchangeRates } from "@/lib/exchange-rates";
 import { DEPARTURE_CITIES } from "@/lib/turkish-provinces";
@@ -197,7 +198,9 @@ export function filterToursAdvanced(
   source?: Tour[],
   rates: ExchangeRates = getFallbackExchangeRates(),
 ): Tour[] {
-  let result = source ?? getAllTours();
+  let result = (source ?? getAllTours()).filter((tour) =>
+    isTourBookable(tour),
+  );
 
   if (filters.bolge) {
     result = result.filter(

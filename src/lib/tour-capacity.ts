@@ -1,5 +1,6 @@
 import { getApplications } from "@/lib/applications";
 import type { Tour } from "@/lib/data";
+import { isTourCompleted } from "@/lib/tour-lifecycle-shared";
 import {
   buildBookedSeatsMap,
   computeTourCapacity,
@@ -23,13 +24,19 @@ export async function getTourCapacityInfo(
 }
 
 export async function validateTourApplicationCapacity(
-  tourId: string,
-  capacity: number,
+  tour: Pick<Tour, "id" | "capacity" | "date" | "days">,
   travelers: string,
 ): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (isTourCompleted(tour)) {
+    return {
+      ok: false,
+      message: "Bu tur tamamlanmıştır; yeni başvuru kabul edilmemektedir.",
+    };
+  }
+
   const info = computeTourCapacity(
-    capacity,
-    sumBookedSeats(await getApplications(), tourId),
+    tour.capacity,
+    sumBookedSeats(await getApplications(), tour.id),
   );
 
   if (info.isFull) {

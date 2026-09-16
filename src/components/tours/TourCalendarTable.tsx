@@ -21,16 +21,31 @@ import {
 import { TourUrgencyBadge } from "@/components/tours/TourUrgencyBanner";
 import { computeTourCapacity } from "@/lib/tour-capacity-shared";
 import { computeTourUrgency } from "@/lib/tour-urgency-shared";
+import { cn } from "@/lib/utils";
 
 type TourCalendarTableProps = {
   tours: Tour[];
   bookedSeatsByTourId?: Record<string, number>;
+  variant?: "active" | "completed";
 };
 
 export default function TourCalendarTable({
   tours,
   bookedSeatsByTourId = {},
+  variant = "active",
 }: TourCalendarTableProps) {
+  const isArchive = variant === "completed";
+
+  if (tours.length === 0) {
+    return (
+      <p className="rounded-2xl border border-dashed border-navy-900/15 bg-white px-6 py-10 text-center text-sm text-navy-700/70">
+        {isArchive
+          ? "Henüz arşivlenecek tamamlanmış gezi bulunmuyor."
+          : "Yaklaşan tur bulunmuyor."}
+      </p>
+    );
+  }
+
   return (
     <>
       <div className="space-y-3 md:hidden">
@@ -39,12 +54,17 @@ export default function TourCalendarTable({
             tour.capacity,
             bookedSeatsByTourId[tour.id] ?? 0,
           );
-          const urgency = computeTourUrgency(tour, capacity);
+          const urgency = isArchive ? null : computeTourUrgency(tour, capacity);
           return (
           <ScrollRevealItem key={tour.id} index={index}>
             <LuxuryHoverCard
               as="article"
-              className="rounded-2xl border border-navy-900/10 bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-md hover:shadow-gold-500/10"
+              className={cn(
+                "rounded-2xl border p-4 shadow-sm transition-shadow duration-300",
+                isArchive
+                  ? "border-navy-900/8 bg-zinc-50/90 opacity-95 hover:shadow-sm"
+                  : "border-navy-900/10 bg-white hover:shadow-md hover:shadow-gold-500/10",
+              )}
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <span className="shrink-0 rounded-full bg-navy-900/5 px-2.5 py-1 text-xs font-semibold text-navy-700/70">
@@ -59,13 +79,19 @@ export default function TourCalendarTable({
                 <h3 className="text-base font-medium leading-snug text-navy-900">
                   {tour.title}
                 </h3>
-                {capacity.isFull && (
+                {isArchive && (
+                  <span className="rounded-full bg-navy-800 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-white">
+                    Tamamlandı
+                  </span>
+                )}
+                {!isArchive && capacity.isFull && (
                   <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-white">
                     Dolu
                   </span>
                 )}
-                {!capacity.isFull &&
-                  urgency.badgeLabel &&
+                {!isArchive &&
+                  !capacity.isFull &&
+                  urgency?.badgeLabel &&
                   urgency.badgeTone && (
                     <TourUrgencyBadge
                       label={urgency.badgeLabel}
@@ -75,7 +101,7 @@ export default function TourCalendarTable({
                   )}
               </div>
 
-              {urgency.hint && !capacity.isFull && (
+              {!isArchive && urgency?.hint && !capacity.isFull && (
                 <p className="mb-3 text-xs leading-relaxed text-navy-700/75">
                   {urgency.hint}
                 </p>
@@ -92,16 +118,21 @@ export default function TourCalendarTable({
                 </p>
               </div>
 
-              {capacity.isFull ? (
+              {!isArchive && capacity.isFull ? (
                 <span className="flex min-h-12 w-full items-center justify-center rounded-full border border-red-200 bg-red-50 text-sm font-semibold uppercase tracking-wider text-red-700">
                   Kontenjan Dolu
                 </span>
               ) : (
                 <Link
                   href={`/turlar/${tour.id}`}
-                  className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-navy-900/10 bg-navy-900 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
+                  className={cn(
+                    "flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full border text-sm font-semibold uppercase tracking-wider transition-all duration-300 ease-out active:scale-[0.98]",
+                    isArchive
+                      ? "border-navy-900/15 bg-white text-navy-800 hover:border-gold-400/40 hover:text-gold-700"
+                      : "border-navy-900/10 bg-navy-900 text-white hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25",
+                  )}
                 >
-                  Detay
+                  {isArchive ? "Arşiv — Detay" : "Detay"}
                   <ArrowRight className="size-4" />
                 </Link>
               )}
@@ -142,11 +173,16 @@ export default function TourCalendarTable({
                   tour.capacity,
                   bookedSeatsByTourId[tour.id] ?? 0,
                 );
-                const urgency = computeTourUrgency(tour, capacity);
+                const urgency = isArchive
+                  ? null
+                  : computeTourUrgency(tour, capacity);
                 return (
                 <TableRow
                   key={tour.id}
-                  className="border-navy-900/5 transition-colors hover:bg-gold-50/40"
+                  className={cn(
+                    "border-navy-900/5 transition-colors",
+                    isArchive ? "bg-zinc-50/50 hover:bg-zinc-50/80" : "hover:bg-gold-50/40",
+                  )}
                 >
                   <TableCell className="px-4 py-4 font-medium text-navy-700/60">
                     {String(index + 1).padStart(2, "0")}
@@ -154,13 +190,19 @@ export default function TourCalendarTable({
                   <TableCell className="px-4 py-4 font-medium text-navy-900">
                     <div className="flex flex-wrap items-center gap-2">
                       <span>{tour.title}</span>
-                      {capacity.isFull && (
+                      {isArchive && (
+                        <span className="rounded-full bg-navy-800 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-white">
+                          Tamamlandı
+                        </span>
+                      )}
+                      {!isArchive && capacity.isFull && (
                         <span className="rounded-full bg-red-600 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-white">
                           Dolu
                         </span>
                       )}
-                      {!capacity.isFull &&
-                        urgency.badgeLabel &&
+                      {!isArchive &&
+                        !capacity.isFull &&
+                        urgency?.badgeLabel &&
                         urgency.badgeTone && (
                           <TourUrgencyBadge
                             label={urgency.badgeLabel}
@@ -169,7 +211,7 @@ export default function TourCalendarTable({
                           />
                         )}
                     </div>
-                    {urgency.hint && !capacity.isFull && (
+                    {!isArchive && urgency?.hint && !capacity.isFull && (
                       <p className="mt-1 max-w-md text-xs leading-snug text-navy-600/75">
                         {urgency.hint}
                       </p>
@@ -185,16 +227,21 @@ export default function TourCalendarTable({
                     {formatTourPrice(tour.price, tour.currency)}
                   </TableCell>
                   <TableCell className="px-4 py-4 text-right">
-                    {capacity.isFull ? (
+                    {!isArchive && capacity.isFull ? (
                       <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-red-700">
                         Dolu
                       </span>
                     ) : (
                       <Link
                         href={`/turlar/${tour.id}`}
-                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-navy-900/10 bg-navy-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25 active:scale-[0.98]"
+                        className={cn(
+                          "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-300 ease-out active:scale-[0.98]",
+                          isArchive
+                            ? "border-navy-900/15 bg-white text-navy-800 hover:border-gold-400/40"
+                            : "border-navy-900/10 bg-navy-900 text-white hover:border-gold-400/50 hover:bg-gradient-to-r hover:from-gold-500 hover:to-gold-600 hover:text-brand-navy-950 hover:shadow-md hover:shadow-gold-500/25",
+                        )}
                       >
-                        Detay
+                        {isArchive ? "Arşiv" : "Detay"}
                       </Link>
                     )}
                   </TableCell>

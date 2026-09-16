@@ -9,6 +9,7 @@ import { resolveContactFromSettings } from "@/lib/site-settings-shared";
 import { getSiteSettings } from "@/lib/site-settings-store";
 import { brandPageTitle } from "@/lib/brand";
 import { getTourCapacityInfo } from "@/lib/tour-capacity";
+import { isTourCompleted } from "@/lib/tour-lifecycle-shared";
 import { computeTourUrgency } from "@/lib/tour-urgency-shared";
 import { ensureToursLoaded } from "@/lib/tours-store";
 
@@ -49,6 +50,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
     getTourCapacityInfo(tour),
   ]);
   const urgency = computeTourUrgency(tour, capacityInfo);
+  const isCompleted = isTourCompleted(tour);
 
   return (
     <TourDetailView
@@ -57,6 +59,7 @@ export default async function TourDetailPage({ params }: TourDetailPageProps) {
       whatsappHref={siteContact.whatsapp}
       capacityInfo={capacityInfo}
       urgency={urgency}
+      isCompleted={isCompleted}
     />
   );
 }

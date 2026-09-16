@@ -21,6 +21,7 @@
 import type { TourCardProps } from "@/components/tours/TourCard";
 import { getCachedRegions } from "@/lib/regions-cache";
 import { getCachedManagedTours } from "@/lib/tours-cache";
+import { isTourBookable } from "@/lib/tour-lifecycle-shared";
 import { managedToTour } from "@/lib/tours-shared";
 import {
   filterToursAdvanced,
@@ -325,12 +326,14 @@ export function getCalendarTours(): Tour[] {
 }
 
 export function getFeaturedTours(): Tour[] {
-  return getAllTours().filter((tour) => tour.featured);
+  return getAllTours().filter((tour) => tour.featured && isTourBookable(tour));
 }
 
 export function getToursByCategory(categoryKey: CategoryKey): Tour[] {
   return getAllTours().filter(
-    (tour) => tour.destination === categoryKey || tour.category === categoryKey,
+    (tour) =>
+      isTourBookable(tour) &&
+      (tour.destination === categoryKey || tour.category === categoryKey),
   );
 }
 

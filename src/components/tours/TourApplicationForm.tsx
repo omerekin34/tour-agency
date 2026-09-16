@@ -34,11 +34,13 @@ import {
   formatTourDepartures,
   formatTourVisaTypes,
 } from "@/lib/tour-filters";
+import TourCompletedBanner from "@/components/tours/TourCompletedBanner";
 import TourUrgencyBanner from "@/components/tours/TourUrgencyBanner";
 import {
   formatCapacityDetail,
   type TourCapacityInfo,
 } from "@/lib/tour-capacity-shared";
+import { isTourCompleted } from "@/lib/tour-lifecycle-shared";
 import type { TourUrgencyInfo } from "@/lib/tour-urgency-shared";
 
 type TourApplicationFormProps = {
@@ -58,6 +60,8 @@ export default function TourApplicationForm({
   const [kvkk, setKvkk] = useState(false);
   const [travelers, setTravelers] = useState("1");
   const [roomType, setRoomType] = useState("cift");
+  const tourCompleted = isTourCompleted(tour);
+  const applicationsClosed = capacityInfo.isFull || tourCompleted;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -174,7 +178,13 @@ export default function TourApplicationForm({
           />
         </div>
 
-        {urgency.showBanner && !capacityInfo.isFull && (
+        {tourCompleted && (
+          <div className="mb-6">
+            <TourCompletedBanner />
+          </div>
+        )}
+
+        {!tourCompleted && urgency.showBanner && !capacityInfo.isFull && (
           <div className="mb-6">
             <TourUrgencyBanner urgency={urgency} />
           </div>
@@ -189,18 +199,35 @@ export default function TourApplicationForm({
             sizinle iletişime geçilecektir.
           </p>
 
-          {capacityInfo.isFull ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-8 text-center">
-              <p className="text-lg font-medium text-red-800">Kontenjan dolmuştur</p>
-              <p className="mt-2 text-sm text-red-700/80">
-                Bu tur için online başvuru kapalıdır. Benzer turlar için bizimle
-                iletişime geçebilirsiniz.
+          {applicationsClosed ? (
+            <div
+              className={cn(
+                "rounded-xl border px-4 py-8 text-center",
+                tourCompleted
+                  ? "border-navy-900/12 bg-zinc-50"
+                  : "border-red-200 bg-red-50",
+              )}
+            >
+              <p
+                className={cn(
+                  "text-lg font-medium",
+                  tourCompleted ? "text-navy-900" : "text-red-800",
+                )}
+              >
+                {tourCompleted
+                  ? "Bu tur tamamlanmıştır"
+                  : "Kontenjan dolmuştur"}
+              </p>
+              <p className="mt-2 text-sm text-navy-700/80">
+                {tourCompleted
+                  ? "Yeni başvuru alınmamaktadır. Güncel programlarımıza göz atabilirsiniz."
+                  : "Bu tur için online başvuru kapalıdır. Benzer turlar için bizimle iletişime geçebilirsiniz."}
               </p>
               <Link
-                href={`/turlar/${tour.id}`}
+                href={tourCompleted ? "/turlar" : `/turlar/${tour.id}`}
                 className="mt-6 inline-flex min-h-11 items-center rounded-full border border-navy-900/15 px-6 text-sm font-medium text-navy-800 hover:border-gold-400/40 hover:text-gold-600"
               >
-                Tur detayına dön
+                {tourCompleted ? "Güncel turlar" : "Tur detayına dön"}
               </Link>
             </div>
           ) : sent ? (
