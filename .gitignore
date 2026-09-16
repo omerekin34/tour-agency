@@ -26,6 +26,7 @@
 /data/gallery.json
 /data/tours.json
 /data/regions.json
+/data/site-content.json
 .DS_Store
 *.pem
 

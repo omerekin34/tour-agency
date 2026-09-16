@@ -6,13 +6,13 @@ import { getSiteContent } from "@/lib/site-content-store";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: brandPageTitle("Gizlilik Politikası"),
-  description: `${BRAND_NAME} gizlilik politikası ve kişisel verilerin korunması.`,
+  title: brandPageTitle("KVKK Aydınlatma Metni"),
+  description: `${BRAND_NAME} kişisel verilerin korunması aydınlatma metni.`,
 };
 
-export default async function GizlilikPolitikasiPage() {
+export default async function KvkkAydinlatmaPage() {
   const { legal } = await getSiteContent();
-  const page = legal.gizlilik;
+  const page = legal.kvkk;
 
   return (
     <LegalPageLayout eyebrow="Yasal" title={page.title} html={page.html} />

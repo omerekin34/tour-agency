@@ -204,6 +204,12 @@ export default function Footer({ regionLinks = [], siteContact }: FooterProps) {
           </p>
           <div className="flex items-center gap-6">
             <Link
+              href="/kvkk-aydinlatma"
+              className="inline-flex min-h-11 items-center text-xs text-white/50 transition-colors hover:text-gold-400"
+            >
+              KVKK
+            </Link>
+            <Link
               href="/gizlilik-politikasi"
               className="inline-flex min-h-11 items-center text-xs text-white/50 transition-colors hover:text-gold-400"
             >

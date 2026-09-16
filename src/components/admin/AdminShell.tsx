@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   ExternalLink,
+  FileText,
   Images,
   LayoutDashboard,
   LogOut,
@@ -30,6 +31,7 @@ const navItems = [
   { href: "/admin/basvurular", label: "Başvurular", icon: ClipboardList },
   { href: "/admin/mesajlar", label: "İletişim Mesajları", icon: Mail },
   { href: "/admin/galeri", label: "Galeri", icon: Images },
+  { href: "/admin/icerik", label: "S.S.S. & Yasal", icon: FileText },
   { href: "/admin/ayarlar", label: "Site Ayarları", icon: Settings },
 ];
 

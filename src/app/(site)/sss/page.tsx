@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { faqItems } from "@/lib/faq-data";
 import { brandPageTitle } from "@/lib/brand";
+import { getSiteContent } from "@/lib/site-content-store";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: brandPageTitle("Sık Sorulan Sorular"),
@@ -9,7 +11,9 @@ export const metadata: Metadata = {
     "Tur rezervasyonu, ödeme, vize, iptal koşulları ve daha fazlası hakkında sık sorulan sorular.",
 };
 
-export default function SssPage() {
+export default async function SssPage() {
+  const { faq } = await getSiteContent();
+
   return (
     <main className="min-h-screen bg-zinc-50 pb-16 pb-safe">
       <section className="relative overflow-hidden bg-brand-navy-950">
@@ -29,9 +33,9 @@ export default function SssPage() {
 
       <section className="mx-auto max-w-3xl px-4 md:px-8">
         <div className="-mt-6 space-y-3">
-          {faqItems.map((item) => (
+          {faq.map((item) => (
             <details
-              key={item.question}
+              key={item.id}
               className="group rounded-2xl border border-navy-900/8 bg-white p-5 shadow-sm shadow-navy-950/5 open:shadow-md"
             >
               <summary className="cursor-pointer list-none text-base font-medium text-navy-900 marker:content-none [&::-webkit-details-marker]:hidden">

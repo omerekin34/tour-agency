@@ -3,13 +3,15 @@ import Link from "next/link";
 type LegalPageLayoutProps = {
   eyebrow: string;
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  html?: string;
 };
 
 export default function LegalPageLayout({
   eyebrow,
   title,
   children,
+  html,
 }: LegalPageLayoutProps) {
   return (
     <main className="min-h-screen bg-zinc-50 pb-16 pb-safe">
@@ -28,7 +30,11 @@ export default function LegalPageLayout({
       <article className="mx-auto max-w-3xl px-4 md:px-8">
         <div className="-mt-6 rounded-2xl border border-navy-900/8 bg-white p-6 shadow-lg shadow-navy-950/5 sm:p-8">
           <div className="prose prose-sm max-w-none prose-headings:font-medium prose-headings:text-navy-900 prose-p:text-navy-700/80 prose-li:text-navy-700/80">
-            {children}
+            {html ? (
+              <div dangerouslySetInnerHTML={{ __html: html }} />
+            ) : (
+              children
+            )}
           </div>
           <p className="mt-8 border-t border-navy-900/8 pt-6 text-sm text-navy-600/70">
             Sorularınız için{" "}

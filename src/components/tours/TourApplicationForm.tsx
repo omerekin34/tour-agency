@@ -330,8 +330,15 @@ export default function TourApplicationForm({
                   className="mt-0.5"
                 />
                 <span className="text-sm leading-relaxed text-navy-700/80">
-                  Kişisel verilerimin tur başvurusu sürecinde işlenmesini ve
-                  tarafımla iletişime geçilmesini kabul ediyorum.
+                  <Link
+                    href="/kvkk-aydinlatma"
+                    target="_blank"
+                    className="font-medium text-navy-900 underline decoration-gold-400/50 underline-offset-2 hover:text-gold-700"
+                  >
+                    KVKK aydınlatma metnini
+                  </Link>{" "}
+                  okudum; kişisel verilerimin tur başvurusu sürecinde
+                  işlenmesini ve tarafımla iletişime geçilmesini kabul ediyorum.
                 </span>
               </label>
 
