@@ -3,7 +3,11 @@
 import Link from "next/link";
 import FlexibleImage from "@/components/ui/FlexibleImage";
 import { motion, useReducedMotion } from "framer-motion";
-import { hoverLift, luxuryEase } from "@/lib/motion-presets";
+import {
+  cardHoverShadow,
+  hoverLift,
+  luxuryEase,
+} from "@/lib/motion-presets";
 import {
   CalendarDays,
   FileText,
@@ -57,37 +61,51 @@ export default function TourCard({
 
   return (
     <motion.article
+      initial={false}
+      animate={
+        reduceMotion ? undefined : { boxShadow: cardHoverShadow.rest }
+      }
       whileHover={
         reduceMotion
           ? undefined
           : {
               y: hoverLift.y,
               scale: hoverLift.scale,
+              boxShadow: cardHoverShadow.hover,
               transition: { duration: hoverLift.duration, ease: luxuryEase },
             }
       }
       whileTap={reduceMotion ? undefined : { scale: 0.992 }}
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-md shadow-navy-950/5 ring-1 ring-navy-950/5 transition-[box-shadow,ring-color] duration-300 ease-out hover:shadow-xl hover:shadow-gold-500/10 hover:ring-gold-400/40",
-        urgencyBadgeLabel &&
-          !status &&
-          "ring-amber-400/25 hover:ring-amber-400/40",
+        "group flex h-full flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-navy-950/5 transition-[ring-color] duration-500 ease-out hover:ring-gold-400/35",
+        reduceMotion && "shadow-md shadow-navy-950/5",
+        urgencyBadgeLabel && !status && "ring-amber-400/25 hover:ring-amber-400/45",
       )}
     >
-      {/* Image — hafif soluk; hover’da canlanır; rozetler okunaklı kalır */}
+      {/* Image — hover’da zoom + parlaklık; rozetler okunaklı kalır */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-navy-950/10">
         <FlexibleImage
           src={image}
           alt={title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-          className="object-cover saturate-[0.78] brightness-[0.9] contrast-[0.96] transition-[transform,filter] duration-500 group-hover:saturate-[0.92] group-hover:brightness-[0.96] group-hover:scale-[1.03]"
+          className={cn(
+            "object-cover will-change-transform saturate-[0.78] brightness-[0.9] contrast-[0.96]",
+            "transition-[transform,filter] duration-[680ms] ease-[cubic-bezier(0.32,0.72,0,1)]",
+            "group-hover:saturate-[0.95] group-hover:brightness-[0.98] group-hover:contrast-[1] group-hover:scale-[1.06]",
+          )}
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-navy-950/20 mix-blend-multiply"
+          className="pointer-events-none absolute inset-0 bg-navy-950/20 mix-blend-multiply transition-opacity duration-500 group-hover:opacity-70"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/15 to-navy-950/45" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/70 via-navy-950/15 to-navy-950/45 transition-opacity duration-500 group-hover:from-navy-950/65" />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        >
+          <span className="absolute -left-[40%] top-0 h-full w-[45%] -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-[900ms] ease-out group-hover:translate-x-[320%] translate-x-0" />
+        </span>
 
         <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
           <span className="shrink-0 rounded-full bg-brand-navy-950 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-wider text-gold-400 shadow-md ring-1 ring-white/15">
