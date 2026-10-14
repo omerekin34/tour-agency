@@ -207,4 +207,65 @@
   .admin-panel .admin-page-subtitle {
     @apply text-sm leading-relaxed text-white/80;
   }
+
+  .admin-rte-content {
+    @apply text-sm leading-relaxed text-white/90;
+  }
+
+  .admin-rte-content p {
+    @apply mb-3 last:mb-0;
+  }
+
+  .admin-rte-content h2 {
+    @apply mb-2 mt-5 text-lg font-semibold text-white first:mt-0;
+  }
+
+  .admin-rte-content h3 {
+    @apply mb-2 mt-4 text-base font-semibold text-white first:mt-0;
+  }
+
+  .admin-rte-content ul {
+    @apply mb-3 list-disc pl-5 last:mb-0;
+  }
+
+  .admin-rte-content ol {
+    @apply mb-3 list-decimal pl-5 last:mb-0;
+  }
+
+  .admin-rte-content li {
+    @apply mb-1 last:mb-0;
+  }
+
+  .admin-rte-content strong {
+    @apply font-semibold text-white;
+  }
+
+  .admin-rte-content a {
+    @apply text-gold-400 underline underline-offset-2;
+  }
+
+  .faq-answer p {
+    @apply mb-2 last:mb-0;
+  }
+
+  .faq-answer h2,
+  .faq-answer h3 {
+    @apply mb-1 mt-3 font-medium text-navy-900 first:mt-0;
+  }
+
+  .faq-answer ul {
+    @apply mb-2 list-disc pl-5 last:mb-0;
+  }
+
+  .faq-answer ol {
+    @apply mb-2 list-decimal pl-5 last:mb-0;
+  }
+
+  .faq-answer strong {
+    @apply font-semibold text-navy-900;
+  }
+
+  .faq-answer a {
+    @apply font-medium text-gold-600 underline underline-offset-2;
+  }
 }

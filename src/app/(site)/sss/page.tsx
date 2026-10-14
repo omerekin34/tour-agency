@@ -46,9 +46,10 @@ export default async function SssPage() {
                   </span>
                 </span>
               </summary>
-              <p className="mt-3 text-sm leading-relaxed text-navy-700/75">
-                {item.answer}
-              </p>
+              <div
+                className="faq-answer mt-3 text-sm leading-relaxed text-navy-700/75"
+                dangerouslySetInnerHTML={{ __html: item.answer }}
+              />
             </details>
           ))}
         </div>

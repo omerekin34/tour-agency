@@ -20,9 +20,9 @@ import {
   adminHintClass,
   adminInputClass,
   adminSubCardClass,
-  adminTextareaClass,
   adminTitleClass,
 } from "@/components/admin/admin-theme";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import { AdminErrorBanner, AdminSuccessBanner } from "@/components/admin/AdminFeedback";
 import { useAdminSession } from "@/components/admin/useAdminSession";
 import { useSuccessMessage } from "@/components/admin/useSuccessMessage";
@@ -266,11 +266,11 @@ export default function ContentPanel() {
                     className={cn(adminInputClass, "mb-3")}
                   />
                   <label className={adminFieldLabelClass}>Cevap</label>
-                  <textarea
+                  <RichTextEditor
                     value={item.answer}
-                    onChange={(e) => updateFaqItem(index, { answer: e.target.value })}
-                    rows={3}
-                    className={adminTextareaClass}
+                    onChange={(html) => updateFaqItem(index, { answer: html })}
+                    compact
+                    ariaLabel={`Soru ${index + 1} cevabı`}
                   />
                 </div>
               ))}
@@ -314,15 +314,15 @@ export default function ContentPanel() {
                 onChange={(e) => updateLegal(legalKey, "title", e.target.value)}
                 className={cn(adminInputClass, "mb-4")}
               />
-              <label className={adminFieldLabelClass}>İçerik (HTML)</label>
+              <label className={adminFieldLabelClass}>İçerik</label>
               <p className={cn(adminHintClass, "mb-2")}>
-                Basit HTML kullanın: &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;
+                Araç çubuğundaki butonlarla biçimlendirin; içerik HTML olarak kaydedilir.
               </p>
-              <textarea
+              <RichTextEditor
+                key={legalKey}
                 value={activeLegal.html}
-                onChange={(e) => updateLegal(legalKey, "html", e.target.value)}
-                rows={16}
-                className={cn(adminTextareaClass, "font-mono text-xs leading-relaxed")}
+                onChange={(html) => updateLegal(legalKey, "html", html)}
+                ariaLabel={`${LEGAL_PAGE_LABELS[legalKey]} içeriği`}
               />
             </div>
 
