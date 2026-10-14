@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import BrandWordmark from "@/components/brand/BrandWordmark";
 import { mainNavItems, type NavItem } from "@/lib/nav-config";
 
 type NavbarProps = {
@@ -228,15 +228,16 @@ export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
         )}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:h-20 sm:px-6 md:px-10">
-          <Link href="/" className="group shrink-0 py-2">
-            <BrandWordmark
-              line1ClassName={cn(
-                "text-base font-semibold tracking-[0.2em] text-gold-400 transition-colors group-hover:text-gold-300 sm:text-lg md:text-xl",
-                !scrolled && !menuOpen && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]",
-              )}
-              line2ClassName={cn(
-                "mt-0.5 text-[0.6rem] font-light uppercase tracking-[0.35em] text-white/90 sm:text-[0.65rem] md:text-xs",
-                !scrolled && !menuOpen && "drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]",
+          <Link href="/" className="group flex shrink-0 items-center py-2">
+            <Image
+              src="/brand/logo-light.png"
+              alt="ON'DA 10 Turizm ve Seyahat Acentası"
+              width={334}
+              height={122}
+              priority
+              className={cn(
+                "h-10 w-auto transition-[opacity,filter] duration-300 group-hover:opacity-90 sm:h-12",
+                !scrolled && !menuOpen && "drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]",
               )}
             />
           </Link>
@@ -293,9 +294,13 @@ export default function Navbar({ navItems = mainNavItems }: NavbarProps) {
               className="fixed inset-y-0 right-0 z-[70] flex w-[min(320px,88vw)] flex-col border-l border-gold-500/15 bg-brand-navy-950 shadow-2xl md:hidden"
             >
               <div className="flex items-center justify-between border-b border-gold-500/10 px-5 py-4">
-                <span className="text-xs font-medium uppercase tracking-[0.3em] text-gold-400/80">
-                  Menü
-                </span>
+                <Image
+                  src="/brand/logo-light.png"
+                  alt="ON'DA 10 Turizm ve Seyahat Acentası"
+                  width={334}
+                  height={122}
+                  className="h-8 w-auto"
+                />
                 <button
                   type="button"
                   aria-label="Menüyü kapat"
