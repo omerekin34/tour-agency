@@ -54,6 +54,7 @@ function itemToRow(item: GalleryItem): GalleryRow {
 }
 
 async function ensureJsonStore() {
+  if (!isLocalJsonWritable()) return;
   await fs.mkdir(DATA_DIR, { recursive: true });
   try {
     await fs.access(DATA_FILE);
@@ -63,12 +64,17 @@ async function ensureJsonStore() {
 }
 
 async function getItemsFromJson(): Promise<GalleryItem[]> {
-  await ensureJsonStore();
-  const raw = await fs.readFile(DATA_FILE, "utf-8");
-  const list = JSON.parse(raw) as GalleryItem[];
-  return list.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  try {
+    await ensureJsonStore();
+    const raw = await fs.readFile(DATA_FILE, "utf-8");
+    const list = JSON.parse(raw) as GalleryItem[];
+    return list.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  } catch (error) {
+    console.warn("[gallery] JSON okunamadı, boş liste dönülüyor:", error);
+    return [];
+  }
 }
 
 async function writeItemsJson(list: GalleryItem[]) {

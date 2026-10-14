@@ -136,6 +136,7 @@ function managedToRow(tour: ManagedTour): TourRow {
 }
 
 async function ensureJsonStore() {
+  if (!isLocalJsonWritable()) return;
   await fs.mkdir(DATA_DIR, { recursive: true });
   try {
     await fs.access(DATA_FILE);
@@ -145,9 +146,14 @@ async function ensureJsonStore() {
 }
 
 async function readJsonTours(): Promise<ManagedTour[]> {
-  await ensureJsonStore();
-  const raw = await fs.readFile(DATA_FILE, "utf-8");
-  return JSON.parse(raw) as ManagedTour[];
+  try {
+    await ensureJsonStore();
+    const raw = await fs.readFile(DATA_FILE, "utf-8");
+    return JSON.parse(raw) as ManagedTour[];
+  } catch (error) {
+    console.warn("[tours-store] JSON okunamadı, boş liste dönülüyor:", error);
+    return [];
+  }
 }
 
 async function writeJsonTours(list: ManagedTour[]) {

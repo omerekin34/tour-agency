@@ -95,6 +95,7 @@ function regionToRow(region: TourRegion): RegionRow {
 }
 
 async function ensureJsonStore() {
+  if (!isLocalJsonWritable()) return;
   await fs.mkdir(DATA_DIR, { recursive: true });
   try {
     await fs.access(DATA_FILE);
@@ -104,9 +105,14 @@ async function ensureJsonStore() {
 }
 
 async function readJsonRegions(): Promise<TourRegion[]> {
-  await ensureJsonStore();
-  const raw = await fs.readFile(DATA_FILE, "utf-8");
-  return JSON.parse(raw) as TourRegion[];
+  try {
+    await ensureJsonStore();
+    const raw = await fs.readFile(DATA_FILE, "utf-8");
+    return JSON.parse(raw) as TourRegion[];
+  } catch (error) {
+    console.warn("[regions-store] JSON okunamadı, boş liste dönülüyor:", error);
+    return [];
+  }
 }
 
 async function writeJsonRegions(list: TourRegion[]) {

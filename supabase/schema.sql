@@ -113,10 +113,27 @@ create index if not exists gallery_items_tour_id_idx
 -- insert into storage.buckets (id, name, public) values ('media', 'media', true)
 -- on conflict (id) do update set public = true;
 
+-- Site içeriği (S.S.S. + yasal metinler) ve site ayarları:
+-- Bu tablolar olmadan admin İçerik/Ayarlar kayıtları Vercel'de kalıcı olmaz
+-- ve yasal sayfalar (KVKK, Gizlilik, Kullanım, Çerez) varsayılan metne düşer.
+create table if not exists site_content (
+  id text primary key,
+  payload jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists site_settings (
+  id text primary key,
+  payload jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
 alter table tour_applications enable row level security;
 alter table contact_messages enable row level security;
 alter table gallery_items enable row level security;
 alter table tours enable row level security;
 alter table regions enable row level security;
+alter table site_content enable row level security;
+alter table site_settings enable row level security;
 
 -- API service role key ile erişir; public erişim kapalı.

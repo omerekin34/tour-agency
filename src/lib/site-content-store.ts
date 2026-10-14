@@ -18,6 +18,7 @@ function isLocalJsonWritable() {
 }
 
 async function ensureJsonStore() {
+  if (!isLocalJsonWritable()) return;
   await fs.mkdir(DATA_DIR, { recursive: true });
   try {
     await fs.access(DATA_FILE);
@@ -31,9 +32,17 @@ async function ensureJsonStore() {
 }
 
 async function readJsonContent(): Promise<SiteContent> {
-  await ensureJsonStore();
-  const raw = await fs.readFile(DATA_FILE, "utf-8");
-  return mergeSiteContent(JSON.parse(raw) as Partial<SiteContent>);
+  try {
+    await ensureJsonStore();
+    const raw = await fs.readFile(DATA_FILE, "utf-8");
+    return mergeSiteContent(JSON.parse(raw) as Partial<SiteContent>);
+  } catch (error) {
+    console.warn(
+      "[site-content] JSON okunamadı, varsayılan içerik kullanılıyor:",
+      error,
+    );
+    return defaultSiteContent();
+  }
 }
 
 async function writeJsonContent(content: SiteContent) {

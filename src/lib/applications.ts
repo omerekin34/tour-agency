@@ -14,6 +14,10 @@ export {
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "applications.json");
 
+function isLocalJsonWritable() {
+  return !process.env.VERCEL;
+}
+
 type ApplicationRow = {
   id: string;
   created_at: string;
@@ -69,6 +73,7 @@ function applicationToRow(
 }
 
 async function ensureJsonStore() {
+  if (!isLocalJsonWritable()) return;
   await fs.mkdir(DATA_DIR, { recursive: true });
   try {
     await fs.access(DATA_FILE);
@@ -78,15 +83,21 @@ async function ensureJsonStore() {
 }
 
 async function getApplicationsFromJson(): Promise<TourApplication[]> {
-  await ensureJsonStore();
-  const raw = await fs.readFile(DATA_FILE, "utf-8");
-  const list = JSON.parse(raw) as TourApplication[];
-  return list.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  try {
+    await ensureJsonStore();
+    const raw = await fs.readFile(DATA_FILE, "utf-8");
+    const list = JSON.parse(raw) as TourApplication[];
+    return list.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  } catch (error) {
+    console.warn("[applications] JSON okunamadı, boş liste dönülüyor:", error);
+    return [];
+  }
 }
 
 async function writeApplicationsJson(list: TourApplication[]) {
+  if (!isLocalJsonWritable()) return;
   await ensureJsonStore();
   await fs.writeFile(DATA_FILE, JSON.stringify(list, null, 2), "utf-8");
 }
