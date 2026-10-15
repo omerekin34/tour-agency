@@ -8,15 +8,23 @@ type BannerVariant = "inline" | "toast";
 export function AdminSuccessBanner({
   message,
   variant = "toast",
+  onDismiss,
 }: {
   message: string;
   variant?: BannerVariant;
+  onDismiss?: () => void;
 }) {
   if (!message) return null;
 
   if (variant === "toast") {
     return (
-      <div className="fixed inset-0 z-[200] flex items-start justify-center bg-brand-navy-950/60 p-4 pt-20 backdrop-blur-sm">
+      <div
+        onClick={onDismiss}
+        className={cn(
+          "fixed inset-0 z-[200] flex items-start justify-center bg-brand-navy-950/60 p-4 pt-20 backdrop-blur-sm",
+          onDismiss && "cursor-pointer",
+        )}
+      >
         <div
           role="status"
           className={cn(

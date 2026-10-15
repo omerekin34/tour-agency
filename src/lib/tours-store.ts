@@ -73,6 +73,82 @@ function isMissingOptionalTourColumns(error: { code?: string; message?: string }
   );
 }
 
+const OPTIONAL_TOUR_COLUMNS = [
+  "departures",
+  "visa_types",
+  "meta_title",
+  "meta_description",
+] as const;
+
+function extractMissingColumn(error: {
+  code?: string;
+  message?: string;
+}): string | null {
+  const message = error.message ?? "";
+  const postgrest = message.match(/could not find the '(\w+)' column/i);
+  if (postgrest) return postgrest[1];
+  const postgres = message.match(
+    /column\s+(?:\w+\.)?"?(\w+)"?.*?does not exist/i,
+  );
+  if (postgres) return postgres[1];
+  return null;
+}
+
+async function upsertTourRows(rows: TourRow[]): Promise<{
+  error: { code?: string; message?: string } | null;
+  droppedColumns: string[];
+}> {
+  const supabase = getSupabaseAdmin();
+  const droppedColumns: string[] = [];
+
+  for (let attempt = 0; attempt <= OPTIONAL_TOUR_COLUMNS.length; attempt++) {
+    const { error } = await supabase
+      .from("tours")
+      .upsert(rows, { onConflict: "id" });
+
+    if (!error) break;
+
+    if (!isMissingOptionalTourColumns(error)) {
+      return { error, droppedColumns };
+    }
+
+    const missing = extractMissingColumn(error);
+    if (
+      missing &&
+      (OPTIONAL_TOUR_COLUMNS as readonly string[]).includes(missing) &&
+      !droppedColumns.includes(missing)
+    ) {
+      droppedColumns.push(missing);
+      for (const row of rows) {
+        delete (row as Record<string, unknown>)[missing];
+      }
+      continue;
+    }
+
+    for (const column of OPTIONAL_TOUR_COLUMNS) {
+      if (!droppedColumns.includes(column)) {
+        droppedColumns.push(column);
+        for (const row of rows) {
+          delete (row as Record<string, unknown>)[column];
+        }
+      }
+    }
+    const { error: fallbackError } = await supabase
+      .from("tours")
+      .upsert(rows, { onConflict: "id" });
+    if (fallbackError) return { error: fallbackError, droppedColumns };
+    break;
+  }
+
+  if (droppedColumns.length) {
+    console.warn(
+      `[tours-store] Supabase tours tablosunda eksik kolon(lar): ${droppedColumns.join(", ")}. supabase/schema.sql içindeki ALTER TABLE komutlarını çalıştırın; bu alanlar kaydedilmedi.`,
+    );
+  }
+
+  return { error: null, droppedColumns };
+}
+
 function rowToManaged(row: TourRow): ManagedTour {
   return {
     id: row.id,
@@ -198,13 +274,8 @@ async function seedIfEmpty(items: ManagedTour[]): Promise<ManagedTour[]> {
   }
 
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseAdmin();
     const rows = seed.map(managedToRow);
-    let { error } = await supabase.from("tours").upsert(rows, { onConflict: "id" });
-    if (error && isMissingOptionalTourColumns(error)) {
-      const legacyRows = rows.map(({ departures: _d, visa_types: _v, ...row }) => row);
-      ({ error } = await supabase.from("tours").upsert(legacyRows, { onConflict: "id" }));
-    }
+    const { error } = await upsertTourRows(rows);
     if (error && !isMissingToursTable(error)) {
       console.warn("[tours-store] Supabase seed hatası:", error.message);
     }
@@ -273,30 +344,7 @@ async function persistToursLocally(list: ManagedTour[]) {
 async function syncTourToSupabase(tour: ManagedTour) {
   if (!isSupabaseConfigured()) return;
 
-  const supabase = getSupabaseAdmin();
-  const fullRow = managedToRow(tour);
-
-  let { error } = await supabase
-    .from("tours")
-    .upsert(fullRow, { onConflict: "id" });
-
-  if (error && isMissingOptionalTourColumns(error)) {
-    const {
-      departures: _d,
-      visa_types: _v,
-      meta_title: _mt,
-      meta_description: _md,
-      ...legacyRow
-    } = fullRow;
-    ({ error } = await supabase
-      .from("tours")
-      .upsert(legacyRow, { onConflict: "id" }));
-    if (!error) {
-      console.warn(
-        "[tours-store] departures/visa_types kolonları yok; tur temel alanları kaydedildi.",
-      );
-    }
-  }
+  const { error } = await upsertTourRows([managedToRow(tour)]);
 
   if (error) {
     if (isMissingToursTable(error)) {

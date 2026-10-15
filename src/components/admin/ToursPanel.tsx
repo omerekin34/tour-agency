@@ -522,7 +522,11 @@ export default function ToursPanel() {
 
   return (
     <AdminShell onLogout={logout}>
-      <AdminSuccessBanner message={successMessage} variant="toast" />
+      <AdminSuccessBanner
+        message={successMessage}
+        variant="toast"
+        onDismiss={clearSuccess}
+      />
       <AdminErrorBanner message={error} variant="toast" />
 
       <div className="space-y-6">
@@ -972,7 +976,7 @@ export default function ToursPanel() {
                                 const next = checked
                                   ? prev.visaTypes.filter((item) => item !== option.value)
                                   : [...prev.visaTypes, option.value];
-                                return { ...prev, visaTypes: next };
+                                return { ...prev, visaTypes: next.length ? next : prev.visaTypes };
                               })
                             }
                             className="size-4 rounded border-navy-900/20 text-gold-500 focus:ring-gold-400/30"
@@ -983,7 +987,7 @@ export default function ToursPanel() {
                     })}
                   </div>
                   <p className="mt-2 text-xs text-white/45">
-                    Vize filtresinde ve tur detayında gösterilir.
+                    Vize filtresinde ve tur detayında gösterilir. En az bir seçenek seçili olmalıdır.
                   </p>
                 </Field>
 

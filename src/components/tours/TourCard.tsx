@@ -154,8 +154,8 @@ export default function TourCard({
               className={cn(
                 "line-clamp-3 text-xs font-medium leading-relaxed",
                 urgencyBadgeTone === "amber"
-                  ? "text-amber-950/90"
-                  : "text-navy-800/90",
+                  ? "text-amber-950"
+                  : "text-navy-900",
               )}
             >
               {urgencyHint}
@@ -165,21 +165,21 @@ export default function TourCard({
         {!urgencyHint && <div className="mb-4" />}
 
         <ul className="mb-5 flex flex-col gap-2.5">
-          <li className="flex items-center gap-2.5 text-sm text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-navy-800">
+          <li className="flex items-center gap-2.5 text-sm text-navy-800 transition-colors duration-300 ease-out group-hover:text-navy-900">
             <CalendarDays
               className="size-4 shrink-0 text-gold-500 transition-colors duration-300 ease-out group-hover:text-gold-400"
               strokeWidth={1.5}
             />
             <span>{duration}</span>
           </li>
-          <li className="flex items-center gap-2.5 text-sm text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-navy-800">
+          <li className="flex items-center gap-2.5 text-sm text-navy-800 transition-colors duration-300 ease-out group-hover:text-navy-900">
             <Plane
               className="size-4 shrink-0 text-gold-500 transition-colors duration-300 ease-out group-hover:text-gold-400"
               strokeWidth={1.5}
             />
             <span>{transport}</span>
           </li>
-          <li className="flex items-center gap-2.5 text-sm text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-navy-800">
+          <li className="flex items-center gap-2.5 text-sm text-navy-800 transition-colors duration-300 ease-out group-hover:text-navy-900">
             <Star
               className="size-4 shrink-0 text-gold-500 transition-colors duration-300 ease-out group-hover:text-gold-400"
               strokeWidth={1.5}
@@ -187,7 +187,7 @@ export default function TourCard({
             <span>{accommodation}</span>
           </li>
           {departure && (
-            <li className="flex items-center gap-2.5 text-sm text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-navy-800">
+            <li className="flex items-center gap-2.5 text-sm text-navy-800 transition-colors duration-300 ease-out group-hover:text-navy-900">
               <MapPin
                 className="size-4 shrink-0 text-gold-500 transition-colors duration-300 ease-out group-hover:text-gold-400"
                 strokeWidth={1.5}
@@ -196,7 +196,7 @@ export default function TourCard({
             </li>
           )}
           {visa && (
-            <li className="flex items-center gap-2.5 text-sm text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-navy-800">
+            <li className="flex items-center gap-2.5 text-sm text-navy-800 transition-colors duration-300 ease-out group-hover:text-navy-900">
               <FileText
                 className="size-4 shrink-0 text-gold-500 transition-colors duration-300 ease-out group-hover:text-gold-400"
                 strokeWidth={1.5}
@@ -208,7 +208,7 @@ export default function TourCard({
 
         <div className="mt-auto flex flex-col gap-3 border-t border-zinc-100 pt-4 transition-colors duration-300 ease-out group-hover:border-gold-400/25 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-wider text-navy-600/50 transition-colors duration-300 ease-out group-hover:text-gold-600/80">
+            <p className="text-xs uppercase tracking-wider text-navy-700/80 transition-colors duration-300 ease-out group-hover:text-gold-600/80">
               Kişi başı
             </p>
             <p className="text-xl font-semibold text-navy-900 transition-colors duration-300 ease-out group-hover:text-gold-600">

@@ -18,7 +18,7 @@ export default async function SiteLayout({
 }) {
   let navItems = mainNavItems;
   let footerRegionLinks: { href: string; label: string }[] = [];
-  let siteContact = resolveContactFromSettings(await getSiteSettings());
+  const siteContact = resolveContactFromSettings(await getSiteSettings());
 
   try {
     await ensureRegionsLoaded();
@@ -47,7 +47,8 @@ export default async function SiteLayout({
       <PageTransition>{children}</PageTransition>
       <Footer regionLinks={footerRegionLinks} siteContact={siteContact} />
       <WhatsAppSticky
-        href={`${siteContact.whatsapp}?text=${encodeURIComponent("Merhaba, tur hakkında bilgi almak istiyorum.")}`}
+        whatsappBase={siteContact.whatsapp}
+        companyName={siteContact.companyName}
         label="WhatsApp ile yazın"
       />
       <CookieConsent />
